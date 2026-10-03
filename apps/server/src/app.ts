@@ -4,6 +4,7 @@ import express, { json, urlencoded } from 'express';
 import helmet from 'helmet';
 
 import type { Env } from './config/env.js';
+import { announcementRouter } from './features/announcements/announcement.router.js';
 import { authRouter } from './features/auth/auth.router.js';
 import { dashboardRouter } from './features/dashboard/dashboard.router.js';
 import { expenseRouter } from './features/expenses/expense.router.js';
@@ -60,6 +61,7 @@ export function createApp(env: Env) {
 
   app.use('/api/health', healthRouter);
   app.use('/api/auth', authRouter);
+  app.use('/api/announcements', announcementRouter);
   app.use('/api/dashboard', dashboardRouter);
   app.use('/api/expenses', expenseRouter);
   app.use('/api/memberships', membershipRouter);

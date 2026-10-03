@@ -379,3 +379,58 @@ interface DashboardSummaryResponse {
 export async function apiGetDashboardSummary(): Promise<DashboardSummaryResponse> {
   return apiFetch<DashboardSummaryResponse>('/api/dashboard/summary');
 }
+
+export interface Announcement {
+  _id: string;
+  clubId: string;
+  authorId: string;
+  authorName: string;
+  title: string;
+  body: string;
+  isPinned: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface AnnouncementResponse {
+  status: 'ok';
+  announcement: Announcement;
+}
+
+interface AnnouncementListResponse {
+  status: 'ok';
+  announcements: Announcement[];
+}
+
+/** Lists announcements for the authenticated member's club. */
+export async function apiListAnnouncements(): Promise<AnnouncementListResponse> {
+  return apiFetch<AnnouncementListResponse>('/api/announcements');
+}
+
+/** Loads one announcement by identifier. */
+export async function apiGetAnnouncement(announcementId: string): Promise<AnnouncementResponse> {
+  return apiFetch<AnnouncementResponse>(`/api/announcements/${announcementId}`);
+}
+
+/** Publishes a new organizer announcement. */
+export async function apiCreateAnnouncement(input: {
+  title: string;
+  body: string;
+  isPinned: boolean;
+}): Promise<AnnouncementResponse> {
+  return apiFetch<AnnouncementResponse>('/api/announcements', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+/** Updates an announcement owned by the current organizer. */
+export async function apiUpdateAnnouncement(
+  announcementId: string,
+  input: { title: string; body: string; isPinned: boolean },
+): Promise<AnnouncementResponse> {
+  return apiFetch<AnnouncementResponse>(`/api/announcements/${announcementId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}

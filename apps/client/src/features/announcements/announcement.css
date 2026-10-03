@@ -1,0 +1,292 @@
+.announcement-page {
+  max-width: var(--content-width);
+  margin-inline: auto;
+}
+
+.announcement-heading,
+.announcement-card-topline,
+.announcement-detail-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.announcement-heading {
+  margin-bottom: var(--grid-gap);
+}
+
+.announcement-heading h1,
+.announcement-detail h1 {
+  font: 700 1.5rem var(--font-heading);
+  color: var(--slate-800);
+}
+
+.announcement-heading p,
+.announcement-card time,
+.announcement-byline,
+.announcement-detail-byline {
+  color: var(--slate-500);
+}
+
+.announcement-list {
+  display: grid;
+  gap: 16px;
+}
+
+.announcement-card,
+.announcement-detail,
+.announcement-composer,
+.announcement-empty,
+.announcement-error {
+  background: var(--surface);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.announcement-card {
+  position: relative;
+  transition: box-shadow 200ms ease;
+}
+
+.announcement-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.announcement-card--unread {
+  border-left: 3px solid var(--brand-500);
+}
+
+.announcement-card-link {
+  display: grid;
+  gap: 10px;
+  padding: var(--card-padding);
+  color: inherit;
+  text-decoration: none;
+}
+
+.announcement-card h2 {
+  font: 700 1.125rem var(--font-heading);
+  color: var(--slate-800);
+}
+
+.announcement-card time,
+.announcement-byline {
+  font-size: 0.8125rem;
+}
+
+.announcement-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--slate-700);
+  white-space: pre-wrap;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.announcement-badges {
+  display: flex;
+  gap: 6px;
+  min-height: 20px;
+}
+
+.announcement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.announcement-badge--pinned {
+  background: var(--brand-50);
+  color: var(--brand-700);
+}
+
+.announcement-badge--new {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.announcement-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-btn-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.announcement-button:hover:not(:disabled) {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.announcement-button:disabled {
+  opacity: 0.6;
+}
+
+.announcement-button--primary {
+  background: var(--brand-600);
+  color: var(--surface);
+}
+
+.announcement-button--primary:hover:not(:disabled),
+.announcement-button--primary:active:not(:disabled) {
+  background: var(--brand-700);
+}
+
+.announcement-button--secondary {
+  background: var(--surface);
+  border-color: var(--slate-200);
+  color: var(--brand-700);
+}
+
+.announcement-empty,
+.announcement-error,
+.announcement-loading {
+  min-height: 210px;
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--slate-500);
+  text-align: center;
+}
+
+.announcement-empty svg {
+  color: var(--brand-700);
+}
+
+.announcement-empty h2 {
+  font: 700 1.125rem var(--font-heading);
+  color: var(--slate-800);
+}
+
+.announcement-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  color: var(--brand-700);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.announcement-detail,
+.announcement-composer {
+  padding: var(--card-padding);
+}
+
+.announcement-detail h1 {
+  margin-top: 16px;
+}
+
+.announcement-detail-byline {
+  margin-top: 6px;
+}
+
+.announcement-body {
+  margin-top: var(--grid-gap);
+  padding-top: var(--grid-gap);
+  border-top: 1px solid var(--slate-200);
+  color: var(--slate-700);
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.announcement-composer {
+  display: grid;
+  gap: 18px;
+}
+
+.announcement-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--slate-700);
+  font-weight: 600;
+}
+
+.announcement-field input,
+.announcement-field textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface);
+  color: var(--slate-700);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  outline: none;
+  resize: vertical;
+}
+
+.announcement-field input {
+  min-height: 44px;
+}
+
+.announcement-field input:focus,
+.announcement-field textarea:focus {
+  border-color: var(--brand-500);
+  box-shadow: var(--focus-ring);
+}
+
+.announcement-pin-control {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.announcement-pin-control input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--brand-600);
+}
+
+.announcement-pin-control span {
+  display: grid;
+  color: var(--slate-500);
+}
+
+.announcement-pin-control strong {
+  color: var(--slate-700);
+}
+
+.announcement-alert {
+  padding: 12px 16px;
+  border-radius: var(--radius-dropdown);
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.announcement-composer > .announcement-button {
+  justify-self: start;
+}
+
+@media (max-width: 620px) {
+  .announcement-heading,
+  .announcement-card-topline {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .announcement-heading .announcement-button {
+    width: 100%;
+  }
+}

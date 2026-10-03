@@ -43,7 +43,7 @@ const NAV_ITEMS: NavItem[] = [
     minRole: 'officer',
   },
   { label: 'Events', to: '/events', icon: <Calendar size={18} />, planned: true },
-  { label: 'Announcements', to: '/announcements', icon: <Megaphone size={18} />, planned: true },
+  { label: 'Announcements', to: '/announcements', icon: <Megaphone size={18} /> },
   { label: 'Merchandise', to: '/merchandise', icon: <ShoppingBag size={18} />, planned: true },
   { label: 'Volunteer Tasks', to: '/tasks', icon: <ClipboardList size={18} />, planned: true },
   { label: 'Submit Expense', to: '/expenses', icon: <Receipt size={18} />, minRole: 'officer' },
@@ -91,7 +91,7 @@ function NavigationItem({
             `sidebar-nav-item ${isActive ? 'sidebar-nav-item--active' : ''}`
           }
           onClick={onNavClick}
-          end
+          end={item.to !== '/announcements'}
         >
           {content}
         </NavLink>

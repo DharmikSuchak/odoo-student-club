@@ -29,9 +29,14 @@ function hasRequiredRole(userRole: AuthUser['role'], requiredRole: AuthUser['rol
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: AuthUser['role'];
+  allowedRoles?: AuthUser['role'][];
 }
 
-export function ProtectedRoute({ children, requiredRole = 'member' }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requiredRole = 'member',
+  allowedRoles,
+}: ProtectedRouteProps) {
   const { user, isLoading, isInitialized } = useAuth();
 
   if (isLoading || !isInitialized) {
@@ -47,7 +52,11 @@ export function ProtectedRoute({ children, requiredRole = 'member' }: ProtectedR
     return <Navigate to="/login" replace />;
   }
 
-  if (!hasRequiredRole(user.role, requiredRole)) {
+  if (allowedRoles !== undefined && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (allowedRoles === undefined && !hasRequiredRole(user.role, requiredRole)) {
     return <Navigate to="/dashboard" replace />;
   }
 

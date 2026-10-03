@@ -7,6 +7,11 @@
  */
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import {
+  AnnouncementComposerPage,
+  AnnouncementDetailPage,
+  AnnouncementListPage,
+} from './features/announcements/AnnouncementPages';
 import { AuthProvider } from './features/auth/AuthContext';
 import { LoginPage } from './features/auth/LoginPage';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
@@ -35,6 +40,50 @@ export default function App() {
               <ProtectedRoute>
                 <AppShell>
                   <DashboardPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/announcements"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <AnnouncementListPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/announcements/new"
+            element={
+              <ProtectedRoute allowedRoles={['officer', 'admin']}>
+                <AppShell>
+                  <AnnouncementComposerPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/announcements/:announcementId/edit"
+            element={
+              <ProtectedRoute allowedRoles={['officer', 'admin']}>
+                <AppShell>
+                  <AnnouncementComposerPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/announcements/:announcementId"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <AnnouncementDetailPage />
                 </AppShell>
               </ProtectedRoute>
             }

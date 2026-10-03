@@ -1,6 +1,6 @@
 # Data Model — Student Club Platform
 
-> **Status: Confirmed through Phase 7.** Zod schemas in
+> **Status: Confirmed through Phase 7 and announcements.** Zod schemas in
 > `apps/server/src/db/schemas/` are the single source of truth.
 
 ---
@@ -15,6 +15,7 @@ constraints; referential integrity is enforced by the application layer
 users ──────────< memberships
   │
   ├──────────< eventTickets       >─────── events
+  ├──────────< announcements
   ├──────────< orders              (merchandise)
   ├──────────< volunteerAssignments >───── tasks
   └──────────< expenses            (treasurer ledger)
@@ -35,7 +36,7 @@ clubs ──────────< announcements
 | --- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Q1  | Single-club vs. multi-club from the start?                       | Single doc now (`clubs` collection added); `clubId` scoping is present on all club-owned collections.                                           |
 | Q2  | Waitlist implementation — document or virtual field?             | Separate `eventTickets` with `status: 'waitlisted'`. Capacity is enforced via an atomic count on `status: 'confirmed'`.                         |
-| Q3  | Announcement body — Markdown or rich text (Tiptap)?              | Markdown is used for `body`.                                                                                                                    |
+| Q3  | Announcement body — Markdown or rich text (Tiptap)?              | Plain text is used for the MVP and rendered as escaped React text. Rich text remains out of scope.                                              |
 | Q4  | Role model — per-user global or per-club membership?             | Global role on `users` (`member`, `officer`, `treasurer`, `admin`).                                                                             |
 | Q5  | Payment provider — Stripe, Razorpay, or mock?                    | Enum `provider` includes `'mock_online'` and `'manual'`, with idempotency tracking via `providerEventId`.                                       |
 | Q6  | Soft-delete strategy — `isActive` flag or `deletedAt` timestamp? | `deletedAt` timestamp for auditable soft-delete on users.                                                                                       |
@@ -75,6 +76,17 @@ _Note: For exact fields, required types, and validations, see the Zod schemas in
 - **Items** support `variants` for size-based stock.
 - **Orders** contain a snapshot of `unitPriceCents`.
 - Same strict payment guards as memberships.
+
+### `announcements`
+
+- Club posts store a title, plain-text body, `authorId`, `createdAt`, and
+  `updatedAt`.
+- `isPinned` keeps important posts ahead of newer unpinned posts; each group is
+  sorted newest first.
+- Creating and editing require the `officer` or `admin` role, and edits also
+  require the caller to match the original `authorId`.
+- The unread hint is per-browser UI state keyed by the current user. It is not a
+  permanent club record and does not add a second server-side source of truth.
 
 ### `payments`
 
@@ -135,11 +147,13 @@ Indexes are managed by `apps/server/src/db/migrate.ts`.
 - [x] `payments.status + relatedEntity.type + currency`
 - [x] `expenses.clubId + status + createdAt`
 - [x] `expenses.clubId + submittedBy + createdAt`
+- [x] `announcements.clubId + isPinned + createdAt`
+- [x] `announcements.clubId + authorId`
 - [x] `orders.userId + status`
 - [x] `tasks.clubId + status`
 - [x] `volunteerAssignments.taskId + userId` — unique
 
 ---
 
-_Last updated: Phase 7 — expenses, computed treasurer reporting, and live
+_Last updated: Announcements, expenses, computed treasurer reporting, and live
 dashboard summaries implemented._

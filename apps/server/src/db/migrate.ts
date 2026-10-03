@@ -54,6 +54,10 @@ async function migrate() {
   await expenses.createIndex({ clubId: 1, status: 1, createdAt: -1 });
   await expenses.createIndex({ clubId: 1, submittedBy: 1, createdAt: -1 });
 
+  const announcements = db.collection('announcements');
+  await announcements.createIndex({ clubId: 1, isPinned: -1, createdAt: -1 });
+  await announcements.createIndex({ clubId: 1, authorId: 1 });
+
   const orders = db.collection('orders');
   await orders.createIndex({ userId: 1, status: 1 });
 

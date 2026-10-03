@@ -46,7 +46,7 @@ a solo hackathon project.
 | 1     | `(done)`    | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
 | 2     | `(done)`    | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
 | 3     | `(planned)` | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
-| 4     | `(planned)` | **Announcements** — publish, audience filter (all / members / officers)                                               |
+| 4     | `(done)`    | **Announcements** — organizer publishing/editing, pinned ordering, detail view, and per-browser unread hints          |
 | 5     | `(planned)` | **Merchandise** — catalog, order flow                                                                                 |
 | 6     | `(planned)` | **Volunteer tasks** — task board, volunteer assignments, completion tracking                                          |
 | 7     | (done)      | **Expenses and treasurer reporting** — submission, review, reimbursement, currency-safe computed report               |
@@ -155,20 +155,24 @@ npm run dev -w apps/client # Vite on :5173
 
 ## Current Status
 
-Authentication, memberships, expense submission, treasurer review/reimbursement,
-and the treasurer report are implemented end to end. Finance totals are computed
-from payment and expense records, grouped by currency, and label settled versus
-pending values. All finance endpoints enforce roles on the server; the UI also
-provides role-aware navigation and useful empty states.
+Authentication, memberships, announcements, expense submission, treasurer
+review/reimbursement, and the treasurer report are implemented end to end.
+Finance totals are computed from payment and expense records, grouped by
+currency, and label settled versus pending values. All finance endpoints enforce
+roles on the server; the UI also provides role-aware navigation and useful empty
+states.
 
 The dashboard now reads current active memberships, published future events,
 open volunteer tasks, and pending dues from an authenticated summary endpoint.
 The application uses the flat `#0887C9` brand palette and `#F4F8FA` page
 background.
 
-Announcements, events, merchandise, and volunteer tasks remain planned. The
-report already recognizes event-ticket payment records, so ticket revenue will
-appear when the event purchase flow is implemented.
+Members can read pinned-first announcements, open detail views, and see what is
+new since their prior browser visit. Officers and admins can publish posts and
+edit only posts they authored. Email delivery is intentionally not built yet and
+is the next step for this feature. Events, merchandise, and volunteer task flows
+remain planned. The report already recognizes event-ticket payment records, so
+ticket revenue will appear when the event purchase flow is implemented.
 
 | Item                                            | Status                                                                     |
 | ----------------------------------------------- | -------------------------------------------------------------------------- |
@@ -190,17 +194,19 @@ appear when the event purchase flow is implemented.
 | MongoDB single-node replica set (rs0)           | ✅ Done                                                                    |
 | Local lint, typecheck, tests, and build scripts | ✅ Available                                                               |
 | Typecheck                                       | ✅ Client and server pass                                                  |
-| Existing tests                                  | Client: 1 passed; server: 41 passed, 10 pre-existing membership tests fail |
+| Existing tests                                  | Client: 1 passed; server: 44 passed, 10 pre-existing membership tests fail |
 | Production build                                | ✅ Client and server pass                                                  |
 | Authentication (Phase 1 features)               | Implemented                                                                |
 | Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                          |
 | Treasurer report                                | ✅ Computed by currency from payments and approved expenses                |
 | Live dashboard statistics                       | ✅ Computed from membership, event, and task records                       |
+| Club announcements                              | ✅ Pinned-first list, detail, organizer composer, and unread hints         |
 
 ---
 
 Local verification on 2026-10-03: lint, type checks, and both production builds
-pass. The finance and dashboard-focused tests pass; the full server suite still
+pass. The announcement, finance, and dashboard-focused tests pass; a
+Docker-backed announcement smoke flow also passes. The full server suite still
 has 10 pre-existing membership-test failures caused by its in-process
 role-promotion fixture.
 
