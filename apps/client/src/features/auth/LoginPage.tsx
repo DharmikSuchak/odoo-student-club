@@ -8,12 +8,13 @@
  * - Brand Sky inputs with focus ring
  * - Accessible focus states on all interactive elements
  */
+import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useState, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+
+import type { ApiError } from '../../lib/api-client';
 
 import { useAuth } from './AuthContext';
-import type { ApiError } from '../../lib/api-client';
 import './auth.css';
 
 export function LoginPage() {
@@ -165,7 +166,7 @@ export function LoginPage() {
 
           {/* Footer link */}
           <p className="auth-footer-text">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link to="/register" className="auth-link">
               Create one
             </Link>

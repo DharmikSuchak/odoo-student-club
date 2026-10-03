@@ -4,9 +4,10 @@ import express, { json, urlencoded } from 'express';
 import helmet from 'helmet';
 
 import type { Env } from './config/env.js';
+import { authRouter } from './features/auth/auth.router.js';
+import { membershipRouter } from './features/memberships/membership.router.js';
 import { globalErrorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/request-logger.js';
-import { authRouter } from './features/auth/auth.router.js';
 import { healthRouter } from './routes/health.js';
 
 /**
@@ -61,6 +62,7 @@ export function createApp(env: Env) {
   // ── Routes ─────────────────────────────────────────────────────────────────
   app.use('/api/health', healthRouter);
   app.use('/api/auth', authRouter);
+  app.use('/api/memberships', membershipRouter);
 
   // 404 handler for unknown routes
   app.use((_req, res) => {

@@ -7,16 +7,17 @@
  * AGENTS.md §11: role never accepted from the request.
  * AGENTS.md §6: cookie secret and JWT secret come from env vars.
  */
-import { Router, type CookieOptions } from 'express';
-import type { Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
+import type { CookieOptions, NextFunction, Request, Response } from 'express';
 
 import { env } from '../../config/env.js';
 import { getDb } from '../../db/connection.js';
-import { registerBodySchema, loginBodySchema } from '../../db/schemas/user.schema.js';
-import { AppError } from '../../middleware/error-handler.js';
+import { loginBodySchema, registerBodySchema } from '../../db/schemas/user.schema.js';
 import { requireAuth, signJwt } from '../../middleware/auth.js';
+import { AppError } from '../../middleware/error-handler.js';
 import { createRateLimiter } from '../../redis/rate-limiter.js';
-import { registerUser, validateCredentials, findSafeUserById } from './auth.service.js';
+
+import { findSafeUserById, registerUser, validateCredentials } from './auth.service.js';
 
 export const authRouter = Router();
 
@@ -70,10 +71,8 @@ function cookieOptions(maxAgeMs: number): CookieOptions {
  * Authorization: none.
  * Rate limit: 10 req / 60 s per IP.
  */
-authRouter.post(
-  '/register',
-  registerRateLimiter,
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+authRouter.post('/register', registerRateLimiter, (req: Request, res: Response, next: NextFunction) => {
+  void (async () => {
     const parsed = registerBodySchema.safeParse(req.body);
     if (!parsed.success) {
       next(new AppError(JSON.stringify({ fields: parsed.error.flatten().fieldErrors }), 422));
@@ -107,8 +106,8 @@ authRouter.post(
     } catch (err) {
       next(err);
     }
-  },
-);
+  })();
+});
 
 // ── POST /api/auth/login ─────────────────────────────────────────────────────
 
@@ -119,10 +118,8 @@ authRouter.post(
  * Authorization: none.
  * Rate limit: 10 req / 60 s per IP.
  */
-authRouter.post(
-  '/login',
-  loginRateLimiter,
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+authRouter.post('/login', loginRateLimiter, (req: Request, res: Response, next: NextFunction) => {
+  void (async () => {
     const parsed = loginBodySchema.safeParse(req.body);
     if (!parsed.success) {
       next(new AppError(JSON.stringify({ fields: parsed.error.flatten().fieldErrors }), 422));
@@ -155,8 +152,8 @@ authRouter.post(
     } catch (err) {
       next(err);
     }
-  },
-);
+  })();
+});
 
 // ── POST /api/auth/logout ────────────────────────────────────────────────────
 
@@ -184,14 +181,13 @@ authRouter.post('/logout', (_req: Request, res: Response): void => {
  * Authentication: required (JWT cookie).
  * Authorization: any authenticated role.
  */
-authRouter.get(
-  '/me',
-  requireAuth,
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+authRouter.get('/me', requireAuth, (req: Request, res: Response, next: NextFunction) => {
+  void (async () => {
     try {
       const users = getDb().collection('users');
       // req.user is guaranteed non-null here because requireAuth ran — confirmed above.
-      const authUser = req.user!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const authUser = req.user!;
       const user = await findSafeUserById(users, authUser.userId);
 
       if (user === null) {
@@ -212,5 +208,5 @@ authRouter.get(
     } catch (err) {
       next(err);
     }
-  },
-);
+  })();
+});

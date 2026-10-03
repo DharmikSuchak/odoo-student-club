@@ -8,8 +8,6 @@
  * - Scrollable main content area
  * - Role badge in user card
  */
-import { useState, useEffect, useCallback } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -18,11 +16,14 @@ import {
   ShoppingBag,
   ClipboardList,
   Receipt,
+  CreditCard,
   Menu,
   X,
   LogOut,
   ChevronRight,
 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/AuthContext';
 import './shell.css';
@@ -36,7 +37,9 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={18} /> },
+  { label: 'My Membership', to: '/membership', icon: <CreditCard size={18} /> },
   { label: 'Members', to: '/members', icon: <Users size={18} />, minRole: 'officer' },
+  { label: 'Manage Memberships', to: '/manage/memberships', icon: <Receipt size={18} />, minRole: 'officer' },
   { label: 'Events', to: '/events', icon: <Calendar size={18} /> },
   { label: 'Announcements', to: '/announcements', icon: <Megaphone size={18} /> },
   { label: 'Merchandise', to: '/merchandise', icon: <ShoppingBag size={18} /> },
@@ -93,7 +96,7 @@ function SidebarNav({ onNavClick }: SidebarNavProps) {
 
       <div className="sidebar-section-label">Navigation</div>
 
-      <ul className="sidebar-menu" role="list">
+      <ul className="sidebar-menu">
         {visibleItems.map((item) => (
           <li key={item.to}>
             <NavLink
@@ -192,7 +195,6 @@ export function AppShell({ children }: AppShellProps) {
       <aside
         className={`shell-drawer ${drawerOpen ? 'shell-drawer--open' : ''}`}
         aria-label="Mobile navigation"
-        aria-modal={drawerOpen}
       >
         <SidebarNav onNavClick={closeDrawer} />
       </aside>

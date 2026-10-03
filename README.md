@@ -43,8 +43,8 @@ a solo hackathon project.
 
 | Phase | Status          | Features                                                                                                              |
 | ----- | --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| 1     | `(in progress)` | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
-| 2     | `(planned)`     | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
+| 1     | `(done)`        | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
+| 2     | `(done)`        | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
 | 3     | `(planned)`     | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
 | 4     | `(planned)`     | **Announcements** — publish, audience filter (all / members / officers)                                               |
 | 5     | `(planned)`     | **Merchandise** — catalog, order flow                                                                                 |

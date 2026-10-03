@@ -5,7 +5,8 @@
  * All auth state changes (login, register, logout) go through this context
  * so any component can react to auth state without prop-drilling.
  */
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import type React from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 import {
   apiGetCurrentUser,

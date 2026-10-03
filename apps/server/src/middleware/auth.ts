@@ -1,9 +1,11 @@
-import type { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import type { NextFunction, Request, Response } from 'express';
+import { sign as jwtSign, verify as jwtVerify } from 'jsonwebtoken';
+
 
 import { env } from '../config/env.js';
-import { AppError } from './error-handler.js';
 import type { UserRole } from '../db/schemas/user.schema.js';
+
+import { AppError } from './error-handler.js';
 
 /**
  * Shape attached to `req.user` after successful authentication.
@@ -52,8 +54,10 @@ export function signJwt(user: AuthUser): string {
     displayName: user.displayName,
     role: user.role,
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN as any });
+  // @ts-expect-error - exactOptionalPropertyTypes conflict with string | number | undefined
+  return jwtSign(payload, env.JWT_SECRET, {
+    expiresIn: env.JWT_EXPIRES_IN,
+  });
 }
 
 /**
@@ -76,7 +80,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
 
   let payload: JwtPayload;
   try {
-    payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    payload = jwtVerify(token, env.JWT_SECRET) as JwtPayload;
   } catch {
     next(new AppError('Invalid or expired token.', 401));
     return;

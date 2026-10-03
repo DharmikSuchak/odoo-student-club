@@ -17,7 +17,7 @@
  */
 import 'dotenv/config';
 
-import { connectDb, getDb, closeDb } from '../db/connection.js';
+import { connectDb, closeDb, getDb } from '../db/connection.js';
 import { registerUser, promoteToAdmin } from '../features/auth/auth.service.js';
 
 const MONGO_URI =
@@ -39,26 +39,30 @@ if (ADMIN_PASSWORD.length < 8) {
   process.exit(1);
 }
 
+// Guaranteed non-null by the guards above
+const adminEmail = ADMIN_EMAIL;
+const adminPassword = ADMIN_PASSWORD;
+
 async function run(): Promise<void> {
   await connectDb(MONGO_URI);
   const users = getDb().collection('users');
 
-  const existing = await users.findOne({ email: ADMIN_EMAIL!.toLowerCase() });
+  const existing = await users.findOne({ email: adminEmail.toLowerCase() });
 
   if (existing === null) {
-    console.info(`Creating admin account for ${ADMIN_EMAIL!}…`);
+    console.info(`Creating admin account for ${adminEmail}…`);
     await registerUser(users, {
-      email: ADMIN_EMAIL!,
-      password: ADMIN_PASSWORD!,
+      email: adminEmail,
+      password: adminPassword,
       displayName: ADMIN_NAME,
     });
     console.info('  ✅ User created.');
   } else {
-    console.info(`Account ${ADMIN_EMAIL!} already exists — skipping create.`);
+    console.info(`Account ${adminEmail} already exists — skipping create.`);
   }
 
-  await promoteToAdmin(users, ADMIN_EMAIL!);
-  console.info(`  ✅ Role set to admin for ${ADMIN_EMAIL!}.`);
+  await promoteToAdmin(users, adminEmail);
+  console.info(`  ✅ Role set to admin for ${adminEmail}.`);
 }
 
 run()

@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { userDocumentSchema, safeUserSchema } from '../schemas/user.schema.js';
+import { describe, expect, it } from 'vitest';
+
 import { eventDocumentSchema } from '../schemas/event.schema.js';
 import { merchandiseItemDocumentSchema } from '../schemas/merchandise.schema.js';
+import { safeUserSchema, userDocumentSchema } from '../schemas/user.schema.js';
 
 describe('Schema Validations', () => {
   const mockObjectId = '507f1f77bcf86cd799439011';

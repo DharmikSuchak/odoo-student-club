@@ -1,7 +1,8 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+
+import { AppError } from '../middleware/error-handler.js';
 
 import { getRedis } from './client.js';
-import { AppError } from '../middleware/error-handler.js';
 
 interface RateLimiterOptions {
   /** Maximum number of requests allowed within the window. */
@@ -22,16 +23,17 @@ interface RateLimiterOptions {
 export function createRateLimiter(options: RateLimiterOptions) {
   const { maxRequests, windowSeconds, keyPrefix } = options;
 
-  return async function rateLimiterMiddleware(
+  return function rateLimiterMiddleware(
     req: Request,
     _res: Response,
     next: NextFunction,
-  ): Promise<void> {
-    const ip = req.ip ?? 'unknown';
-    const key = `${keyPrefix}:${ip}`;
+  ): void {
+    void (async () => {
+      const ip = req.ip ?? 'unknown';
+      const key = `${keyPrefix}:${ip}`;
 
-    try {
-      const redis = getRedis();
+      try {
+        const redis = getRedis();
       const count = await redis.incr(key);
 
       // Set TTL only on the first request in the window.
@@ -53,8 +55,9 @@ export function createRateLimiter(options: RateLimiterOptions) {
       }
       // Redis connectivity errors — fail open to avoid blocking all users
       // during a Redis outage. Log the issue but allow the request.
-      console.error('[rate-limiter] Redis error, failing open:', err);
-      next();
-    }
+        console.error('[rate-limiter] Redis error, failing open:', err);
+        next();
+      }
+    })();
   };
 }

@@ -1,6 +1,5 @@
-import { MongoClient } from 'mongodb';
-
 import type { Db } from 'mongodb';
+import { MongoClient } from 'mongodb';
 
 let client: MongoClient | null = null;
 let database: Db | null = null;

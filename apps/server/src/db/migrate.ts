@@ -21,10 +21,15 @@ async function migrate() {
   await users.createIndex({ email: 1 }, { unique: true });
   await users.createIndex({ role: 1 });
 
-  // 2. memberships
+  // 2. membershipTiers
+  const membershipTiers = db.collection('membershipTiers');
+  await membershipTiers.createIndex({ clubId: 1, isActive: 1 });
+
+  // 3. memberships
   const memberships = db.collection('memberships');
   await memberships.createIndex({ userId: 1, status: 1 });
   await memberships.createIndex({ tierId: 1 });
+  await memberships.createIndex({ clubId: 1 });
   await memberships.createIndex({ endDate: 1 }); // for expiry queries
 
   // 3. events

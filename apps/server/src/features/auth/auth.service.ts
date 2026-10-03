@@ -8,10 +8,9 @@
  * AGENTS.md §10: bcrypt rounds ≥ 12.
  * AGENTS.md §11: role is never read from the request.
  */
-import bcrypt from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { ObjectId, type Collection } from 'mongodb';
 
-import { AppError } from '../../middleware/error-handler.js';
 import {
   userDocumentSchema,
   type UserDocument,
@@ -19,6 +18,7 @@ import {
   type LoginBody,
   USER_ROLES,
 } from '../../db/schemas/user.schema.js';
+import { AppError } from '../../middleware/error-handler.js';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -55,7 +55,7 @@ export async function registerUser(
     throw new AppError('An account with this email address already exists.', 409);
   }
 
-  const passwordHash = await bcrypt.hash(body.password, BCRYPT_ROUNDS);
+  const passwordHash = await hash(body.password, BCRYPT_ROUNDS);
 
   const now = new Date();
   const docToParse = {
@@ -102,7 +102,7 @@ export async function validateCredentials(
   // timing attacks that reveal which emails exist.
   const dummyHash = '$2b$12$invaliddummyhashfortimingneutralityXXXXXXXXXXXXXXXXXXXX';
   const hashToCompare = user?.passwordHash ?? dummyHash;
-  const isValid = await bcrypt.compare(body.password, hashToCompare);
+  const isValid = await compare(body.password, hashToCompare);
 
   if (user === null || !isValid) {
     throw new AppError('Invalid email or password.', 401);

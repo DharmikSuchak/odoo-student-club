@@ -14,7 +14,7 @@
  */
 import type { Express } from 'express';
 import request from 'supertest';
-import { beforeAll, beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Hoisted fakes (must be defined before vi.mock calls) ─────────────────────
 
@@ -50,20 +50,17 @@ const { fakeRedisStore, fakeCollection, resetFakes } = vi.hoisted(() => {
         if ('email' in filter && user.email !== (filter['email'] as string)) match = false;
 
         if ('_id' in filter) {
-          const idFilter = filter['_id'] as Record<string, unknown> | undefined;
-          if (idFilter && typeof idFilter === 'object' && !('$exists' in idFilter)) {
-            const idStr =
-              typeof (idFilter as { toString(): string }).toString === 'function'
-                ? (idFilter as { toString(): string }).toString()
-                : String(idFilter);
+          const idFilter = filter['_id'] as { toString(): string } | undefined;
+          if (idFilter !== undefined && typeof idFilter === 'object' && !('$exists' in idFilter)) {
+            const idStr = idFilter.toString();
             if (user._id.toString() !== idStr) match = false;
           }
         }
 
         if ('deletedAt' in filter) {
           const delFilter = filter['deletedAt'] as Record<string, boolean> | undefined;
-          if (delFilter && '$exists' in delFilter) {
-            const shouldExist = delFilter['$exists'] as boolean;
+          if (delFilter !== undefined && '$exists' in delFilter) {
+            const shouldExist = delFilter['$exists'];
             if (!shouldExist && user.deletedAt !== undefined) match = false;
             if (shouldExist && user.deletedAt === undefined) match = false;
           }
@@ -88,7 +85,7 @@ const { fakeRedisStore, fakeCollection, resetFakes } = vi.hoisted(() => {
     insertOne: (doc: FakeUserDoc) => {
       const hexId = makeId();
       const id = { toString: () => hexId, toHexString: () => hexId };
-      const stored = { ...doc, _id: id } as FakeUserDoc;
+      const stored = { ...doc, _id: id };
       fakeUsers.set(hexId, stored);
       return Promise.resolve({ insertedId: id });
     },
@@ -120,19 +117,17 @@ const { fakeRedisStore, fakeCollection, resetFakes } = vi.hoisted(() => {
 
 vi.mock('../../redis/client.js', () => ({
   getRedis: () => ({
-    incr: async (key: string) => {
+    incr: (key: string) => {
       const entry = fakeRedisStore.get(key);
       if (entry === undefined || Date.now() > entry.expiresAt) {
         fakeRedisStore.set(key, { count: 1, expiresAt: Date.now() + 60_000 });
-        return 1;
+        return Promise.resolve(1);
       }
       entry.count++;
-      return entry.count;
+      return Promise.resolve(entry.count);
     },
-    expire: async (_key: string, _ttl: number) => {
-      /* no-op */
-    },
-    ttl: async (_key: string) => 60,
+    expire: (_key: string, _ttl: number) => Promise.resolve(true),
+    ttl: (_key: string) => Promise.resolve(60),
   }),
 }));
 
@@ -142,7 +137,7 @@ vi.mock('../../db/connection.js', () => ({
   }),
 }));
 
-vi.mock('mongodb', async () => {
+vi.mock('mongodb', () => {
   return {
     ObjectId: class {
       private readonly hexId: string;
@@ -184,12 +179,16 @@ afterEach(() => {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+interface RegisterBody {
+  email?: string;
+  password?: string;
+  displayName?: string;
+}
+
 /**
  * Registers a test user and returns the response.
  */
-async function registerTestUser(
-  overrides: Partial<{ email: string; password: string; displayName: string }> = {},
-) {
+async function registerTestUser(overrides: Partial<RegisterBody> = {}) {
   const body = {
     email: overrides.email ?? 'alice@example.com',
     password: overrides.password ?? 'Password123!',
@@ -208,16 +207,28 @@ function extractCookie(res: request.Response): string {
   return cookies.find((c) => c.startsWith('access_token=')) ?? '';
 }
 
+interface ResponseBody {
+  status: string;
+  user?: {
+    email: string;
+    role: string;
+    passwordHash?: string;
+    passwordResetTokenHash?: string;
+  };
+  message?: string;
+}
+
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('POST /api/auth/register', () => {
   it('creates a new user and returns 201 with safe profile', async () => {
     const res = await registerTestUser();
     expect(res.status).toBe(201);
-    expect(res.body.status).toBe('ok');
-    expect(res.body.user.email).toBe('alice@example.com');
-    expect(res.body.user.role).toBe('member');
-    expect(res.body.user).not.toHaveProperty('passwordHash');
+    const body = res.body as ResponseBody;
+    expect(body.status).toBe('ok');
+    expect(body.user?.email).toBe('alice@example.com');
+    expect(body.user?.role).toBe('member');
+    expect(body.user).not.toHaveProperty('passwordHash');
   });
 
   it('sets an HTTP-only access_token cookie', async () => {
@@ -235,14 +246,16 @@ describe('POST /api/auth/register', () => {
       role: 'admin', // privilege escalation attempt
     });
     expect(res.status).toBe(201);
-    expect(res.body.user.role).toBe('member');
+    const body = res.body as ResponseBody;
+    expect(body.user?.role).toBe('member');
   });
 
   it('returns 409 for duplicate email', async () => {
     await registerTestUser();
     const res = await registerTestUser(); // same email
     expect(res.status).toBe(409);
-    expect(res.body.status).toBe('error');
+    const body = res.body as ResponseBody;
+    expect(body.status).toBe('error');
   });
 
   it('returns 422 for missing required fields', async () => {
@@ -271,7 +284,8 @@ describe('POST /api/auth/login', () => {
       password: 'Password123!',
     });
     expect(res.status).toBe(200);
-    expect(res.body.user.email).toBe('alice@example.com');
+    const body = res.body as ResponseBody;
+    expect(body.user?.email).toBe('alice@example.com');
     expect(extractCookie(res)).toContain('access_token=');
   });
 
@@ -281,7 +295,8 @@ describe('POST /api/auth/login', () => {
       password: 'WrongPassword!',
     });
     expect(res.status).toBe(401);
-    expect(res.body.message).not.toContain('hash');
+    const body = res.body as ResponseBody;
+    expect(body.message).not.toContain('hash');
   });
 
   it('returns 401 for non-existent email', async () => {
@@ -301,7 +316,9 @@ describe('POST /api/auth/login', () => {
       email: 'nobody@example.com',
       password: 'Password123!',
     });
-    expect(wrongPw.body.message).toBe(unknownEmail.body.message);
+    const bodyA = wrongPw.body as ResponseBody;
+    const bodyB = unknownEmail.body as ResponseBody;
+    expect(bodyA.message).toBe(bodyB.message);
   });
 });
 
@@ -317,9 +334,10 @@ describe('GET /api/auth/me', () => {
 
     const res = await request(app).get('/api/auth/me').set('Cookie', cookie);
     expect(res.status).toBe(200);
-    expect(res.body.user.email).toBe('alice@example.com');
-    expect(res.body.user).not.toHaveProperty('passwordHash');
-    expect(res.body.user).not.toHaveProperty('passwordResetTokenHash');
+    const body = res.body as ResponseBody;
+    expect(body.user?.email).toBe('alice@example.com');
+    expect(body.user).not.toHaveProperty('passwordHash');
+    expect(body.user).not.toHaveProperty('passwordResetTokenHash');
   });
 
   it('returns 401 for a tampered token', async () => {

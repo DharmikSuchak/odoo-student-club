@@ -1,0 +1,526 @@
+/* ============================================================
+   Memberships feature styles — design-system.md §7, §8, §9
+   Token reference: index.css :root
+   ============================================================ */
+
+/* ── Page layout ──────────────────────────────────────────────── */
+.memberships-page {
+  max-width: 900px;
+}
+
+.memberships-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.memberships-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem; /* 24px text-page-heading */
+  font-weight: 700;
+  color: var(--slate-800);
+  margin-bottom: 4px;
+}
+
+.memberships-subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
+.ms-card {
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 200ms ease;
+  margin-bottom: 20px;
+}
+
+.ms-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.ms-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ms-card-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem; /* 18px text-card-title */
+  font-weight: 700;
+  color: var(--slate-800);
+}
+
+/* ── Status badge ─────────────────────────────────────────────── */
+.ms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.5625rem; /* 9px text-badge */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ms-badge--active {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.ms-badge--pending {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.ms-badge--expired {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.ms-badge--cancelled {
+  background: var(--slate-100);
+  color: var(--slate-500);
+}
+
+/* ── Detail rows ─────────────────────────────────────────────── */
+.ms-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px 20px;
+  margin-bottom: 20px;
+}
+
+.ms-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ms-detail-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--slate-400);
+}
+
+.ms-detail-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.ms-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.ms-empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  display: block;
+  line-height: 1;
+}
+
+.ms-empty-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--slate-800);
+  margin-bottom: 6px;
+}
+
+.ms-empty-body {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  max-width: 380px;
+  margin: 0 auto 20px;
+}
+
+/* ── Loading / Error states ──────────────────────────────────── */
+.ms-loading,
+.ms-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 200px;
+  color: var(--slate-500);
+  font-size: 0.875rem;
+}
+
+.ms-error {
+  color: var(--danger-text);
+}
+
+/* Shimmer skeleton */
+.ms-skeleton {
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+  margin-bottom: 20px;
+}
+
+.ms-skeleton-line {
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--slate-100) 25%,
+    var(--slate-200) 50%,
+    var(--slate-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: ms-shimmer 2s linear infinite;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.ms-skeleton-line--short { width: 40%; }
+.ms-skeleton-line--medium { width: 65%; }
+.ms-skeleton-line--full { width: 100%; }
+
+@keyframes ms-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* ── Button styles ───────────────────────────────────────────── */
+.ms-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-btn-sm);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease,
+    transform 100ms ease;
+  outline: none;
+}
+
+.ms-btn:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+.ms-btn:active {
+  transform: scale(0.97);
+}
+
+.ms-btn--primary {
+  background: var(--brand-500);
+  color: #fff;
+}
+
+.ms-btn--primary:hover {
+  background: var(--brand-600);
+}
+
+.ms-btn--primary:disabled {
+  background: var(--slate-200);
+  color: var(--slate-400);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ms-btn--ghost {
+  background: transparent;
+  color: var(--brand-600);
+  border: 1px solid var(--slate-200);
+}
+
+.ms-btn--ghost:hover {
+  background: var(--brand-50);
+  border-color: var(--brand-500);
+}
+
+.ms-btn--danger {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid transparent;
+}
+
+.ms-btn--danger:hover {
+  background: #fecaca;
+}
+
+/* ── Form ────────────────────────────────────────────────────── */
+.ms-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ms-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .ms-form-row { grid-template-columns: 1fr; }
+}
+
+.ms-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ms-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.ms-input,
+.ms-select {
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--slate-700);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  width: 100%;
+}
+
+.ms-input:focus,
+.ms-select:focus {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25);
+}
+
+.ms-input--error,
+.ms-select--error {
+  border-color: var(--danger-text);
+}
+
+.ms-input--error:focus,
+.ms-select--error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.ms-field-error {
+  font-size: 0.75rem;
+  color: var(--danger-text);
+}
+
+/* ── Modal overlay ───────────────────────────────────────────── */
+.ms-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: ms-backdrop-in 200ms ease;
+}
+
+@keyframes ms-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ms-modal {
+  background: #fff;
+  border-radius: var(--radius-auth);
+  padding: 28px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: ms-modal-in 250ms ease-out;
+}
+
+@keyframes ms-modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ms-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.ms-modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--slate-800);
+}
+
+.ms-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--slate-100);
+  border-radius: var(--radius-btn-sm);
+  cursor: pointer;
+  color: var(--slate-500);
+  transition: background 150ms ease;
+}
+
+.ms-modal-close:hover {
+  background: var(--slate-200);
+  color: var(--slate-700);
+}
+
+.ms-modal-close:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+.ms-modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* ── Notice banner ───────────────────────────────────────────── */
+.ms-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-dropdown);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.ms-notice--info {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.ms-notice--warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+/* ── Table ───────────────────────────────────────────────────── */
+.ms-table-wrap {
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.ms-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 580px;
+}
+
+.ms-table thead tr {
+  background: var(--slate-50);
+}
+
+.ms-table th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--slate-400);
+  padding: 10px 16px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ms-table td {
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  color: var(--slate-700);
+  border-top: 1px solid var(--slate-100);
+  vertical-align: middle;
+}
+
+.ms-table tbody tr {
+  transition: background 150ms ease;
+}
+
+.ms-table tbody tr:hover {
+  background: var(--slate-50);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.ms-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.ms-filter-select {
+  padding: 8px 14px;
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-dropdown);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--slate-700);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.ms-filter-select:focus {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+/* ── Inline alert ─────────────────────────────────────────────── */
+.ms-alert {
+  padding: 10px 14px;
+  border-radius: var(--radius-dropdown);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.ms-alert--error {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.ms-alert--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}

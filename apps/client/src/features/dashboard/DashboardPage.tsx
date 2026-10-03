@@ -16,7 +16,7 @@ export function DashboardPage() {
         <div>
           <h1 className="dashboard-title">Dashboard</h1>
           <p className="dashboard-subtitle">
-            Welcome back, <strong>{user?.displayName ?? 'member'}</strong>! Here's what's happening
+            Welcome back, <strong>{user?.displayName ?? 'member'}</strong>! Here&apos;s what&apos;s happening
             in your club.
           </p>
         </div>

@@ -13,7 +13,21 @@ const API_BASE = (import.meta.env['VITE_API_BASE_URL'] as string | undefined) ??
 export interface ApiError {
   status: 'error';
   message: string;
-  fields?: Record<string, string[]>;
+  fields?: Record<string, string[]> | undefined;
+}
+
+export class ApiRequestError extends Error implements ApiError {
+  status: 'error';
+  fields?: Record<string, string[]> | undefined;
+
+  constructor(data: ApiError) {
+    super(data.message);
+    this.name = 'ApiRequestError';
+    this.status = data.status;
+    if ('fields' in data) {
+      this.fields = data.fields;
+    }
+  }
 }
 
 export interface AuthUser {
@@ -39,6 +53,55 @@ export interface ApiHealthResponse {
   uptime: number;
   timestamp: string;
   environment: string;
+}
+
+// ── Membership types ──────────────────────────────────────────────────────────
+
+export type MembershipStatus = 'pending_payment' | 'active' | 'expired' | 'cancelled';
+
+export interface MembershipTier {
+  _id: string;
+  name: string;
+  description?: string;
+  durationDays: number;
+  priceCents: number;
+  isActive: boolean;
+  clubId: string;
+}
+
+export interface Membership {
+  _id: string;
+  userId: string;
+  tierId: string;
+  clubId: string;
+  status: MembershipStatus;
+  startDate: string;
+  endDate: string;
+  paidAt?: string;
+  amountPaidCents?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MembershipResponse {
+  status: 'ok';
+  membership: Membership | null;
+  isActive: boolean;
+}
+
+export interface MembershipsListResponse {
+  status: 'ok';
+  memberships: Membership[];
+}
+
+export interface TiersListResponse {
+  status: 'ok';
+  tiers: MembershipTier[];
+}
+
+export interface CreateMembershipResponse {
+  status: 'ok';
+  membership: Membership;
 }
 
 /**
@@ -75,13 +138,13 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   const data: unknown = await response.json();
 
   if (!response.ok) {
-    throw data as ApiError;
+    throw new ApiRequestError(data as ApiError);
   }
 
   return data as T;
 }
 
-// ── Auth API calls ───────────────────────────────────────────────────────────
+// ── Auth API calls ────────────────────────────────────────────────────────────
 
 /**
  * Registers a new member account.
@@ -132,4 +195,79 @@ export async function apiLogout(): Promise<MessageResponse> {
  */
 export async function apiGetCurrentUser(): Promise<AuthResponse> {
   return apiFetch<AuthResponse>('/api/auth/me');
+}
+
+// ── Membership API calls ──────────────────────────────────────────────────────
+
+/**
+ * Fetches the current user's membership status.
+ *
+ * @returns Membership (or null) and isActive flag.
+ */
+export async function apiGetMyMembership(): Promise<MembershipResponse> {
+  return apiFetch<MembershipResponse>('/api/memberships/me');
+}
+
+/**
+ * Fetches all membership tiers available for the club.
+ *
+ * @returns List of active membership tiers.
+ */
+export async function apiGetTiers(): Promise<TiersListResponse> {
+  return apiFetch<TiersListResponse>('/api/memberships/tiers');
+}
+
+/**
+ * Fetches all memberships (organizer/treasurer/admin only).
+ *
+ * @param status  Optional status filter.
+ * @returns List of memberships.
+ */
+export async function apiListMemberships(status?: string): Promise<MembershipsListResponse> {
+  const query = status !== undefined ? `?status=${encodeURIComponent(status)}` : '';
+  return apiFetch<MembershipsListResponse>(`/api/memberships${query}`);
+}
+
+/**
+ * Creates a new membership for a user (officer+ only).
+ *
+ * @param userId     Target user's ID.
+ * @param tierId     Membership tier ID.
+ * @param startDate  ISO 8601 start date string.
+ * @param endDate    ISO 8601 end date string.
+ * @returns The created membership.
+ */
+export async function apiCreateMembership(
+  userId: string,
+  tierId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CreateMembershipResponse> {
+  return apiFetch<CreateMembershipResponse>('/api/memberships', {
+    method: 'POST',
+    body: JSON.stringify({ userId, tierId, startDate, endDate }),
+  });
+}
+
+/**
+ * Records a manual (cash/offline) payment and activates a membership.
+ *
+ * ⚠️  This is NOT an online payment. It records that a treasurer manually
+ *     accepted cash or a bank transfer.
+ *
+ * @param membershipId     The membership to activate.
+ * @param amountPaidCents  Amount received in minor units (e.g. paise).
+ * @returns The updated (active) membership.
+ */
+export async function apiRecordManualPayment(
+  membershipId: string,
+  amountPaidCents: number,
+): Promise<CreateMembershipResponse> {
+  return apiFetch<CreateMembershipResponse>(
+    `/api/memberships/${membershipId}/record-payment`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ amountPaidCents }),
+    },
+  );
 }

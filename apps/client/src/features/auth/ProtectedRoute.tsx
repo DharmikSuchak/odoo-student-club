@@ -12,8 +12,9 @@
  */
 import { Navigate } from 'react-router-dom';
 
-import { useAuth } from './AuthContext';
 import type { AuthUser } from '../../lib/api-client';
+
+import { useAuth } from './AuthContext';
 
 const ROLE_ORDER: AuthUser['role'][] = ['member', 'officer', 'treasurer', 'admin'];
 

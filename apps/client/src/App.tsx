@@ -1,18 +1,20 @@
 /**
- * Root application component — Phase 1.
+ * Root application component — Phase 2.
  *
  * Sets up React Router and wraps the entire app in the AuthProvider.
  * Public routes: /login, /register
- * Protected routes: /dashboard and all future authenticated pages.
+ * Protected routes: /dashboard, /membership, /manage/memberships (officer+), and future pages.
  */
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from './features/auth/AuthContext';
-import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { LoginPage } from './features/auth/LoginPage';
+import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { RegisterPage } from './features/auth/RegisterPage';
 import { AppShell } from './features/dashboard/AppShell';
 import { DashboardPage } from './features/dashboard/DashboardPage';
+import { ManageMembershipsPage } from './features/memberships/ManageMembershipsPage';
+import { MyMembershipPage } from './features/memberships/MyMembershipPage';
 
 export default function App() {
   return (
@@ -30,6 +32,30 @@ export default function App() {
               <ProtectedRoute>
                 <AppShell>
                   <DashboardPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Member: own membership view */}
+          <Route
+            path="/membership"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <MyMembershipPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Organizer: membership management (officer/treasurer/admin) */}
+          <Route
+            path="/manage/memberships"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <ManageMembershipsPage />
                 </AppShell>
               </ProtectedRoute>
             }

@@ -16,6 +16,16 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   COOKIE_SECRET: z.string().min(32, 'COOKIE_SECRET must be at least 32 characters').optional(),
+  /**
+   * The MongoDB ObjectId (24-hex) of the single club document.
+   * Phase 1: single-club mode. Generate once via `node -e
+   * "console.log(require('mongodb').ObjectId().toHexString())"` and add to .env.
+   * Defaults to a placeholder for local dev; must be set in production.
+   */
+  CLUB_ID: z
+    .string()
+    .regex(/^[0-9a-f]{24}$/i, 'CLUB_ID must be a 24-character hex ObjectId')
+    .default('000000000000000000000001'),
 });
 
 function loadEnv() {

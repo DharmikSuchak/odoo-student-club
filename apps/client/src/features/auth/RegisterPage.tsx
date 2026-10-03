@@ -4,12 +4,13 @@
  * Visual language: design-system.md §11 (Auth Screen).
  * Same card/token system as LoginPage.
  */
+import { Mail, Lock, Eye, EyeOff, User, UserPlus } from 'lucide-react';
 import { useState, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, User, UserPlus } from 'lucide-react';
+
+import type { ApiError } from '../../lib/api-client';
 
 import { useAuth } from './AuthContext';
-import type { ApiError } from '../../lib/api-client';
 import './auth.css';
 
 export function RegisterPage() {
