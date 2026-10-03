@@ -41,15 +41,15 @@ a solo hackathon project.
 
 ## Planned Features
 
-| Phase | Status          | Features                                                                                                              |
-| ----- | --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| 1     | `(done)`        | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
-| 2     | `(done)`        | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
-| 3     | `(planned)`     | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
-| 4     | `(planned)`     | **Announcements** — publish, audience filter (all / members / officers)                                               |
-| 5     | `(planned)`     | **Merchandise** — catalog, order flow                                                                                 |
-| 6     | `(planned)`     | **Volunteer tasks** — task board, volunteer assignments, completion tracking                                          |
-| 7     | `(planned)`     | **Expenses and treasurer reporting** — ledger, approval workflow, export                                              |
+| Phase | Status      | Features                                                                                                              |
+| ----- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1     | `(done)`    | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
+| 2     | `(done)`    | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
+| 3     | `(planned)` | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
+| 4     | `(planned)` | **Announcements** — publish, audience filter (all / members / officers)                                               |
+| 5     | `(planned)` | **Merchandise** — catalog, order flow                                                                                 |
+| 6     | `(planned)` | **Volunteer tasks** — task board, volunteer assignments, completion tracking                                          |
+| 7     | `(planned)` | **Expenses and treasurer reporting** — ledger, approval workflow, export                                              |
 
 ---
 
@@ -82,8 +82,6 @@ odoo-student-club/
 │           ├── config/        ← env.ts (zod startup validation)
 │           ├── middleware/    ← error-handler, request-logger
 │           └── routes/        ← health.ts + health.test.ts
-└── .github/
-    └── workflows/ci.yml       ← Lint + typecheck + test + build
 ```
 
 ---
@@ -143,45 +141,49 @@ npm run dev -w apps/client # Vite on :5173
 
 ## Available Scripts
 
-| Script                 | Description                   |
-| ---------------------- | ----------------------------- |
-| `npm run dev`          | Start all dev servers         |
-| `npm run lint`         | ESLint all packages           |
-| `npm run typecheck`    | `tsc --noEmit` all packages   |
-| `npm test`             | Run all tests                 |
-| `npm run build`        | Production builds             |
-| `npm run format`       | Auto-format with Prettier     |
-| `npm run format:check` | Check formatting (used in CI) |
+| Script                 | Description                 |
+| ---------------------- | --------------------------- |
+| `npm run dev`          | Start all dev servers       |
+| `npm run lint`         | ESLint all packages         |
+| `npm run typecheck`    | `tsc --noEmit` all packages |
+| `npm test`             | Run all tests               |
+| `npm run build`        | Production builds           |
+| `npm run format`       | Auto-format with Prettier   |
+| `npm run format:check` | Check formatting locally    |
 
 ---
 
-## Current Status — Phase 1 Scaffold Complete
+## Current Status
 
-| Item                                          | Status         |
-| --------------------------------------------- | -------------- |
-| `AGENTS.md` — coding-agent rules              | ✅ Done        |
-| `CLAUDE.md` — Claude agent pointer            | ✅ Done        |
-| `docs/design-system.md`                       | ✅ Done        |
-| `docs/architecture.md`                        | ✅ Done        |
-| `docs/data-model.md` (proposal)               | ✅ Done        |
-| npm workspaces monorepo                       | ✅ Done        |
-| `apps/server` — Express + TypeScript          | ✅ Done        |
-| `apps/client` — React + Vite + TypeScript     | ✅ Done        |
-| TypeScript strict mode (both packages)        | ✅ Done        |
-| ESLint (both packages)                        | ✅ Done        |
-| Prettier (root)                               | ✅ Done        |
-| `GET /api/health` endpoint                    | ✅ Done        |
-| Frontend status page (API reachability)       | ✅ Done        |
-| Env validation at startup (zod)               | ✅ Done        |
-| Docker Compose (Mongo + Redis + API + Web)    | ✅ Done        |
-| MongoDB single-node replica set (rs0)         | ✅ Done        |
-| CI workflow (lint + typecheck + test + build) | ✅ Done        |
-| `npm run typecheck` passes (both packages)    | ✅ Verified    |
-| `npm test` passes (API: 3/3, Web: 1/1)        | ✅ Verified    |
-| `npm run build` passes (both packages)        | ✅ Verified    |
-| Authentication (Phase 1 features)             | ❌ Not started |
+| Item                                            | Status                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------- |
+| `AGENTS.md` — coding-agent rules                | ✅ Done                                                                    |
+| `CLAUDE.md` — Claude agent pointer              | ✅ Done                                                                    |
+| `docs/design-system.md`                         | ✅ Done                                                                    |
+| `docs/architecture.md`                          | ✅ Done                                                                    |
+| `docs/data-model.md` (proposal)                 | ✅ Done                                                                    |
+| npm workspaces monorepo                         | ✅ Done                                                                    |
+| `apps/server` — Express + TypeScript            | ✅ Done                                                                    |
+| `apps/client` — React + Vite + TypeScript       | ✅ Done                                                                    |
+| TypeScript strict mode (both packages)          | ✅ Done                                                                    |
+| ESLint (both packages)                          | ✅ Done                                                                    |
+| Prettier (root)                                 | ✅ Done                                                                    |
+| `GET /api/health` endpoint                      | ✅ Done                                                                    |
+| Frontend status page (API reachability)         | ✅ Done                                                                    |
+| Env validation at startup (zod)                 | ✅ Done                                                                    |
+| Docker Compose (Mongo + Redis + API + Web)      | ✅ Done                                                                    |
+| MongoDB single-node replica set (rs0)           | ✅ Done                                                                    |
+| Local lint, typecheck, tests, and build scripts | ✅ Available                                                               |
+| Typecheck                                       | Client passes; server startup imports reference missing disconnect helpers |
+| Existing tests                                  | Client: 1 passed; server: 35 passed, 10 membership tests fail              |
+| Production build                                | Client passes; server blocked by the same startup imports                  |
+| Authentication (Phase 1 features)               | Implemented                                                                |
 
 ---
+
+Local verification on 2026-10-03 also found six lint errors in the existing
+server startup code. The running Docker frontend and API respond successfully;
+this does not establish that the current server source builds.
 
 ## Agent Instructions
 
