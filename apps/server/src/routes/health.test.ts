@@ -21,10 +21,11 @@ describe('GET /api/health', () => {
 
   it('includes uptime and timestamp fields', async () => {
     const res = await request(app).get('/api/health');
-    expect(typeof res.body.uptime).toBe('number');
-    expect(typeof res.body.timestamp).toBe('string');
+    const body = res.body as { uptime: number; timestamp: string };
+    expect(typeof body.uptime).toBe('number');
+    expect(typeof body.timestamp).toBe('string');
     // Timestamp must be a valid ISO 8601 date
-    expect(() => new Date(res.body.timestamp as string)).not.toThrow();
+    expect(() => new Date(body.timestamp)).not.toThrow();
   });
 });
 

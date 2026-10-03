@@ -1,5 +1,5 @@
 {
-  "name": "@club/web",
+  "name": "@club/client",
   "version": "0.1.0",
   "private": true,
   "description": "React + TypeScript frontend for the student club platform.",

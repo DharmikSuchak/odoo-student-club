@@ -1,5 +1,5 @@
 import cors from 'cors';
-import express from 'express';
+import express, { json, urlencoded } from 'express';
 import helmet from 'helmet';
 
 import type { Env } from './config/env.js';
@@ -44,8 +44,8 @@ export function createApp(env: Env) {
   );
 
   // ── Body parsing ───────────────────────────────────────────────────────────
-  app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  app.use(json({ limit: '1mb' }));
+  app.use(urlencoded({ extended: true, limit: '1mb' }));
 
   // ── Request logging ────────────────────────────────────────────────────────
   if (env.NODE_ENV !== 'test') {

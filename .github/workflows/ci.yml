@@ -29,10 +29,10 @@ jobs:
         run: npm ci
 
       - name: Run ESLint (API)
-        run: npm run lint -w apps/api
+        run: npm run lint -w apps/server
 
       - name: Run ESLint (Web)
-        run: npm run lint -w apps/web
+        run: npm run lint -w apps/client
 
       - name: Check formatting (Prettier)
         run: npm run format:check
@@ -54,10 +54,10 @@ jobs:
         run: npm ci
 
       - name: TypeScript — API
-        run: npm run typecheck -w apps/api
+        run: npm run typecheck -w apps/server
 
       - name: TypeScript — Web
-        run: npm run typecheck -w apps/web
+        run: npm run typecheck -w apps/client
 
   # ── Tests ─────────────────────────────────────────────────────
   test:
@@ -86,10 +86,10 @@ jobs:
         run: npm ci
 
       - name: Run tests — API
-        run: npm test -w apps/api
+        run: npm test -w apps/server
 
       - name: Run tests — Web
-        run: npm test -w apps/web
+        run: npm test -w apps/client
 
   # ── Build ─────────────────────────────────────────────────────
   build:
@@ -120,7 +120,7 @@ jobs:
         run: npm ci
 
       - name: Build — API
-        run: npm run build -w apps/api
+        run: npm run build -w apps/server
 
       - name: Build — Web
-        run: npm run build -w apps/web
+        run: npm run build -w apps/client

@@ -4,11 +4,11 @@
   "private": true,
   "description": "Independent student-organization platform (Odoo hackathon).",
   "workspaces": [
-    "apps/web",
-    "apps/api"
+    "apps/client",
+    "apps/server"
   ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
+    "dev": "concurrently \"npm run dev -w apps/server\" \"npm run dev -w apps/client\"",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
@@ -17,6 +17,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,json,css,md}\" --ignore-path .gitignore"
   },
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "prettier": "^3.3.3"
   },
   "engines": {

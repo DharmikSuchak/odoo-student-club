@@ -52,7 +52,7 @@ export function StatusPage() {
               <p className={styles.errorMessage}>{status.message}</p>
               <p className={styles.hint}>
                 Start the API with{' '}
-                <code className={styles.code}>npm run dev -w apps/api</code> and
+                <code className={styles.code}>npm run dev -w apps/server</code> and
                 ensure your <code className={styles.code}>.env</code> is copied
                 from <code className={styles.code}>.env.example</code>.
               </p>

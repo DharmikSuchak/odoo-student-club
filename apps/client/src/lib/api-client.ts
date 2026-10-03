@@ -7,7 +7,7 @@
  * @throws {Error} If the network request fails or the server returns non-2xx.
  */
 export async function fetchApiHealth(): Promise<ApiHealthResponse> {
-  const base = import.meta.env['VITE_API_BASE_URL'] ?? '';
+  const base = String(import.meta.env['VITE_API_BASE_URL'] ?? '');
   const response = await fetch(`${base}/api/health`);
 
   if (!response.ok) {

@@ -10,12 +10,13 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
     port: 5173,
     proxy: {
       // Forward /api/* requests to the Express API during development.
       // This keeps the browser same-origin so CORS is not an issue in dev.
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.VITE_PROXY_TARGET || 'http://localhost:3001',
         changeOrigin: true,
       },
     },

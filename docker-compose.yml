@@ -3,12 +3,12 @@
 # Startup:
 #   cp .env.example .env          # fill in JWT_SECRET at minimum
 #   docker compose up -d          # starts all services
-#   docker compose logs -f api    # tail API logs
+#   docker compose logs -f server # tail API logs
 #
 # First-run notes:
 #   • The mongo-init service runs once to configure the rs0 replica set.
 #     It exits 0 on success; subsequent starts are idempotent.
-#   • The API and web services wait for their deps via healthchecks.
+#   • The server and client services wait for their deps via healthchecks.
 #
 # Common recovery steps:
 #   • "MongoServerError: not primary"
@@ -16,7 +16,7 @@
 #   • Wipe ALL data (destructive):
 #       docker compose down -v
 #   • Rebuild images after dependency changes:
-#       docker compose build --no-cache api web
+#       docker compose build --no-cache server client
 #   • Force replica-set re-init without wiping data:
 #       docker compose run --rm mongo-init
 
@@ -78,11 +78,12 @@ services:
     # since Redis is ephemeral by design; see docs/architecture.md §5).
     command: redis-server --appendonly no --save ""
 
-  # ── API ──────────────────────────────────────────────────────────────────────
-  api:
+  # ── Server ───────────────────────────────────────────────────────────────────
+  server:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: apps/server/Dockerfile
+      target: development
     restart: unless-stopped
     ports:
       - '3001:3001'
@@ -109,14 +110,15 @@ services:
     develop:
       watch:
         - action: sync+restart
-          path: ./apps/api/src
-          target: /app/apps/api/src
+          path: ./apps/server/src
+          target: /app/apps/server/src
 
-  # ── Web (React + Vite dev server) ────────────────────────────────────────────
-  web:
+  # ── Client (React + Vite dev server) ─────────────────────────────────────────
+  client:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: apps/client/Dockerfile
+      target: development
     restart: unless-stopped
     ports:
       - '5173:5173'
@@ -124,14 +126,15 @@ services:
       - .env
     environment:
       VITE_API_BASE_URL: ''  # empty → uses Vite proxy (see vite.config.ts)
+      VITE_PROXY_TARGET: 'http://server:3001' # Used by vite.config.ts proxy
     depends_on:
-      api:
+      server:
         condition: service_healthy
     develop:
       watch:
         - action: sync
-          path: ./apps/web/src
-          target: /app/apps/web/src
+          path: ./apps/client/src
+          target: /app/apps/client/src
 
 volumes:
   mongo_data:

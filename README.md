@@ -64,7 +64,7 @@ odoo-student-club/
 ├── .prettierrc                ← Prettier config (all packages)
 ├── .gitignore
 ├── .env.example               ← Copy to .env before running
-├── docker-compose.yml         ← MongoDB, Redis, API, web (with health checks)
+├── docker-compose.yml         ← MongoDB, Redis, API, client (with health checks)
 ├── docker/
 │   └── mongo-rs-init.sh       ← Idempotent replica-set initialiser
 ├── docs/
@@ -126,8 +126,8 @@ open http://localhost:5173       # shows API reachability status page
 ```bash
 npm install
 # In separate terminals:
-npm run dev -w apps/api    # API on :3001
-npm run dev -w apps/web    # Vite on :5173
+npm run dev -w apps/server # API on :3001
+npm run dev -w apps/client # Vite on :5173
 ```
 
 ### Common Recovery Steps
@@ -136,7 +136,7 @@ npm run dev -w apps/web    # Vite on :5173
 |---------|-----|
 | `MongoServerError: not primary` | `docker compose restart mongo && docker compose restart mongo-init` |
 | Wipe all data | `docker compose down -v` |
-| Rebuild after dep changes | `docker compose build --no-cache api web` |
+| Rebuild after dep changes | `docker compose build --no-cache server client` |
 | Force replica-set re-init | `docker compose run --rm mongo-init` |
 
 ---
@@ -165,8 +165,8 @@ npm run dev -w apps/web    # Vite on :5173
 | `docs/architecture.md` | ✅ Done |
 | `docs/data-model.md` (proposal) | ✅ Done |
 | npm workspaces monorepo | ✅ Done |
-| `apps/api` — Express + TypeScript | ✅ Done |
-| `apps/web` — React + Vite + TypeScript | ✅ Done |
+| `apps/server` — Express + TypeScript | ✅ Done |
+| `apps/client` — React + Vite + TypeScript | ✅ Done |
 | TypeScript strict mode (both packages) | ✅ Done |
 | ESLint (both packages) | ✅ Done |
 | Prettier (root) | ✅ Done |

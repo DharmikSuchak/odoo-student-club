@@ -1,5 +1,5 @@
 {
-  "name": "@club/api",
+  "name": "@club/server",
   "version": "0.1.0",
   "private": true,
   "description": "Express + TypeScript API for the student club platform.",
