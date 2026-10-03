@@ -59,16 +59,7 @@ authRouter.post(
         const users = getDb().collection('users');
         const user = await registerUser(users, parsed.data);
 
-        const token = signJwt({
-          userId: (user._id as { toString(): string }).toString(),
-          email: user.email,
-          displayName: user.displayName,
-          role: user.role,
-        });
-
-        // 7-day max-age (matches JWT_EXPIRES_IN default)
-        const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-        res.cookie('access_token', token, cookieOptions(sevenDaysMs));
+        // Token generation and cookie removed; user must log in manually.
 
         res.status(201).json({
           status: 'ok',

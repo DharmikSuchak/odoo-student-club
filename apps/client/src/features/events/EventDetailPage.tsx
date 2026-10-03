@@ -41,8 +41,12 @@ function TicketSummary({ ticket }: { ticket: EventTicket }) {
       </dl>
       {ticket.status === 'pending_payment' && (
         <p className="event-notice">
-          Ticket requested. No payment has been collected, and this ticket cannot be checked in
-          until a verified payment mechanism confirms it.
+          You have successfully requested a ticket! Please pay at the door to complete your reservation.
+        </p>
+      )}
+      {ticket.status === 'confirmed' && (
+        <p className="event-notice" style={{ backgroundColor: 'var(--success-surface)', color: 'var(--success-text)', borderColor: 'var(--success-border)' }}>
+          Payment successful! Your ticket is confirmed.
         </p>
       )}
     </section>
@@ -143,12 +147,14 @@ export function EventDetailPage() {
         <div className="event-detail-layout">
           <EventInformation event={event} />
           <aside className="event-detail-side">
-            {ticket === null ? (
+            {ticket !== null ? (
+              <TicketSummary ticket={ticket} />
+            ) : user?.role === 'member' ? (
               <section className="event-panel">
                 <p className="event-eyebrow">Tickets</p>
                 <h2>{event.remainingTicketCount > 0 ? 'Reserve your place' : 'Sold out'}</h2>
                 <p className="event-muted">
-                  The server verifies active membership before selecting your price.
+                  The correct price will be automatically applied based on your membership status.
                 </p>
                 <Link
                   to={`/events/${event._id}/book`}
@@ -158,9 +164,7 @@ export function EventDetailPage() {
                   Request ticket
                 </Link>
               </section>
-            ) : (
-              <TicketSummary ticket={ticket} />
-            )}
+            ) : null}
             {canManage && (
               <Link
                 to={`/events/${event._id}/check-in`}

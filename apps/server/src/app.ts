@@ -11,7 +11,10 @@ import { eventRouter } from './features/events/event.router.js';
 import { expenseRouter } from './features/expenses/expense.router.js';
 import { membershipRouter } from './features/memberships/membership.router.js';
 import { storeRouter } from './features/store/store.router.js';
+import { mockPaymentRouter } from './features/stripe/mock-payment.router.js';
+import { stripeRouter, stripeWebhookRouter } from './features/stripe/stripe.router.js';
 import { taskRouter } from './features/tasks/task.router.js';
+import { userRouter } from './features/users/user.router.js';
 import { globalErrorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/request-logger.js';
 import { healthRouter } from './routes/health.js';
@@ -41,6 +44,9 @@ export function createApp(env: Env) {
     }),
   );
 
+  // Stripe Webhook needs the raw body
+  app.use('/api/webhooks/stripe', stripeWebhookRouter);
+
   app.use(json({ limit: '1mb' }));
   app.use(urlencoded({ extended: true, limit: '1mb' }));
 
@@ -58,8 +64,11 @@ export function createApp(env: Env) {
   app.use('/api/events', eventRouter);
   app.use('/api/expenses', expenseRouter);
   app.use('/api/memberships', membershipRouter);
+  app.use('/api/payments', mockPaymentRouter);
+  app.use('/api/stripe', stripeRouter);
   app.use('/api/store', storeRouter);
   app.use('/api/tasks', taskRouter);
+  app.use('/api/users', userRouter);
 
   app.use((_req, res) => {
     res.status(404).json({ status: 'error', message: 'Route not found.' });

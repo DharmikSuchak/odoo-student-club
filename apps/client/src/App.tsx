@@ -23,6 +23,8 @@ import {
 } from './features/expenses/ExpensePages';
 import { ManageMembershipsPage } from './features/memberships/ManageMembershipsPage';
 import { MyMembershipPage } from './features/memberships/MyMembershipPage';
+import { MembersPage } from './features/users/MembersPage';
+import { CheckoutPage } from './features/memberships/CheckoutPage';
 import { StoreManagePage } from './features/store/StoreManagePage';
 import { StoreOrdersPage } from './features/store/StoreOrdersPage';
 import { StorePage } from './features/store/StorePage';
@@ -154,6 +156,27 @@ export default function App() {
                 <AppShell>
                   <MyMembershipPage />
                 </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/members"
+            element={
+              <ProtectedRoute requiredRole="officer">
+                <AppShell>
+                  <MembersPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+
+          <Route
+            path="/checkout/:tierId"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
               </ProtectedRoute>
             }
           />

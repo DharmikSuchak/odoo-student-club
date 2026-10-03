@@ -60,8 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(
     async (email: string, password: string, displayName: string): Promise<void> => {
-      const response = await apiRegister(email, password, displayName);
-      setUser(response.user);
+      await apiRegister(email, password, displayName);
+      // Removed setUser(response.user) to require manual login after registration.
     },
     [],
   );

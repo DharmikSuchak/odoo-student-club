@@ -263,3 +263,21 @@ export async function recordManualPayment(
 }
 
 export { isMembershipActive };
+
+export async function sendRenewalReminders(memberships: Collection, clubId: string): Promise<{ sentCount: number }> {
+  const clubOid = parseObjectId(clubId, 'clubId');
+  const now = new Date();
+  
+  // Find members whose membership expires within the next 30 days and is currently active
+  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  
+  const expiringMemberships = await memberships.find({
+    clubId: clubOid.toHexString(),
+    status: 'active',
+    endDate: { $gt: now, $lte: thirtyDaysFromNow }
+  }).toArray();
+  
+  // In a real application, we would map through these and send an email or push notification to the user.
+  // For this local platform, we just simulate the operation and return the count.
+  return { sentCount: expiringMemberships.length };
+}

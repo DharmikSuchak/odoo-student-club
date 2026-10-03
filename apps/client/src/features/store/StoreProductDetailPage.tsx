@@ -1,9 +1,9 @@
-import { AlertCircle, ArrowLeft, CheckCircle, Info, ShoppingBag } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ShoppingBag, CreditCard, Smartphone, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import type { ApiError, MerchandiseProduct, MerchandiseVariant } from '../../lib/api-client';
-import { apiGetProduct, apiPlaceOrder } from '../../lib/api-client';
+import { apiGetProduct, apiPlaceOrder, apiSimulateStorePayment, apiCheckoutStoreOrder } from '../../lib/api-client';
 
 import './store.css';
 
@@ -76,7 +76,6 @@ export function StoreProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
-  const [orderId, setOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (productId === undefined) return;
@@ -106,19 +105,32 @@ export function StoreProductDetailPage() {
     };
   }, [productId]);
 
-  async function handlePlaceOrder() {
+  async function handleMockPayment() {
     if (productId === undefined || selectedSize === null) return;
     setIsOrdering(true);
     setOrderError(null);
     try {
       const res = await apiPlaceOrder(productId, selectedSize);
-      setOrderId(res.order._id);
-      const refreshed = await apiGetProduct(productId);
-      setProduct(refreshed.product);
+      await apiSimulateStorePayment(res.order._id);
+      window.location.href = `/merchandise/orders?success=true`;
     } catch (err) {
       const apiErr = err as ApiError;
-      setOrderError(apiErr.message ?? 'Failed to place order. Please try again.');
-    } finally {
+      setOrderError(apiErr.message ?? 'Failed to process payment. Please try again.');
+      setIsOrdering(false);
+    }
+  }
+
+  async function handleStripePayment() {
+    if (productId === undefined || selectedSize === null) return;
+    setIsOrdering(true);
+    setOrderError(null);
+    try {
+      const res = await apiPlaceOrder(productId, selectedSize);
+      const checkoutRes = await apiCheckoutStoreOrder(res.order._id);
+      window.location.href = checkoutRes.url;
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setOrderError(apiErr.message ?? 'Failed to initiate Stripe checkout.');
       setIsOrdering(false);
     }
   }
@@ -208,59 +220,18 @@ export function StoreProductDetailPage() {
         </div>
 
         <div className="store-detail-card">
-          {orderId !== null ? (
-            <div>
-              <div className="store-notice store-notice--success" role="status">
-                <CheckCircle size={18} aria-hidden="true" />
-                <span>
-                  <strong>Order placed!</strong> Your order has been reserved.
-                </span>
-              </div>
-
-              <div className="store-pending-callout" role="note">
-                <strong>Payment pending: no money has been charged.</strong>
-                This order is in <em>pending_payment</em> status. Payment collection is not yet
-                integrated. A treasurer or organizer will contact you to complete payment. This flow
-                follows the same pattern as ticket and membership purchases.
-              </div>
-
-              <div
-                style={{
-                  marginTop: '16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                }}
-              >
-                <Link
-                  to="/merchandise/orders"
-                  className="store-btn-primary"
-                  style={{ textDecoration: 'none', textAlign: 'center' }}
-                >
-                  View my orders
-                </Link>
-                <Link
-                  to="/merchandise"
-                  className="store-btn-ghost"
-                  style={{ textDecoration: 'none', textAlign: 'center' }}
-                >
-                  Continue shopping
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <h2
-                style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '1.125rem',
-                  fontWeight: 700,
-                  color: 'var(--slate-800)',
-                  marginBottom: '16px',
-                }}
-              >
-                Order summary
-              </h2>
+          <div>
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '1.125rem',
+                fontWeight: 700,
+                color: 'var(--slate-800)',
+                marginBottom: '16px',
+              }}
+            >
+              Order summary
+            </h2>
 
               {selectedSize === null && (
                 <p
@@ -340,26 +311,39 @@ export function StoreProductDetailPage() {
                 </div>
               )}
 
-              <div className="store-notice store-notice--info" role="note">
-                <Info size={18} aria-hidden="true" />
-                <span>
-                  <strong>Note:</strong> This places a pending order only. No payment will be
-                  processed now. Payment integration is not yet available.
-                </span>
-              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                <button 
+                  className="store-btn-primary" 
+                  style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem', background: '#5f259f' }}
+                  onClick={() => void handleMockPayment()}
+                  disabled={!canOrder}
+                >
+                  {isOrdering ? 'Processing...' : (
+                    <>
+                      <Smartphone size={20} />
+                      Pay with PhonePe / GPay (Mock)
+                    </>
+                  )}
+                </button>
 
-              <button
-                id="store-place-order-btn"
-                type="button"
-                className="store-btn-primary"
-                disabled={!canOrder}
-                aria-busy={isOrdering}
-                onClick={() => void handlePlaceOrder()}
-              >
-                {isOrdering ? 'Placing order…' : 'Place order (pending payment)'}
-              </button>
+                <div style={{ textAlign: 'center', color: 'var(--slate-500)', margin: '0.5rem 0', fontSize: '0.875rem' }}>or</div>
+
+                <button 
+                  className="store-btn-primary" 
+                  style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem', background: '#635BFF' }}
+                  onClick={() => void handleStripePayment()}
+                  disabled={!canOrder}
+                >
+                  {isOrdering ? 'Processing...' : (
+                    <>
+                      <CreditCard size={20} />
+                      Pay with Stripe Checkout
+                      <ExternalLink size={16} style={{ marginLeft: '0.25rem' }} />
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          )}
         </div>
       </div>
     </div>

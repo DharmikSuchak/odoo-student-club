@@ -23,18 +23,18 @@ interface NavItem {
   to: string;
   icon: React.ReactNode;
   minRole?: 'member' | 'officer' | 'treasurer' | 'admin';
+  hideForRoles?: ('member' | 'officer' | 'treasurer' | 'admin')[];
   planned?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={18} /> },
-  { label: 'My Membership', to: '/membership', icon: <CreditCard size={18} /> },
+  { label: 'My Membership', to: '/membership', icon: <CreditCard size={18} />, hideForRoles: ['admin'] },
   {
     label: 'Members',
     to: '/members',
     icon: <Users size={18} />,
     minRole: 'officer',
-    planned: true,
   },
   {
     label: 'Manage Memberships',
@@ -160,8 +160,15 @@ function SidebarUser() {
 function SidebarNav({ onNavClick }: { onNavClick?: (() => void) | undefined }) {
   const { user } = useAuth();
   const visibleItems = NAV_ITEMS.filter(
-    (item) =>
-      !item.minRole || (user && ROLE_ORDER.indexOf(user.role) >= ROLE_ORDER.indexOf(item.minRole)),
+    (item) => {
+      if (item.minRole && (!user || ROLE_ORDER.indexOf(user.role) < ROLE_ORDER.indexOf(item.minRole))) {
+        return false;
+      }
+      if (item.hideForRoles && user && item.hideForRoles.includes(user.role)) {
+        return false;
+      }
+      return true;
+    }
   );
   return (
     <nav className="sidebar-nav" aria-label="Main navigation">

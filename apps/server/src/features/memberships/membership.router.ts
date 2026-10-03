@@ -17,6 +17,7 @@ import {
   listActiveTiers,
   listMemberships,
   recordManualPayment,
+  sendRenewalReminders,
 } from './membership.service.js';
 
 export const membershipRouter = Router();
@@ -201,6 +202,24 @@ membershipRouter.post(
           recordedById: authUser.userId,
         });
         res.status(200).json({ status: 'ok', membership: updated });
+      } catch (err) {
+        next(err);
+      }
+    })();
+  },
+);
+
+/** Authentication required; officer, treasurer, or admin only. Simulates sending email reminders. */
+membershipRouter.post(
+  '/send-reminders',
+  requireAuth,
+  requireRole('officer', 'treasurer', 'admin'),
+  (_req: Request, res: Response, next: NextFunction) => {
+    void (async () => {
+      try {
+        const memberships = getDb().collection('memberships');
+        const result = await sendRenewalReminders(memberships, getClubId());
+        res.status(200).json({ status: 'ok', sentCount: result.sentCount });
       } catch (err) {
         next(err);
       }

@@ -45,6 +45,18 @@ export function EventCreatePage() {
       currency: getFormString(form, 'currency', 'INR').toUpperCase(),
       isPublished: form.get('isPublished') === 'on',
     };
+
+    if (new Date(input.endsAt) <= new Date(input.startsAt)) {
+      setError('Event end date must be after the start date.');
+      setIsSaving(false);
+      return;
+    }
+    if (input.registrationDeadline && new Date(input.registrationDeadline) > new Date(input.startsAt)) {
+      setError('Request deadline must be before or equal to the event start date.');
+      setIsSaving(false);
+      return;
+    }
+
     try {
       const response = await apiCreateEvent(input);
       navigate(`/events/${response.event._id}`);

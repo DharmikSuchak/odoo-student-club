@@ -87,6 +87,11 @@ export interface TiersListResponse {
   tiers: MembershipTier[];
 }
 
+export interface CreateTierResponse {
+  status: 'ok';
+  tier: MembershipTier;
+}
+
 export interface CreateMembershipResponse {
   status: 'ok';
   membership: Membership;
@@ -145,6 +150,27 @@ export async function apiGetCurrentUser(): Promise<AuthResponse> {
   return apiFetch<AuthResponse>('/api/auth/me');
 }
 
+export interface UsersListResponse {
+  status: 'ok';
+  users: AuthUser[];
+}
+
+export async function apiGetUsers(): Promise<UsersListResponse> {
+  return apiFetch<UsersListResponse>('/api/users');
+}
+
+export async function apiCreateUser(
+  email: string,
+  password: string,
+  displayName: string,
+  role: 'member' | 'officer' | 'treasurer' | 'admin'
+): Promise<{ status: 'ok'; user: AuthUser }> {
+  return apiFetch<{ status: 'ok'; user: AuthUser }>('/api/users', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, displayName, role }),
+  });
+}
+
 export async function apiGetMyMembership(): Promise<MembershipResponse> {
   return apiFetch<MembershipResponse>('/api/memberships/me');
 }
@@ -153,9 +179,67 @@ export async function apiGetTiers(): Promise<TiersListResponse> {
   return apiFetch<TiersListResponse>('/api/memberships/tiers');
 }
 
+export async function apiCreateTier(
+  name: string,
+  description: string | undefined,
+  durationDays: number,
+  priceCents: number,
+): Promise<CreateTierResponse> {
+  return apiFetch<CreateTierResponse>('/api/memberships/tiers', {
+    method: 'POST',
+    body: JSON.stringify({ name, description, durationDays, priceCents }),
+  });
+}
+
+export async function apiSimulatePayment(tierId: string): Promise<{ status: 'ok' }> {
+  return apiFetch<{ status: 'ok' }>('/api/payments/simulate', {
+    method: 'POST',
+    body: JSON.stringify({ tierId }),
+  });
+}
+
+export interface CheckoutResponse {
+  status: 'ok';
+  url: string;
+}
+
+export async function apiCreateCheckoutSession(tierId: string): Promise<CheckoutResponse> {
+  return apiFetch<CheckoutResponse>('/api/stripe/checkout', {
+    method: 'POST',
+    body: JSON.stringify({ tierId }),
+  });
+}
+
+export async function apiCheckoutEventTicket(ticketId: string): Promise<CheckoutResponse> {
+  return apiFetch<CheckoutResponse>('/api/stripe/checkout-event', {
+    method: 'POST',
+    body: JSON.stringify({ ticketId }),
+  });
+}
+
+export async function apiCheckoutStoreOrder(orderId: string): Promise<CheckoutResponse> {
+  return apiFetch<CheckoutResponse>('/api/stripe/checkout-store', {
+    method: 'POST',
+    body: JSON.stringify({ orderId }),
+  });
+}
+
+export async function apiSimulateStorePayment(orderId: string): Promise<{ status: 'ok' }> {
+  return apiFetch<{ status: 'ok' }>('/api/payments/simulate-store', {
+    method: 'POST',
+    body: JSON.stringify({ orderId }),
+  });
+}
+
 export async function apiListMemberships(status?: string): Promise<MembershipsListResponse> {
   const query = status !== undefined ? `?status=${encodeURIComponent(status)}` : '';
   return apiFetch<MembershipsListResponse>(`/api/memberships${query}`);
+}
+
+export async function apiSendRenewalReminders(): Promise<{ status: 'ok'; sentCount: number }> {
+  return apiFetch<{ status: 'ok'; sentCount: number }>('/api/memberships/send-reminders', {
+    method: 'POST',
+  });
 }
 
 export async function apiCreateMembership(

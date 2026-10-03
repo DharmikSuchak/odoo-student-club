@@ -13,6 +13,9 @@ const envSchema = z.object({
     .string()
     .regex(/^[0-9a-f]{24}$/i, 'CLUB_ID must be a 24-character hex ObjectId')
     .default('000000000000000000000001'),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
 });
 
 function loadEnv() {

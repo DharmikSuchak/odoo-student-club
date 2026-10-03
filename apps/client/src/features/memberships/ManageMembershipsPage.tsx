@@ -5,14 +5,33 @@ import { Dialog } from '../../components/Dialog';
 import type { ApiError, Membership, MembershipTier } from '../../lib/api-client';
 import {
   apiCreateMembership,
+  apiCreateTier,
   apiGetTiers,
   apiListMemberships,
   apiRecordManualPayment,
+  apiGetUsers,
+  apiSendRenewalReminders,
 } from '../../lib/api-client';
+import type { AuthUser } from '../../lib/api-client';
 import { useAuth } from '../auth/AuthContext';
 
 import { MembershipStatusBadge } from './MembershipStatusBadge';
 import './membership.css';
+
+interface CreateTierFormState {
+  name: string;
+  description: string;
+  durationDays: string;
+  priceCents: string;
+}
+
+interface CreateTierFormErrors {
+  name?: string;
+  description?: string;
+  durationDays?: string;
+  priceCents?: string;
+  form?: string;
+}
 
 interface CreateFormState {
   userId: string;
@@ -74,11 +93,12 @@ function TableSkeleton() {
 
 interface CreateModalProps {
   tiers: MembershipTier[];
+  users: AuthUser[];
   onClose: () => void;
   onCreated: (m: Membership) => void;
 }
 
-function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) {
+function CreateMembershipModal({ tiers, users, onClose, onCreated }: CreateModalProps) {
   const [form, setForm] = useState<CreateFormState>({
     userId: '',
     tierId: tiers[0]?._id ?? '',
@@ -146,20 +166,23 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
         <form className="ms-form" onSubmit={(e) => void handleSubmit(e)} noValidate>
           <div className="ms-field">
             <label className="ms-label" htmlFor="create-userId">
-              Member ID
+              Select Member
             </label>
-            <input
+            <select
               id="create-userId"
               aria-invalid={errors.userId !== undefined}
               aria-describedby={errors.userId !== undefined ? 'create-userId-error' : undefined}
-              className={`ms-input${errors.userId !== undefined ? ' ms-input--error' : ''}`}
-              type="text"
-              placeholder="507f1f77bcf86cd799439011"
+              className={`ms-select${errors.userId !== undefined ? ' ms-select--error' : ''}`}
               value={form.userId}
               onChange={(e) => setForm((f) => ({ ...f, userId: e.target.value }))}
-              autoComplete="off"
-              maxLength={24}
-            />
+            >
+              <option value="">-- Choose a member --</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.displayName} ({u.email})
+                </option>
+              ))}
+            </select>
             {errors.userId !== undefined && (
               <span id="create-userId-error" className="ms-field-error" role="alert">
                 {errors.userId}
@@ -389,6 +412,203 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
   );
 }
 
+interface CreateTierModalProps {
+  onClose: () => void;
+  onCreated: (t: MembershipTier) => void;
+}
+
+function CreateTierModal({ onClose, onCreated }: CreateTierModalProps) {
+  const [form, setForm] = useState<CreateTierFormState>({
+    name: '',
+    description: '',
+    durationDays: '365',
+    priceCents: '',
+  });
+  const [errors, setErrors] = useState<CreateTierFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function validate(): CreateTierFormErrors {
+    const e: CreateTierFormErrors = {};
+    if (form.name.trim().length === 0) e.name = 'Name is required.';
+    
+    const duration = Number(form.durationDays);
+    if (form.durationDays.trim().length === 0 || isNaN(duration) || duration <= 0)
+      e.durationDays = 'Enter a positive number of days.';
+      
+    const amount = Number(form.priceCents);
+    if (form.priceCents.trim().length === 0 || isNaN(amount) || amount < 0)
+      e.priceCents = 'Enter a valid amount in paise (e.g. 50000 = ₹500).';
+    if (!Number.isInteger(amount)) e.priceCents = 'Amount must be a whole number of paise.';
+      
+    return e;
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const e = validate();
+    if (Object.keys(e).length > 0) {
+      setErrors(e);
+      return;
+    }
+    setErrors({});
+    setIsSubmitting(true);
+    try {
+      const res = await apiCreateTier(
+        form.name.trim(),
+        form.description.trim() || undefined,
+        Number(form.durationDays),
+        Number(form.priceCents),
+      );
+      onCreated(res.tier);
+      onClose();
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setErrors({ form: apiErr.message ?? 'Failed to create tier.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Dialog titleId="create-tier-modal-title" onClose={onClose} busy={isSubmitting}>
+      <div className="ms-modal">
+        <div className="ms-modal-header">
+          <h2 id="create-tier-modal-title" className="ms-modal-title">
+            Create Tier
+          </h2>
+          <button
+            type="button"
+            className="ms-modal-close"
+            onClick={onClose}
+            disabled={isSubmitting}
+            aria-label="Close modal"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <form className="ms-form" onSubmit={(e) => void handleSubmit(e)} noValidate>
+          <div className="ms-field">
+            <label className="ms-label" htmlFor="create-tier-name">
+              Tier Name
+            </label>
+            <input
+              id="create-tier-name"
+              aria-invalid={errors.name !== undefined}
+              aria-describedby={errors.name !== undefined ? 'create-tier-name-error' : undefined}
+              className={`ms-input${errors.name !== undefined ? ' ms-input--error' : ''}`}
+              type="text"
+              placeholder="e.g. VIP Member"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              maxLength={100}
+            />
+            {errors.name !== undefined && (
+              <span id="create-tier-name-error" className="ms-field-error" role="alert">
+                {errors.name}
+              </span>
+            )}
+          </div>
+
+          <div className="ms-field">
+            <label className="ms-label" htmlFor="create-tier-description">
+              Description (Optional)
+            </label>
+            <textarea
+              id="create-tier-description"
+              aria-invalid={errors.description !== undefined}
+              aria-describedby={errors.description !== undefined ? 'create-tier-description-error' : undefined}
+              className={`ms-input${errors.description !== undefined ? ' ms-input--error' : ''}`}
+              placeholder="e.g. Access to all VIP events"
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              maxLength={500}
+            />
+            {errors.description !== undefined && (
+              <span id="create-tier-description-error" className="ms-field-error" role="alert">
+                {errors.description}
+              </span>
+            )}
+          </div>
+          
+          <div className="ms-form-row">
+            <div className="ms-field">
+              <label className="ms-label" htmlFor="create-tier-duration">
+                Duration (Days)
+              </label>
+              <input
+                id="create-tier-duration"
+                aria-invalid={errors.durationDays !== undefined}
+                aria-describedby={errors.durationDays !== undefined ? 'create-tier-duration-error' : undefined}
+                className={`ms-input${errors.durationDays !== undefined ? ' ms-input--error' : ''}`}
+                type="number"
+                inputMode="numeric"
+                min="1"
+                placeholder="365"
+                value={form.durationDays}
+                onChange={(e) => setForm((f) => ({ ...f, durationDays: e.target.value }))}
+              />
+              {errors.durationDays !== undefined && (
+                <span id="create-tier-duration-error" className="ms-field-error" role="alert">
+                  {errors.durationDays}
+                </span>
+              )}
+            </div>
+
+            <div className="ms-field">
+              <label className="ms-label" htmlFor="create-tier-price">
+                Price (Paise)
+              </label>
+              <input
+                id="create-tier-price"
+                aria-invalid={errors.priceCents !== undefined}
+                aria-describedby={errors.priceCents !== undefined ? 'create-tier-price-error' : undefined}
+                className={`ms-input${errors.priceCents !== undefined ? ' ms-input--error' : ''}`}
+                type="number"
+                inputMode="numeric"
+                min="0"
+                placeholder="50000"
+                value={form.priceCents}
+                onChange={(e) => setForm((f) => ({ ...f, priceCents: e.target.value }))}
+              />
+              {errors.priceCents !== undefined && (
+                <span id="create-tier-price-error" className="ms-field-error" role="alert">
+                  {errors.priceCents}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {errors.form !== undefined && (
+            <div className="ms-alert ms-alert--error" role="alert">
+              {errors.form}
+            </div>
+          )}
+
+          <div className="ms-modal-footer">
+            <button
+              type="button"
+              className="ms-btn ms-btn--ghost"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="ms-btn ms-btn--primary"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
+              {isSubmitting ? 'Creating…' : 'Create tier'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </Dialog>
+  );
+}
+
 export function ManageMembershipsPage() {
   const { user } = useAuth();
   const [memberships, setMemberships] = useState<Membership[]>([]);
@@ -397,13 +617,34 @@ export function ManageMembershipsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateTierModal, setShowCreateTierModal] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Membership | null>(null);
   const [tiersLoading, setTiersLoading] = useState(true);
   const [tiersError, setTiersError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
 
+  const [users, setUsers] = useState<AuthUser[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [isSendingReminders, setIsSendingReminders] = useState(false);
+  
   const canRecordPayment = user !== null && (user.role === 'treasurer' || user.role === 'admin');
+
+  useEffect(() => {
+    let cancelled = false;
+    setUsersLoading(true);
+    apiGetUsers()
+      .then((res) => {
+        if (!cancelled) setUsers(res.users);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setUsersLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   useEffect(() => {
     let cancelled = false;
@@ -457,12 +698,33 @@ export function ManageMembershipsPage() {
     setReloadKey((previous) => previous + 1);
   }
 
+  function handleTierCreated() {
+    setNotice('Tier created successfully.');
+    setReloadKey((previous) => previous + 1);
+  }
+
   function handlePaymentRecorded() {
     setNotice('Payment recorded successfully.');
     setReloadKey((previous) => previous + 1);
   }
 
+  async function handleSendReminders() {
+    setIsSendingReminders(true);
+    setNotice(null);
+    setError(null);
+    try {
+      const res = await apiSendRenewalReminders();
+      setNotice(`Successfully sent renewal reminders to ${res.sentCount} expiring member(s)!`);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setError(apiErr.message ?? 'Failed to send reminders.');
+    } finally {
+      setIsSendingReminders(false);
+    }
+  }
+
   const tierById = new Map(tiers.map((t) => [t._id, t]));
+  const userById = new Map(users.map((u) => [u.id, u]));
 
   return (
     <div className="memberships-page">
@@ -473,16 +735,35 @@ export function ManageMembershipsPage() {
             Create memberships, verify active status, and record dues payments.
           </p>
         </div>
-        <button
-          type="button"
-          className="ms-btn ms-btn--primary"
-          onClick={() => setShowCreateModal(true)}
-          id="btn-create-membership"
-          disabled={tiersLoading || tiersError !== null || tiers.length === 0}
-          aria-describedby="membership-tier-status"
-        >
-          <Plus size={16} aria-hidden="true" /> New Membership
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="ms-btn ms-btn--ghost"
+            onClick={() => void handleSendReminders()}
+            disabled={isSendingReminders}
+          >
+            {isSendingReminders ? 'Sending...' : 'Send Reminders'}
+          </button>
+          <button
+            type="button"
+            className="ms-btn ms-btn--ghost"
+            onClick={() => setShowCreateTierModal(true)}
+            id="btn-create-tier"
+            aria-label="Create new membership tier"
+          >
+            <Plus size={16} aria-hidden="true" /> New Tier
+          </button>
+          <button
+            type="button"
+            className="ms-btn ms-btn--primary"
+            onClick={() => setShowCreateModal(true)}
+            id="btn-create-membership"
+            disabled={tiersLoading || tiersError !== null || tiers.length === 0}
+            aria-describedby="membership-tier-status"
+          >
+            <Plus size={16} aria-hidden="true" /> New Membership
+          </button>
+        </div>
       </div>
 
       <div id="membership-tier-status">
@@ -580,7 +861,7 @@ export function ManageMembershipsPage() {
           <table className="ms-table" aria-label="Memberships list">
             <thead>
               <tr>
-                <th scope="col">Member ID</th>
+                <th scope="col">Member Name</th>
                 <th scope="col">Tier</th>
                 <th scope="col">Status</th>
                 <th scope="col">Start</th>
@@ -592,12 +873,13 @@ export function ManageMembershipsPage() {
             <tbody>
               {memberships.map((m) => {
                 const tier = tierById.get(m.tierId);
+                const memberUser = userById.get(m.userId);
                 return (
                   <tr key={m._id}>
                     <td>
-                      <code className="ms-member-id" title={m.userId}>
-                        {m.userId.slice(-8)}…
-                      </code>
+                      <div className="ms-member-name" title={m.userId}>
+                        {usersLoading ? 'Loading…' : (memberUser?.displayName || 'Unknown User')}
+                      </div>
                     </td>
                     <td>{tier?.name ?? (tiersLoading ? 'Loading…' : 'Unavailable')}</td>
                     <td>
@@ -638,8 +920,16 @@ export function ManageMembershipsPage() {
       {showCreateModal && (
         <CreateMembershipModal
           tiers={tiers}
+          users={users}
           onClose={() => setShowCreateModal(false)}
           onCreated={handleCreated}
+        />
+      )}
+
+      {showCreateTierModal && (
+        <CreateTierModal
+          onClose={() => setShowCreateTierModal(false)}
+          onCreated={handleTierCreated}
         />
       )}
 

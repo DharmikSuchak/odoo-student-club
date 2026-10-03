@@ -31,7 +31,8 @@ export function RegisterPage() {
 
     try {
       await register(email, password, displayName);
-      void navigate('/dashboard');
+      // Redirect to login page with a success message (state can be read by LoginPage if desired)
+      void navigate('/login');
     } catch (err) {
       if (err instanceof ApiRequestError && err.fields) {
         setFieldErrors(err.fields);
@@ -129,7 +130,7 @@ export function RegisterPage() {
                   id={passwordId}
                   type={showPassword ? 'text' : 'password'}
                   className={`form-input form-input--password ${(fieldErrors['password'] ?? []).length > 0 ? 'form-input--error' : ''}`}
-                  placeholder="Min. 8 characters"
+                  placeholder="Uppercase, lowercase, number, symbol"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"

@@ -1,5 +1,6 @@
 import { AlertCircle, GraduationCap, Info } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import type { ApiError, Membership, MembershipTier } from '../../lib/api-client';
 import { apiGetMyMembership, apiGetTiers } from '../../lib/api-client';
@@ -108,6 +109,7 @@ function MembershipCard({
 }
 
 export function MyMembershipPage() {
+  const navigate = useNavigate();
   const [membership, setMembership] = useState<Membership | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [tiers, setTiers] = useState<MembershipTier[]>([]);
@@ -143,6 +145,10 @@ export function MyMembershipPage() {
       cancelled = true;
     };
   }, [reloadKey]);
+
+  const handleBuy = (tierId: string) => {
+    navigate(`/checkout/${tierId}`);
+  };
 
   const currentTier = tiers.find((t) => t._id === membership?.tierId);
 
@@ -199,6 +205,13 @@ export function MyMembershipPage() {
                   {tier.description !== undefined && (
                     <p className="ms-tier-description">{tier.description}</p>
                   )}
+                  <button 
+                    className="ms-btn ms-btn--primary" 
+                    style={{ marginTop: '1rem', width: '100%' }}
+                    onClick={() => void handleBuy(tier._id)}
+                  >
+                    Buy now
+                  </button>
                 </div>
               ))}
             </div>

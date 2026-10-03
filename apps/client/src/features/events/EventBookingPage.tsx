@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import type { ClubEvent, EventTicket } from '../../lib/api-client';
-import { apiGetEvent, apiRequestEventTicket } from '../../lib/api-client';
+import { apiGetEvent, apiRequestEventTicket, apiCheckoutEventTicket } from '../../lib/api-client';
 
 import {
   formatEventDate,
@@ -42,6 +42,15 @@ export function EventBookingPage() {
     setError(null);
     try {
       const response = await apiRequestEventTicket(eventId);
+      
+      if (response.ticket.priceCents > 0) {
+        // Ticket costs money, so we redirect to Stripe to pay for it
+        const checkoutResp = await apiCheckoutEventTicket(response.ticket._id);
+        window.location.href = checkoutResp.url;
+        return; // Don't stop "isRequesting" since we're navigating away
+      }
+
+      // If it's a free ticket, just update the state locally
       setTicket(response.ticket);
       setEvent((current) =>
         current === null
@@ -92,8 +101,7 @@ export function EventBookingPage() {
           </dl>
           <p className="event-notice">
             <ShieldCheck size={18} aria-hidden="true" />
-            Your active membership is verified on the server. The displayed rates are not selected
-            by the browser.
+            Our system will automatically check if you have an active membership and apply the correct rate!
           </p>
           {ticket === null ? (
             <>
@@ -105,8 +113,8 @@ export function EventBookingPage() {
               >
                 {isRequesting ? 'Requesting…' : 'Request ticket'}
               </button>
-              <p className="event-muted">
-                Paid tickets remain pending payment. This flow does not collect or confirm payment.
+              <p className="event-muted" style={{ textAlign: 'center', marginTop: '1rem' }}>
+                If this is a paid event, you will be redirected to Stripe to complete your payment securely.
               </p>
             </>
           ) : (
@@ -120,8 +128,12 @@ export function EventBookingPage() {
               </p>
               {ticket.status === 'pending_payment' && (
                 <p>
-                  No payment has been collected. Check-in stays unavailable until payment is
-                  verified.
+                  Please pay at the door to receive your ticket and check in!
+                </p>
+              )}
+              {ticket.status === 'confirmed' && (
+                <p style={{ color: 'green', fontWeight: 'bold' }}>
+                  Payment successful! Your ticket is confirmed.
                 </p>
               )}
               <Link to={`/events/${event._id}`} className="event-button event-button--secondary">
