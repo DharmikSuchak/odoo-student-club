@@ -1,0 +1,144 @@
+/* ============================================================
+   Dashboard page styles — design-system.md §7 (Cards)
+   ============================================================ */
+
+.dashboard {
+  max-width: 1100px;
+  padding-bottom: 48px;
+}
+
+/* ── Heading row ─────────────────────────────────────────────── */
+.dashboard-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dashboard-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem; /* 24px — text-page-heading */
+  font-weight: 700;
+  color: var(--slate-800);
+  margin-bottom: 4px;
+}
+
+.dashboard-subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  font-weight: 400;
+}
+
+/* ── Stat cards grid ─────────────────────────────────────────── */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--grid-gap);
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: box-shadow 200ms ease;
+  animation: card-enter 200ms ease-out both;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-btn-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.stat-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-card-value {
+  font-family: var(--font-heading);
+  font-size: 1.875rem; /* 30px — text-stat */
+  font-weight: 700;
+  color: var(--slate-800);
+  line-height: 1;
+}
+
+.stat-card-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--slate-500);
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.dashboard-empty-state {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  padding: 64px var(--card-padding);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  animation: card-enter 200ms ease-out 100ms both;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+  filter: grayscale(30%);
+}
+
+.empty-state-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem; /* text-card-title */
+  font-weight: 700;
+  color: var(--slate-700);
+  margin-bottom: 8px;
+}
+
+.empty-state-body {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  max-width: 440px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.empty-state-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: var(--info-bg);
+  color: var(--info-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { fetchApiHealth } from '../lib/api-client.ts';
+import { fetchApiHealth } from '../lib/api-client';
 
 // This test file verifies the module exports the expected shape
 // without making real network calls.

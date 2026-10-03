@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { fetchApiHealth } from '@/lib/api-client.ts';
-import type { ApiHealthResponse } from '@/lib/api-client.ts';
+import { fetchApiHealth } from '@/lib/api-client';
+import type { ApiHealthResponse } from '@/lib/api-client';
 
 type ApiStatus =
   | { kind: 'idle' }

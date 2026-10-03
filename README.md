@@ -1,7 +1,7 @@
 # Student Club Platform
 
-> An independent student-organization platform built for the Odoo Hackathon.
-> It does **not** run inside Odoo.
+> An independent student-organization platform built for the Odoo Hackathon. It
+> does **not** run inside Odoo.
 
 ---
 
@@ -16,40 +16,40 @@ without paying for a commercial solution.
 
 ## Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18 + TypeScript (Vite) |
-| Styling | Vanilla CSS (design-token–based) |
-| API | Node.js + Express + TypeScript |
-| Permanent data store | **MongoDB** (sole source of truth) |
-| Ephemeral store | **Redis** (rate limiting; sessions/jobs only when built) |
-| Local development | Docker Compose |
-| Package manager | npm workspaces |
+| Layer                | Technology                                               |
+| -------------------- | -------------------------------------------------------- |
+| Frontend             | React 18 + TypeScript (Vite)                             |
+| Styling              | Vanilla CSS (design-token–based)                         |
+| API                  | Node.js + Express + TypeScript                           |
+| Permanent data store | **MongoDB** (sole source of truth)                       |
+| Ephemeral store      | **Redis** (rate limiting; sessions/jobs only when built) |
+| Local development    | Docker Compose                                           |
+| Package manager      | npm workspaces                                           |
 
 **Why this stack?** As a solo developer I can implement and verify this stack
 confidently.
 
 **Key trade-off:** MongoDB does not enforce foreign-key constraints. Every
 cross-collection reference is protected by application-layer validation,
-explicit indexes, MongoDB transactions for multi-document writes, and tests.
-See [`docs/architecture.md`](docs/architecture.md) for the full decision log.
+explicit indexes, MongoDB transactions for multi-document writes, and tests. See
+[`docs/architecture.md`](docs/architecture.md) for the full decision log.
 
-**No PostgreSQL.** Adding a second relational database would exceed the scope
-of a solo hackathon project.
+**No PostgreSQL.** Adding a second relational database would exceed the scope of
+a solo hackathon project.
 
 ---
 
 ## Planned Features
 
-| Phase | Status | Features |
-|-------|--------|---------|
-| 1 | `(in progress)` | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
-| 2 | `(planned)` | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges |
-| 3 | `(planned)` | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist |
-| 4 | `(planned)` | **Announcements** — publish, audience filter (all / members / officers) |
-| 5 | `(planned)` | **Merchandise** — catalog, order flow |
-| 6 | `(planned)` | **Volunteer tasks** — task board, volunteer assignments, completion tracking |
-| 7 | `(planned)` | **Expenses and treasurer reporting** — ledger, approval workflow, export |
+| Phase | Status          | Features                                                                                                              |
+| ----- | --------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1     | `(in progress)` | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
+| 2     | `(planned)`     | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
+| 3     | `(planned)`     | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
+| 4     | `(planned)`     | **Announcements** — publish, audience filter (all / members / officers)                                               |
+| 5     | `(planned)`     | **Merchandise** — catalog, order flow                                                                                 |
+| 6     | `(planned)`     | **Volunteer tasks** — task board, volunteer assignments, completion tracking                                          |
+| 7     | `(planned)`     | **Expenses and treasurer reporting** — ledger, approval workflow, export                                              |
 
 ---
 
@@ -132,61 +132,61 @@ npm run dev -w apps/client # Vite on :5173
 
 ### Common Recovery Steps
 
-| Problem | Fix |
-|---------|-----|
+| Problem                         | Fix                                                                 |
+| ------------------------------- | ------------------------------------------------------------------- |
 | `MongoServerError: not primary` | `docker compose restart mongo && docker compose restart mongo-init` |
-| Wipe all data | `docker compose down -v` |
-| Rebuild after dep changes | `docker compose build --no-cache server client` |
-| Force replica-set re-init | `docker compose run --rm mongo-init` |
+| Wipe all data                   | `docker compose down -v`                                            |
+| Rebuild after dep changes       | `docker compose build --no-cache server client`                     |
+| Force replica-set re-init       | `docker compose run --rm mongo-init`                                |
 
 ---
 
 ## Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start all dev servers |
-| `npm run lint` | ESLint all packages |
-| `npm run typecheck` | `tsc --noEmit` all packages |
-| `npm test` | Run all tests |
-| `npm run build` | Production builds |
-| `npm run format` | Auto-format with Prettier |
+| Script                 | Description                   |
+| ---------------------- | ----------------------------- |
+| `npm run dev`          | Start all dev servers         |
+| `npm run lint`         | ESLint all packages           |
+| `npm run typecheck`    | `tsc --noEmit` all packages   |
+| `npm test`             | Run all tests                 |
+| `npm run build`        | Production builds             |
+| `npm run format`       | Auto-format with Prettier     |
 | `npm run format:check` | Check formatting (used in CI) |
 
 ---
 
 ## Current Status — Phase 1 Scaffold Complete
 
-| Item | Status |
-|------|--------|
-| `AGENTS.md` — coding-agent rules | ✅ Done |
-| `CLAUDE.md` — Claude agent pointer | ✅ Done |
-| `docs/design-system.md` | ✅ Done |
-| `docs/architecture.md` | ✅ Done |
-| `docs/data-model.md` (proposal) | ✅ Done |
-| npm workspaces monorepo | ✅ Done |
-| `apps/server` — Express + TypeScript | ✅ Done |
-| `apps/client` — React + Vite + TypeScript | ✅ Done |
-| TypeScript strict mode (both packages) | ✅ Done |
-| ESLint (both packages) | ✅ Done |
-| Prettier (root) | ✅ Done |
-| `GET /api/health` endpoint | ✅ Done |
-| Frontend status page (API reachability) | ✅ Done |
-| Env validation at startup (zod) | ✅ Done |
-| Docker Compose (Mongo + Redis + API + Web) | ✅ Done |
-| MongoDB single-node replica set (rs0) | ✅ Done |
-| CI workflow (lint + typecheck + test + build) | ✅ Done |
-| `npm run typecheck` passes (both packages) | ✅ Verified |
-| `npm test` passes (API: 3/3, Web: 1/1) | ✅ Verified |
-| `npm run build` passes (both packages) | ✅ Verified |
-| Authentication (Phase 1 features) | ❌ Not started |
+| Item                                          | Status         |
+| --------------------------------------------- | -------------- |
+| `AGENTS.md` — coding-agent rules              | ✅ Done        |
+| `CLAUDE.md` — Claude agent pointer            | ✅ Done        |
+| `docs/design-system.md`                       | ✅ Done        |
+| `docs/architecture.md`                        | ✅ Done        |
+| `docs/data-model.md` (proposal)               | ✅ Done        |
+| npm workspaces monorepo                       | ✅ Done        |
+| `apps/server` — Express + TypeScript          | ✅ Done        |
+| `apps/client` — React + Vite + TypeScript     | ✅ Done        |
+| TypeScript strict mode (both packages)        | ✅ Done        |
+| ESLint (both packages)                        | ✅ Done        |
+| Prettier (root)                               | ✅ Done        |
+| `GET /api/health` endpoint                    | ✅ Done        |
+| Frontend status page (API reachability)       | ✅ Done        |
+| Env validation at startup (zod)               | ✅ Done        |
+| Docker Compose (Mongo + Redis + API + Web)    | ✅ Done        |
+| MongoDB single-node replica set (rs0)         | ✅ Done        |
+| CI workflow (lint + typecheck + test + build) | ✅ Done        |
+| `npm run typecheck` passes (both packages)    | ✅ Verified    |
+| `npm test` passes (API: 3/3, Web: 1/1)        | ✅ Verified    |
+| `npm run build` passes (both packages)        | ✅ Verified    |
+| Authentication (Phase 1 features)             | ❌ Not started |
 
 ---
 
 ## Agent Instructions
 
-Every coding agent must read **`AGENTS.md`** before making any change.
-Rules cover naming, function design, formatting, TypeScript strict mode, error
+Every coding agent must read **`AGENTS.md`** before making any change. Rules
+cover naming, function design, formatting, TypeScript strict mode, error
 handling, secrets, input validation, database query safety, output encoding,
 authentication, authorization, payment integrity, testing, and README honesty.
 

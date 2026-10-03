@@ -43,9 +43,7 @@ export async function connectDb(uri: string): Promise<MongoClient> {
  */
 export function getDb(dbName = 'student_club'): Db {
   if (client === null) {
-    throw new Error(
-      'Database client is not connected. Call connectDb() first.',
-    );
+    throw new Error('Database client is not connected. Call connectDb() first.');
   }
   if (database === null) {
     database = client.db(dbName);

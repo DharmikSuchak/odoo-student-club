@@ -19,16 +19,16 @@ export const expenseDocumentSchema = z.object({
   clubId: objectIdSchema,
   submittedBy: objectIdSchema, // ref: users
   approvedBy: objectIdSchema.optional(), // ref: users (officer/treasurer)
-  
+
   category: nonEmptyString.max(100),
   description: nonEmptyString.max(1000),
   amountCents: moneySchema,
   currency: z.string().length(3).default('USD'),
-  
+
   receiptUrl: z.string().url().optional(),
-  
+
   status: z.enum(EXPENSE_STATUSES).default('pending'),
-  
+
   occurredAt: z.date(),
   createdAt: z.date(),
   updatedAt: z.date(),

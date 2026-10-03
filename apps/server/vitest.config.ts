@@ -14,6 +14,7 @@ export default defineConfig({
       JWT_SECRET: 'test_secret_that_is_long_enough_for_zod_32chars_xx',
       JWT_EXPIRES_IN: '1h',
       PORT: '3001',
+      COOKIE_SECRET: 'test_cookie_secret_that_is_long_enough_32chars_xx',
     },
     coverage: {
       provider: 'v8',

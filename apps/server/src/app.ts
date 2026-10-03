@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { json, urlencoded } from 'express';
 import helmet from 'helmet';
@@ -5,6 +6,7 @@ import helmet from 'helmet';
 import type { Env } from './config/env.js';
 import { globalErrorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/request-logger.js';
+import { authRouter } from './features/auth/auth.router.js';
 import { healthRouter } from './routes/health.js';
 
 /**
@@ -39,13 +41,17 @@ export function createApp(env: Env) {
       origin: env.CLIENT_ORIGIN,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
-      credentials: true,
+      credentials: true, // Required for HTTP-only cookies
     }),
   );
 
   // ── Body parsing ───────────────────────────────────────────────────────────
   app.use(json({ limit: '1mb' }));
   app.use(urlencoded({ extended: true, limit: '1mb' }));
+
+  // ── Cookie parsing (HTTP-only auth cookies) ────────────────────────────────
+  // Sign cookies when COOKIE_SECRET is available (optional in dev)
+  app.use(cookieParser(env.COOKIE_SECRET));
 
   // ── Request logging ────────────────────────────────────────────────────────
   if (env.NODE_ENV !== 'test') {
@@ -54,6 +60,7 @@ export function createApp(env: Env) {
 
   // ── Routes ─────────────────────────────────────────────────────────────────
   app.use('/api/health', healthRouter);
+  app.use('/api/auth', authRouter);
 
   // 404 handler for unknown routes
   app.use((_req, res) => {

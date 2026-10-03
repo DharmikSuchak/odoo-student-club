@@ -1,4 +1,4 @@
-import { useApiHealth } from '@/hooks/use-api-health.ts';
+import { useApiHealth } from '@/hooks/use-api-health';
 
 import styles from './StatusPage.module.css';
 
@@ -22,9 +22,7 @@ export function StatusPage() {
         <div className={styles.statusBox} data-status={status.kind}>
           {status.kind === 'idle' && <StatusRow icon="○" label="Waiting…" muted />}
 
-          {status.kind === 'loading' && (
-            <StatusRow icon="◌" label="Contacting API…" muted />
-          )}
+          {status.kind === 'loading' && <StatusRow icon="◌" label="Contacting API…" muted />}
 
           {status.kind === 'ok' && (
             <>
@@ -51,10 +49,9 @@ export function StatusPage() {
               <StatusRow icon="✕" label="API not reachable" variant="danger" />
               <p className={styles.errorMessage}>{status.message}</p>
               <p className={styles.hint}>
-                Start the API with{' '}
-                <code className={styles.code}>npm run dev -w apps/server</code> and
-                ensure your <code className={styles.code}>.env</code> is copied
-                from <code className={styles.code}>.env.example</code>.
+                Start the API with <code className={styles.code}>npm run dev -w apps/server</code>{' '}
+                and ensure your <code className={styles.code}>.env</code> is copied from{' '}
+                <code className={styles.code}>.env.example</code>.
               </p>
             </>
           )}
@@ -76,11 +73,7 @@ interface StatusRowProps {
 function StatusRow({ icon, label, muted = false, variant }: StatusRowProps) {
   return (
     <div
-      className={[
-        styles.statusRow,
-        muted ? styles.muted : '',
-        variant ? styles[variant] : '',
-      ]
+      className={[styles.statusRow, muted ? styles.muted : '', variant ? styles[variant] : '']
         .filter(Boolean)
         .join(' ')}
     >

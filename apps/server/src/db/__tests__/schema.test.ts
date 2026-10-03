@@ -33,7 +33,7 @@ describe('Schema Validations', () => {
       const result = userDocumentSchema.safeParse(invalidUser);
       expect(result.success).toBe(false);
     });
-    
+
     it('safeUserSchema should strip sensitive fields', () => {
       const validUser = {
         email: 'test@example.com',

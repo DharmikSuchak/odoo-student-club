@@ -15,15 +15,15 @@ export const announcementDocumentSchema = z.object({
   clubId: objectIdSchema,
   authorId: objectIdSchema, // ref: users
   title: nonEmptyString.max(200),
-  
+
   /** Markdown body */
   body: nonEmptyString.max(10000),
-  
+
   audience: z.enum(ANNOUNCEMENT_AUDIENCES).default('all'),
-  
+
   isPublished: z.boolean().default(false),
   publishedAt: z.date().optional(),
-  
+
   createdAt: z.date(),
   updatedAt: z.date(),
 });

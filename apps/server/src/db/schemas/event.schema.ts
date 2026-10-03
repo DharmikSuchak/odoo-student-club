@@ -58,12 +58,7 @@ export const eventDocumentSchema = z.object({
 export type EventDocument = z.infer<typeof eventDocumentSchema>;
 
 // ── Ticket status ──────────────────────────────────────────────────────────────
-export const TICKET_STATUSES = [
-  'pending_payment',
-  'confirmed',
-  'waitlisted',
-  'cancelled',
-] as const;
+export const TICKET_STATUSES = ['pending_payment', 'confirmed', 'waitlisted', 'cancelled'] as const;
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 
 // ── Event Ticket Document ──────────────────────────────────────────────────────

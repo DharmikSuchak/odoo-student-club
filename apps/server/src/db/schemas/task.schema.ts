@@ -15,10 +15,10 @@ export const taskDocumentSchema = z.object({
   title: nonEmptyString.max(200),
   description: z.string().max(2000).optional(),
   dueAt: z.date().optional(),
-  
+
   /** Max number of volunteers needed. null = unlimited */
   maxVolunteers: z.number().int().positive().nullable().default(null),
-  
+
   status: z.enum(TASK_STATUSES).default('open'),
 
   createdAt: z.date(),

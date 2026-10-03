@@ -11,21 +11,23 @@
 
 > As a solo developer I can implement and verify this stack confidently.
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| Frontend | **React 18 + TypeScript** | Component model suits a dashboard-heavy app; strong typing prevents class of bugs early |
-| Styling | **Vanilla CSS** (custom properties, BEM-ish) | Full control over design tokens; no utility-class bloat |
-| API | **Node.js + Express + TypeScript** | Same language as the frontend; rich middleware ecosystem |
-| Permanent store | **MongoDB** (via official driver or Mongoose) | Flexible document model for evolving club schemas; well-understood by the team |
-| Ephemeral store | **Redis** | Rate limiting (always); short-lived sessions and job queues only when those features are built |
-| Local dev | **Docker Compose** | Reproducible environment; no local MongoDB/Redis installs required |
-| Build tooling | **Vite** (frontend) + **tsx / ts-node** (API dev) | Fast HMR; no Webpack config overhead |
+| Layer           | Technology                                        | Why                                                                                            |
+| --------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Frontend        | **React 18 + TypeScript**                         | Component model suits a dashboard-heavy app; strong typing prevents class of bugs early        |
+| Styling         | **Vanilla CSS** (custom properties, BEM-ish)      | Full control over design tokens; no utility-class bloat                                        |
+| API             | **Node.js + Express + TypeScript**                | Same language as the frontend; rich middleware ecosystem                                       |
+| Permanent store | **MongoDB** (via official driver or Mongoose)     | Flexible document model for evolving club schemas; well-understood by the team                 |
+| Ephemeral store | **Redis**                                         | Rate limiting (always); short-lived sessions and job queues only when those features are built |
+| Local dev       | **Docker Compose**                                | Reproducible environment; no local MongoDB/Redis installs required                             |
+| Build tooling   | **Vite** (frontend) + **tsx / ts-node** (API dev) | Fast HMR; no Webpack config overhead                                                           |
 
 ### Explicitly Excluded
 
 - **PostgreSQL** — not added. Rationale above.
-- **GraphQL** — REST is sufficient for this scope; added complexity not justified.
-- **Microservices** — single monorepo API for now; extract only if a clear boundary emerges.
+- **GraphQL** — REST is sufficient for this scope; added complexity not
+  justified.
+- **Microservices** — single monorepo API for now; extract only if a clear
+  boundary emerges.
 
 ### Key Trade-off
 
@@ -128,8 +130,8 @@ Browser
 
 1. The **frontend never reads from MongoDB or Redis directly**. All data access
    goes through the Express API.
-2. **Redis holds no permanent state.** Flushing Redis must never cause data
-   loss or require manual recovery.
+2. **Redis holds no permanent state.** Flushing Redis must never cause data loss
+   or require manual recovery.
 3. **All writes to MongoDB go through the service layer**, never directly from a
    route handler. The service layer enforces business rules.
 4. **JWT tokens** are stateless; the API validates the signature on every
@@ -151,16 +153,16 @@ the team can verify the full stack before building domain features.
 
 ### Steps
 
-1. **Environment** — `.env.example` with `MONGO_URI`, `REDIS_URL`,
-   `JWT_SECRET`, `JWT_EXPIRES_IN`, `PORT`, `CLIENT_ORIGIN`.
+1. **Environment** — `.env.example` with `MONGO_URI`, `REDIS_URL`, `JWT_SECRET`,
+   `JWT_EXPIRES_IN`, `PORT`, `CLIENT_ORIGIN`.
 2. **Startup validation** — `zod` schema exits if any required variable is
    missing.
 3. **MongoDB** — `users` collection, indexes on `email` (unique).
 4. **Redis** — rate-limit login attempts (10 per minute per IP).
 5. **Register handler** — validate body, check email uniqueness, bcrypt hash
    (rounds ≥ 12), insert, return 201 with safe user object.
-6. **Login handler** — validate body, fetch user, compare hash, sign JWT,
-   return token.
+6. **Login handler** — validate body, fetch user, compare hash, sign JWT, return
+   token.
 7. **Auth middleware** — verify JWT, attach `req.user`; 401 on failure.
 8. **`GET /me`** — apply middleware, return `req.user`.
 9. **Frontend** — React context for auth state, login form, register form,
@@ -172,47 +174,47 @@ the team can verify the full stack before building domain features.
 
 ## 5. Boundaries Between MongoDB and Redis
 
-| Concern | Store | Notes |
-|---------|-------|-------|
-| User accounts | MongoDB | Permanent; includes hashed password, role, profile |
-| Club memberships | MongoDB | Permanent; links user → membership tier + payment record |
-| Events | MongoDB | Permanent; includes capacity, registrations sub-collection |
-| Event registrations | MongoDB | Permanent; ticket allocation per user |
-| Announcements | MongoDB | Permanent |
-| Merchandise orders | MongoDB | Permanent |
-| Expenses / ledger | MongoDB | Permanent; immutable append-only entries |
-| Rate-limit counters | Redis | Ephemeral; keyed by `ip:route`; 60 s TTL |
-| Login-attempt counters | Redis | Ephemeral; keyed by `email`; 15 min TTL |
-| JWT blacklist (optional) | Redis | Ephemeral; only if forced-logout is implemented |
-| Session cache (optional) | Redis | Ephemeral; only if a session strategy replaces JWT |
-| Job queue (optional) | Redis | Ephemeral; only if background email/notification jobs are added |
+| Concern                  | Store   | Notes                                                           |
+| ------------------------ | ------- | --------------------------------------------------------------- |
+| User accounts            | MongoDB | Permanent; includes hashed password, role, profile              |
+| Club memberships         | MongoDB | Permanent; links user → membership tier + payment record        |
+| Events                   | MongoDB | Permanent; includes capacity, registrations sub-collection      |
+| Event registrations      | MongoDB | Permanent; ticket allocation per user                           |
+| Announcements            | MongoDB | Permanent                                                       |
+| Merchandise orders       | MongoDB | Permanent                                                       |
+| Expenses / ledger        | MongoDB | Permanent; immutable append-only entries                        |
+| Rate-limit counters      | Redis   | Ephemeral; keyed by `ip:route`; 60 s TTL                        |
+| Login-attempt counters   | Redis   | Ephemeral; keyed by `email`; 15 min TTL                         |
+| JWT blacklist (optional) | Redis   | Ephemeral; only if forced-logout is implemented                 |
+| Session cache (optional) | Redis   | Ephemeral; only if a session strategy replaces JWT              |
+| Job queue (optional)     | Redis   | Ephemeral; only if background email/notification jobs are added |
 
-**Rule**: if removing all Redis data would break a user-visible feature
-(other than rate-limiting), the data belongs in MongoDB.
+**Rule**: if removing all Redis data would break a user-visible feature (other
+than rate-limiting), the data belongs in MongoDB.
 
 ---
 
 ## 6. Feature Sequence (Planned, Not Implemented)
 
-| Phase | Features |
-|-------|---------|
-| **Phase 1** | Authentication (register, login, JWT, roles) |
+| Phase       | Features                                                       |
+| ----------- | -------------------------------------------------------------- |
+| **Phase 1** | Authentication (register, login, JWT, roles)                   |
 | **Phase 2** | Memberships and dues (tiers, payment recording, status badges) |
-| **Phase 3** | Events and limited tickets (capacity, registration, waitlist) |
-| **Phase 4** | Announcements (publish, audience filter) |
-| **Phase 5** | Merchandise (catalog, orders) |
-| **Phase 6** | Volunteer tasks (assignments, completion tracking) |
-| **Phase 7** | Expenses and treasurer reporting (ledger, export) |
+| **Phase 3** | Events and limited tickets (capacity, registration, waitlist)  |
+| **Phase 4** | Announcements (publish, audience filter)                       |
+| **Phase 5** | Merchandise (catalog, orders)                                  |
+| **Phase 6** | Volunteer tasks (assignments, completion tracking)             |
+| **Phase 7** | Expenses and treasurer reporting (ledger, export)              |
 
 ---
 
 ## 7. Decision Log
 
-| # | Decision | Rationale | Trade-off |
-|---|----------|-----------|-----------|
-| 1 | MongoDB as sole permanent store | Solo developer can implement and verify confidently | No FK enforcement; needs validation, indexes, transactions, tests |
-| 2 | Redis only for ephemeral data | Clear boundary prevents data loss when Redis is cleared | Cannot use Redis for permanent lookups |
-| 3 | No PostgreSQL | Reduce stack complexity for hackathon scope | Cannot use relational joins natively |
-| 4 | JWT (stateless) auth | Simpler to implement; no session store required initially | Requires Redis token blacklist for forced logout |
-| 5 | Vanilla CSS + design tokens | Full control; enforces design system; no dependency drift | No utility shorthand; requires discipline |
-| 6 | Monorepo (`packages/`) | Shared types; single lint/format config | Single deploy surface; extract services only if needed |
+| #   | Decision                        | Rationale                                                 | Trade-off                                                         |
+| --- | ------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------- |
+| 1   | MongoDB as sole permanent store | Solo developer can implement and verify confidently       | No FK enforcement; needs validation, indexes, transactions, tests |
+| 2   | Redis only for ephemeral data   | Clear boundary prevents data loss when Redis is cleared   | Cannot use Redis for permanent lookups                            |
+| 3   | No PostgreSQL                   | Reduce stack complexity for hackathon scope               | Cannot use relational joins natively                              |
+| 4   | JWT (stateless) auth            | Simpler to implement; no session store required initially | Requires Redis token blacklist for forced logout                  |
+| 5   | Vanilla CSS + design tokens     | Full control; enforces design system; no dependency drift | No utility shorthand; requires discipline                         |
+| 6   | Monorepo (`packages/`)          | Shared types; single lint/format config                   | Single deploy surface; extract services only if needed            |

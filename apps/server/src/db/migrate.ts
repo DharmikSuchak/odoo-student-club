@@ -10,7 +10,7 @@ async function migrate() {
   // Use a default URI if not provided (matches docker-compose)
   const uri = process.env['MONGO_URI'] || 'mongodb://localhost:27017/student_club?replicaSet=rs0';
   console.info(`Connecting to MongoDB at ${uri}...`);
-  
+
   await connectDb(uri);
   const db = getDb();
 
@@ -42,7 +42,7 @@ async function migrate() {
   // Unique sparse index: only applies if providerEventId is non-null
   await payments.createIndex(
     { providerEventId: 1 },
-    { unique: true, partialFilterExpression: { providerEventId: { $type: 'string' } } }
+    { unique: true, partialFilterExpression: { providerEventId: { $type: 'string' } } },
   );
   await payments.createIndex({ 'relatedEntity.id': 1 });
 

@@ -15,6 +15,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().url('REDIS_URL must be a valid URL'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('7d'),
+  COOKIE_SECRET: z.string().min(32, 'COOKIE_SECRET must be at least 32 characters').optional(),
 });
 
 function loadEnv() {
