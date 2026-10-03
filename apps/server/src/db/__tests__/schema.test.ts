@@ -65,8 +65,10 @@ describe('Schema Validations', () => {
         isPublished: true,
         hasTickets: true,
         ticketCapacity: 100,
-        memberPriceCents: 1500, // $15
-        nonMemberPriceCents: 3000, // $30
+        remainingTicketCount: 100,
+        memberPriceCents: 1500,
+        nonMemberPriceCents: 3000,
+        currency: 'INR',
         createdAt: new Date(),
         updatedAt: new Date(),
       };

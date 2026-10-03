@@ -18,6 +18,11 @@ import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { RegisterPage } from './features/auth/RegisterPage';
 import { AppShell } from './features/dashboard/AppShell';
 import { DashboardPage } from './features/dashboard/DashboardPage';
+import { EventBookingPage } from './features/events/EventBookingPage';
+import { EventCheckInPage } from './features/events/EventCheckInPage';
+import { EventCreatePage } from './features/events/EventCreatePage';
+import { EventDetailPage } from './features/events/EventDetailPage';
+import { EventListPage } from './features/events/EventListPage';
 import {
   ExpenseReviewPage,
   ExpenseSubmissionPage,
@@ -89,6 +94,61 @@ export default function App() {
               <ProtectedRoute>
                 <AppShell>
                   <AnnouncementDetailPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/events"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <EventListPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/events/new"
+            element={
+              <ProtectedRoute allowedRoles={['officer', 'admin']}>
+                <AppShell>
+                  <EventCreatePage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/events/:eventId/check-in"
+            element={
+              <ProtectedRoute allowedRoles={['officer', 'admin']}>
+                <AppShell>
+                  <EventCheckInPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/events/:eventId/book"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <EventBookingPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/events/:eventId"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <EventDetailPage />
                 </AppShell>
               </ProtectedRoute>
             }

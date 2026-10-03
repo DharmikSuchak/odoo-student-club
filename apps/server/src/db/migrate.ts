@@ -39,8 +39,8 @@ async function migrate() {
   await tasks.createIndex({ clubId: 1, assigneeId: 1, status: 1 });
 
   const eventTickets = db.collection('eventTickets');
-  await eventTickets.createIndex({ eventId: 1, status: 1 }); // for capacity count
-  await eventTickets.createIndex({ userId: 1, eventId: 1 }, { unique: true }); // prevent double registration
+  await eventTickets.createIndex({ eventId: 1, status: 1 });
+  await eventTickets.createIndex({ userId: 1, eventId: 1 }, { unique: true });
 
   const payments = db.collection('payments');
   // Unique sparse index: only applies if providerEventId is non-null
@@ -66,7 +66,7 @@ async function migrate() {
   const merchandiseItems = db.collection('merchandiseItems');
   await merchandiseItems.createIndex({ clubId: 1, name: 1 });
 
-  console.info('✅ Migrations completed successfully.');
+  console.info('Migrations completed successfully.');
 }
 
 migrate()

@@ -246,7 +246,7 @@ export async function apiCreateMembership(
 /**
  * Records a manual (cash/offline) payment and activates a membership.
  *
- * ⚠️  This is NOT an online payment. It records that a treasurer manually
+ * Warning: This is NOT an online payment. It records that a treasurer manually
  *     accepted cash or a bank transfer.
  *
  * @param membershipId     The membership to activate.
@@ -641,7 +641,7 @@ export async function apiUpdateProduct(
 /**
  * Places a one-unit order for a product size.
  *
- * ⚠️  This creates a PENDING_PAYMENT order only. No payment is charged.
+ * Warning: This creates a PENDING_PAYMENT order only. No payment is charged.
  *     Stock is decremented atomically. Payment collection is not yet implemented.
  *
  * @param itemId  The product id.
@@ -658,4 +658,121 @@ export async function apiPlaceOrder(itemId: string, size: string): Promise<Order
 /** Returns the authenticated user's order history newest first. */
 export async function apiListMyOrders(): Promise<OrderListResponse> {
   return apiFetch<OrderListResponse>('/api/store/orders/mine');
+}
+
+export type EventTicketStatus = 'pending_payment' | 'confirmed' | 'waitlisted' | 'cancelled';
+
+export interface ClubEvent {
+  _id: string;
+  clubId: string;
+  createdBy: string;
+  title: string;
+  description: string;
+  location?: string;
+  startsAt: string;
+  endsAt: string;
+  isPublished: boolean;
+  hasTickets: boolean;
+  ticketCapacity: number;
+  remainingTicketCount: number;
+  registrationDeadline?: string;
+  memberPriceCents: number;
+  nonMemberPriceCents: number;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventTicket {
+  _id: string;
+  clubId: string;
+  eventId: string;
+  userId: string;
+  status: EventTicketStatus;
+  priceCents: number;
+  currency: string;
+  memberPriceApplied: boolean;
+  paymentId?: string;
+  paidAt?: string;
+  checkedInAt?: string;
+  checkedInBy?: string;
+  requestedAt: string;
+  attendeeName: string;
+  attendeeEmail: string;
+}
+
+interface EventResponse {
+  status: 'ok';
+  event: ClubEvent;
+}
+
+interface EventDetailResponse extends EventResponse {
+  ticket: EventTicket | null;
+}
+
+interface EventListResponse {
+  status: 'ok';
+  events: ClubEvent[];
+}
+
+interface EventTicketResponse {
+  status: 'ok';
+  ticket: EventTicket;
+}
+
+interface EventTicketListResponse {
+  status: 'ok';
+  tickets: EventTicket[];
+}
+
+export interface CreateEventInput {
+  title: string;
+  description: string;
+  location?: string;
+  startsAt: string;
+  endsAt: string;
+  ticketCapacity: number;
+  registrationDeadline?: string;
+  memberPriceCents: number;
+  nonMemberPriceCents: number;
+  currency: string;
+  isPublished: boolean;
+}
+
+export async function apiListEvents(includeDrafts = false): Promise<EventListResponse> {
+  return apiFetch<EventListResponse>(`/api/events${includeDrafts ? '?includeDrafts=true' : ''}`);
+}
+
+export async function apiGetEvent(eventId: string): Promise<EventDetailResponse> {
+  return apiFetch<EventDetailResponse>(`/api/events/${eventId}`);
+}
+
+export async function apiCreateEvent(input: CreateEventInput): Promise<EventResponse> {
+  return apiFetch<EventResponse>('/api/events', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function apiPublishEvent(eventId: string): Promise<EventResponse> {
+  return apiFetch<EventResponse>(`/api/events/${eventId}/publish`, { method: 'PATCH' });
+}
+
+export async function apiRequestEventTicket(eventId: string): Promise<EventTicketResponse> {
+  return apiFetch<EventTicketResponse>(`/api/events/${eventId}/tickets`, {
+    method: 'POST',
+  });
+}
+
+export async function apiListEventTickets(eventId: string): Promise<EventTicketListResponse> {
+  return apiFetch<EventTicketListResponse>(`/api/events/${eventId}/tickets`);
+}
+
+export async function apiCheckInEventTicket(
+  eventId: string,
+  ticketId: string,
+): Promise<EventTicketResponse> {
+  return apiFetch<EventTicketResponse>(`/api/events/${eventId}/tickets/${ticketId}/check-in`, {
+    method: 'PATCH',
+  });
 }

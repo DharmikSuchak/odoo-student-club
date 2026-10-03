@@ -41,15 +41,15 @@ a solo hackathon project.
 
 ## Feature Roadmap
 
-| Phase | Status          | Features                                                                                                              |
-| ----- | --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| 1     | `(done)`        | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
-| 2     | `(in progress)` | **Memberships and dues** — tier management, payment recording, and status badges; automated lapse reminders planned   |
-| 3     | `(planned)`     | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
-| 4     | `(in progress)` | **Announcements** — publishing, editing, pinning, and unread hints implemented; audience targeting and email planned  |
-| 5     | `(in progress)` | **Merchandise** — catalog, pending orders, and atomic stock implemented; payment and fulfillment planned              |
-| 6     | `(done)`        | **Volunteer tasks** — grouped board, optional assignment, protected progress updates, and live status summary         |
-| 7     | `(in progress)` | **Expenses and treasurer reporting** — ledger and computed report implemented; export planned                         |
+| Phase | Status          | Features                                                                                                                                                   |
+| ----- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | `(done)`        | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin)                                      |
+| 2     | `(in progress)` | **Memberships and dues** — tier management, payment recording, and status badges; automated lapse reminders planned                                        |
+| 3     | `(in progress)` | **Events and limited tickets** — creation, publishing, atomic reservations, pricing, and check-in implemented; payment, cancellation, and waitlist planned |
+| 4     | `(in progress)` | **Announcements** — publishing, editing, pinning, and unread hints implemented; audience targeting and email planned                                       |
+| 5     | `(in progress)` | **Merchandise** — catalog, pending orders, and atomic stock implemented; payment and fulfillment planned                                                   |
+| 6     | `(done)`        | **Volunteer tasks** — grouped board, optional assignment, protected progress updates, and live status summary                                              |
+| 7     | `(in progress)` | **Expenses and treasurer reporting** — ledger and computed report implemented; export planned                                                              |
 
 ---
 
@@ -177,6 +177,15 @@ edit only posts they authored. Audience targeting and email delivery are
 planned. The volunteer board groups work by status, shows live summary counts,
 and lets assignees advance their own tasks.
 
+Officers and admins can create and publish events with capacities and separate
+member and nonmember prices. Students can browse event details and request
+tickets. The server verifies active membership before applying the member rate,
+and the final seat is protected by an atomic capacity condition inside the same
+MongoDB transaction as the ticket insert. Free tickets are confirmed
+immediately; paid requests remain explicitly pending because no verified payment
+mechanism exists yet. Officers and admins can check in each confirmed ticket
+once. Payment settlement, ticket cancellation, and waitlisting are planned.
+
 The store now allows officers to manage merchandise products with size-based
 variants. Members can browse the catalog and place orders. Stock is managed
 atomically per-variant to prevent race conditions during checkout. Payment
@@ -184,43 +193,44 @@ processing is currently deferred; order placement halts at a clear pending
 state. The report recognizes event-ticket and merchandise-order payment records,
 but neither unfinished payment flow produces settled records yet.
 
-| Item                                            | Status                                                                      |
-| ----------------------------------------------- | --------------------------------------------------------------------------- |
-| `AGENTS.md` — coding-agent rules                | ✅ Done                                                                     |
-| `CLAUDE.md` — Claude agent pointer              | ✅ Done                                                                     |
-| `docs/design-system.md`                         | ✅ Done                                                                     |
-| `docs/architecture.md`                          | ✅ Done                                                                     |
-| `docs/data-model.md` (proposal)                 | ✅ Done                                                                     |
-| npm workspaces monorepo                         | ✅ Done                                                                     |
-| `apps/server` — Express + TypeScript            | ✅ Done                                                                     |
-| `apps/client` — React + Vite + TypeScript       | ✅ Done                                                                     |
-| TypeScript strict mode (both packages)          | ✅ Done                                                                     |
-| ESLint (both packages)                          | ✅ Done                                                                     |
-| Prettier (root)                                 | ✅ Done                                                                     |
-| `GET /api/health` endpoint                      | ✅ Done                                                                     |
-| Legacy status component (not routed)            | ✅ Done                                                                     |
-| Env validation at startup (zod)                 | ✅ Done                                                                     |
-| Docker Compose (Mongo + Redis + API + Web)      | ✅ Done                                                                     |
-| MongoDB single-node replica set (rs0)           | ✅ Done                                                                     |
-| Local lint, typecheck, tests, and build scripts | ✅ Available                                                                |
-| Typecheck                                       | ✅ Client and server pass                                                   |
-| Existing tests                                  | Client: 1 passed; server: 75 passed                                         |
-| Production build                                | ✅ Client and server pass                                                   |
-| Authentication (Phase 1 features)               | Implemented                                                                 |
-| Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                           |
-| Treasurer report                                | ✅ Dues, tickets, merchandise, expenses, and balances grouped by currency   |
-| Live dashboard statistics                       | ✅ Computed from membership, event, and task records                        |
-| Club announcements                              | ✅ Pinned-first list, detail, organizer composer, and unread hints          |
-| Volunteer task board                            | ✅ Grouped statuses, assignments, summary counts, and protected transitions |
-| Merchandise store                               | ✅ Catalog, size variants, atomic stock decrements, and deferred payment    |
+| Item                                            | Status                                                                       |
+| ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| `AGENTS.md` — coding-agent rules                | ✅ Done                                                                      |
+| `CLAUDE.md` — Claude agent pointer              | ✅ Done                                                                      |
+| `docs/design-system.md`                         | ✅ Done                                                                      |
+| `docs/architecture.md`                          | ✅ Done                                                                      |
+| `docs/data-model.md` (proposal)                 | ✅ Done                                                                      |
+| npm workspaces monorepo                         | ✅ Done                                                                      |
+| `apps/server` — Express + TypeScript            | ✅ Done                                                                      |
+| `apps/client` — React + Vite + TypeScript       | ✅ Done                                                                      |
+| TypeScript strict mode (both packages)          | ✅ Done                                                                      |
+| ESLint (both packages)                          | ✅ Done                                                                      |
+| Prettier (root)                                 | ✅ Done                                                                      |
+| `GET /api/health` endpoint                      | ✅ Done                                                                      |
+| Legacy status component (not routed)            | ✅ Done                                                                      |
+| Env validation at startup (zod)                 | ✅ Done                                                                      |
+| Docker Compose (Mongo + Redis + API + Web)      | ✅ Done                                                                      |
+| MongoDB single-node replica set (rs0)           | ✅ Done                                                                      |
+| Local lint, typecheck, tests, and build scripts | ✅ Available                                                                 |
+| Typecheck                                       | ✅ Client and server pass                                                    |
+| Existing tests                                  | Client: 1 passed; server: 76 passed                                          |
+| Production build                                | ✅ Client and server pass                                                    |
+| Authentication (Phase 1 features)               | Implemented                                                                  |
+| Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                            |
+| Treasurer report                                | ✅ Dues, tickets, merchandise, expenses, and balances grouped by currency    |
+| Live dashboard statistics                       | ✅ Computed from membership, event, and task records                         |
+| Club announcements                              | ✅ Pinned-first list, detail, organizer composer, and unread hints           |
+| Volunteer task board                            | ✅ Grouped statuses, assignments, summary counts, and protected transitions  |
+| Merchandise store                               | ✅ Catalog, size variants, atomic stock decrements, and deferred payment     |
+| Events and ticketing                            | Creation, publishing, atomic reservations, pricing, and check-in implemented |
 
 ---
 
 Local verification on 2026-10-03: lint, type checks, and both production builds
-pass. The volunteer-task, announcement, store, finance, and dashboard-focused
-tests pass; Docker-backed volunteer and announcement smoke flows also pass. The
-full server suite now passes completely, including the previously failing
-membership tests!
+pass. The event-capacity, volunteer-task, announcement, store, finance, and
+dashboard-focused tests pass; Docker-backed volunteer and announcement smoke
+flows also pass. The full server suite now passes completely, including the
+previously failing membership tests!
 
 ## Agent Instructions
 

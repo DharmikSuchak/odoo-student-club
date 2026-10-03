@@ -7,6 +7,7 @@ import type { Env } from './config/env.js';
 import { announcementRouter } from './features/announcements/announcement.router.js';
 import { authRouter } from './features/auth/auth.router.js';
 import { dashboardRouter } from './features/dashboard/dashboard.router.js';
+import { eventRouter } from './features/events/event.router.js';
 import { expenseRouter } from './features/expenses/expense.router.js';
 import { membershipRouter } from './features/memberships/membership.router.js';
 import { storeRouter } from './features/store/store.router.js';
@@ -65,6 +66,7 @@ export function createApp(env: Env) {
   app.use('/api/auth', authRouter);
   app.use('/api/announcements', announcementRouter);
   app.use('/api/dashboard', dashboardRouter);
+  app.use('/api/events', eventRouter);
   app.use('/api/expenses', expenseRouter);
   app.use('/api/memberships', membershipRouter);
   app.use('/api/store', storeRouter);

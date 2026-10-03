@@ -32,18 +32,18 @@ clubs ──────────< announcements
 
 ## 2. Open Questions Resolved
 
-| #   | Question                                                         | Decision                                                                                                                                        |
-| --- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Q1  | Single-club vs. multi-club from the start?                       | Single doc now (`clubs` collection added); `clubId` scoping is present on all club-owned collections.                                           |
-| Q2  | Waitlist implementation — document or virtual field?             | Separate `eventTickets` with `status: 'waitlisted'`. Capacity is enforced via an atomic count on `status: 'confirmed'`.                         |
-| Q3  | Announcement body — Markdown or rich text (Tiptap)?              | Plain text is used for the MVP and rendered as escaped React text. Rich text remains out of scope.                                              |
-| Q4  | Role model — per-user global or per-club membership?             | Global role on `users` (`member`, `officer`, `treasurer`, `admin`).                                                                             |
-| Q5  | Payment provider — Stripe, Razorpay, or mock?                    | Enum `provider` includes `'mock_online'` and `'manual'`, with idempotency tracking via `providerEventId`.                                       |
-| Q6  | Soft-delete strategy — `isActive` flag or `deletedAt` timestamp? | `deletedAt` timestamp for auditable soft-delete on users.                                                                                       |
-| Q7  | `expenses` — approval workflow needed in MVP?                    | Auditable `pending` → `approved` or `rejected` review, followed by `approved` → `reimbursed` when funds are paid.                               |
-| Q8  | Member vs. Non-Member event pricing?                             | Supported on `events` (`memberPriceCents` vs `nonMemberPriceCents`), dynamically resolved at purchase time.                                     |
-| Q9  | Merchandise Size-based Stock?                                    | Supported via an optional `variants` array on the item (e.g. `{ size: 'M', stockQuantity: 10 }`).                                               |
-| Q10 | Club Year-end Expiry?                                            | `memberships` store explicit `endDate`. Default `durationDays` exists on the tier, but officers can set a fiscal year-end date during creation. |
+| #   | Question                                                         | Decision                                                                                                                                             |
+| --- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1  | Single-club vs. multi-club from the start?                       | Single doc now (`clubs` collection added); `clubId` scoping is present on all club-owned collections.                                                |
+| Q2  | Waitlist implementation — document or virtual field?             | A `waitlisted` status is reserved in the schema, but waitlist behavior is planned. Current capacity uses an atomic `remainingTicketCount` decrement. |
+| Q3  | Announcement body — Markdown or rich text (Tiptap)?              | Plain text is used for the MVP and rendered as escaped React text. Rich text remains out of scope.                                                   |
+| Q4  | Role model — per-user global or per-club membership?             | Global role on `users` (`member`, `officer`, `treasurer`, `admin`).                                                                                  |
+| Q5  | Payment provider — Stripe, Razorpay, or mock?                    | Enum `provider` includes `'mock_online'` and `'manual'`, with idempotency tracking via `providerEventId`.                                            |
+| Q6  | Soft-delete strategy — `isActive` flag or `deletedAt` timestamp? | `deletedAt` timestamp for auditable soft-delete on users.                                                                                            |
+| Q7  | `expenses` — approval workflow needed in MVP?                    | Auditable `pending` → `approved` or `rejected` review, followed by `approved` → `reimbursed` when funds are paid.                                    |
+| Q8  | Member vs. Non-Member event pricing?                             | Supported on `events` (`memberPriceCents` vs `nonMemberPriceCents`), dynamically resolved at purchase time.                                          |
+| Q9  | Merchandise Size-based Stock?                                    | Supported via an optional `variants` array on the item (e.g. `{ size: 'M', stockQuantity: 10 }`).                                                    |
+| Q10 | Club Year-end Expiry?                                            | `memberships` store explicit `endDate`. Default `durationDays` exists on the tier, but officers can set a fiscal year-end date during creation.      |
 
 ---
 
@@ -67,9 +67,17 @@ _Note: For exact fields, required types, and validations, see the Zod schemas in
 
 ### `events` & `eventTickets`
 
-- **Events** support separate `memberPriceCents` and `nonMemberPriceCents`.
-- **Tickets** track purchase, capacity, waitlisting, and check-in.
-- Ticket payments are represented in the immutable `payments` ledger.
+- **Events** store separate `memberPriceCents` and `nonMemberPriceCents`, total
+  `ticketCapacity`, and `remainingTicketCount`.
+- **Ticket requests** atomically decrement `remainingTicketCount` only when it
+  is greater than zero. The decrement and ticket insert share one MongoDB
+  transaction.
+- The server verifies an active membership before snapshotting the applied price
+  on the ticket.
+- Free tickets are confirmed immediately. Paid tickets remain `pending_payment`;
+  payment collection and verified settlement are planned.
+- Officers and admins can check in a confirmed ticket once. Waitlisting and
+  cancellation are planned.
 
 ### `merchandiseItems` & `orders`
 
@@ -183,6 +191,6 @@ Indexes are managed by `apps/server/src/db/migrate.ts`.
 
 ---
 
-_Last updated: Phase 5 — merchandise ordering implemented (catalog, size
-variants, atomic stock decrement, pending-payment orders, organizer product
-manager, order history view)._
+_Last updated: Phase 3 event ticket flow — publishing, atomic capacity
+reservation, server-selected pricing, pending-payment tickets, and one-time
+check-in._
