@@ -27,7 +27,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: var(--brand-700);
+  background: var(--brand-600);
   color: var(--surface);
   font-family: var(--font-heading);
   font-weight: 700;

@@ -5,6 +5,7 @@ import helmet from 'helmet';
 
 import type { Env } from './config/env.js';
 import { authRouter } from './features/auth/auth.router.js';
+import { dashboardRouter } from './features/dashboard/dashboard.router.js';
 import { expenseRouter } from './features/expenses/expense.router.js';
 import { membershipRouter } from './features/memberships/membership.router.js';
 import { globalErrorHandler } from './middleware/error-handler.js';
@@ -59,6 +60,7 @@ export function createApp(env: Env) {
 
   app.use('/api/health', healthRouter);
   app.use('/api/auth', authRouter);
+  app.use('/api/dashboard', dashboardRouter);
   app.use('/api/expenses', expenseRouter);
   app.use('/api/memberships', membershipRouter);
 

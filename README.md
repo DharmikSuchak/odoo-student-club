@@ -161,6 +161,11 @@ from payment and expense records, grouped by currency, and label settled versus
 pending values. All finance endpoints enforce roles on the server; the UI also
 provides role-aware navigation and useful empty states.
 
+The dashboard now reads current active memberships, published future events,
+open volunteer tasks, and pending dues from an authenticated summary endpoint.
+The application uses the flat `#0887C9` brand palette and `#F4F8FA` page
+background.
+
 Announcements, events, merchandise, and volunteer tasks remain planned. The
 report already recognizes event-ticket payment records, so ticket revenue will
 appear when the event purchase flow is implemented.
@@ -185,18 +190,19 @@ appear when the event purchase flow is implemented.
 | MongoDB single-node replica set (rs0)           | ✅ Done                                                                    |
 | Local lint, typecheck, tests, and build scripts | ✅ Available                                                               |
 | Typecheck                                       | ✅ Client and server pass                                                  |
-| Existing tests                                  | Client: 1 passed; server: 39 passed, 10 pre-existing membership tests fail |
+| Existing tests                                  | Client: 1 passed; server: 41 passed, 10 pre-existing membership tests fail |
 | Production build                                | ✅ Client and server pass                                                  |
 | Authentication (Phase 1 features)               | Implemented                                                                |
 | Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                          |
 | Treasurer report                                | ✅ Computed by currency from payments and approved expenses                |
+| Live dashboard statistics                       | ✅ Computed from membership, event, and task records                       |
 
 ---
 
 Local verification on 2026-10-03: lint, type checks, and both production builds
-pass. The finance-focused tests pass; the full server suite still has 10
-pre-existing membership-test failures caused by its in-process role-promotion
-fixture.
+pass. The finance and dashboard-focused tests pass; the full server suite still
+has 10 pre-existing membership-test failures caused by its in-process
+role-promotion fixture.
 
 ## Agent Instructions
 

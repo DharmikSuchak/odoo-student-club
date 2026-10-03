@@ -45,20 +45,21 @@
 
 ### Brand (Sky)
 
-| Token       | Hex       | Usage                                   |
-| ----------- | --------- | --------------------------------------- |
-| `brand-50`  | `#f0f9ff` | Tinted active backgrounds, subtle fills |
-| `brand-100` | `#e0f2fe` | Hover backgrounds, info fills           |
-| `brand-500` | `#0ea5e9` | Primary actions, links, focus rings     |
-| `brand-600` | `#0284c7` | Button hover state                      |
-| `brand-700` | `#0369a1` | Button active / pressed state           |
+| Token            | Hex       | Usage                                   |
+| ---------------- | --------- | --------------------------------------- |
+| `brand-50`       | `#F0F8FC` | Tinted active backgrounds, subtle fills |
+| `brand-100`      | `#E2F1F8` | Hover backgrounds, info fills           |
+| `brand-500`      | `#0887C9` | Reference blue, focus rings, stat icons |
+| `brand-600`      | `#0779B5` | Primary actions and hover state         |
+| `brand-700`      | `#066B9F` | Button active / pressed state           |
+| `app-background` | `#F4F8FA` | App and authentication page background  |
 
 ### Slate (Neutral)
 
 | Token       | Hex       | Usage                               |
 | ----------- | --------- | ----------------------------------- |
 | `slate-50`  | `#f8fafc` | Table header background             |
-| `slate-100` | `#f1f5f9` | Page background, subtle fills       |
+| `slate-100` | `#f1f5f9` | Subtle fills                        |
 | `slate-200` | `#e2e8f0` | Borders, dividers, input borders    |
 | `slate-400` | `#94a3b8` | Placeholder text, inactive icons    |
 | `slate-500` | `#64748b` | Secondary / muted text              |
@@ -136,7 +137,8 @@ Transition the second shadow value on `hover`, not the ring.
   avatar.
 - **Tab bar**: sticky below header when a page uses tabs; `z-index: 40`.
 - **Content area**: `overflow-y: auto`; full remaining height.
-- **Page background**: subtle diagonal slate pattern on `slate-100`.
+- **Page background**: subtle diagonal slate pattern over `app-background`
+  (`#F4F8FA`).
 
 ### Mobile
 
@@ -192,7 +194,7 @@ Transition the second shadow value on `hover`, not the ring.
 
 - Background: white.
 - Border: `1px solid slate-200`, radius `radius-card` (16 px).
-- Focus ring: `0 0 0 3px rgba(14,165,233,0.25)` (brand-500 at 25 %).
+- Focus ring: `0 0 0 3px rgba(8,135,201,0.25)` (brand-500 at 25 %).
 - Leading icon: 16 px icon, `slate-400` color, padded `12px` from edge.
 - Error state: border `danger` color, focus ring uses danger color.
 
@@ -267,9 +269,8 @@ Use **one consistent icon library** across the entire application (e.g.
 - Same white/blue visual language as the rest of the application.
 - Auth card: `radius-auth` (24 px), white background, card shadow.
 - Title: `text-auth-title` — 36 px, Outfit, extrabold.
-- Restrained **purple accent or gradient** on the sign-in screen only (e.g. a
-  subtle background gradient or a decorative element).  
-  Do **not** create a separate dark visual identity.
+- Use the brand palette and `app-background` only. Do not introduce gradients or
+  additional accent colors.
 - Do **not** add a dark theme unless explicitly requested.
 
 ---

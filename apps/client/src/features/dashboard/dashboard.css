@@ -146,7 +146,7 @@
   justify-content: space-between;
 }
 .stat-card-icon {
-  color: var(--brand-700);
+  color: var(--brand-500);
   background: var(--brand-50);
   opacity: 0.4;
 }
@@ -160,7 +160,7 @@
   min-height: 44px;
   padding: 10px 20px;
   border-radius: var(--radius-btn-sm);
-  background: var(--brand-700);
+  background: var(--brand-600);
   color: var(--surface);
   font-weight: 600;
   text-decoration: none;
@@ -169,4 +169,7 @@
 .dashboard-action:hover {
   background: var(--brand-700);
   box-shadow: var(--shadow-card-hover);
+}
+.dashboard-action:active {
+  background: var(--brand-700);
 }

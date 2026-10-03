@@ -124,8 +124,10 @@ Indexes are managed by `apps/server/src/db/migrate.ts`.
 - [x] `memberships.userId + status`
 - [x] `memberships.tierId`
 - [x] `memberships.endDate`
+- [x] `memberships.clubId + status + endDate`
 - [x] `events.clubId + startsAt`
 - [x] `events.isPublished + startsAt`
+- [x] `events.clubId + isPublished + startsAt`
 - [x] `eventTickets.eventId + status`
 - [x] `eventTickets.userId + eventId` — unique
 - [x] `payments.providerEventId` — unique sparse
@@ -134,9 +136,10 @@ Indexes are managed by `apps/server/src/db/migrate.ts`.
 - [x] `expenses.clubId + status + createdAt`
 - [x] `expenses.clubId + submittedBy + createdAt`
 - [x] `orders.userId + status`
+- [x] `tasks.clubId + status`
 - [x] `volunteerAssignments.taskId + userId` — unique
 
 ---
 
-_Last updated: Phase 7 — expenses, reimbursements, and computed treasurer
-reporting implemented._
+_Last updated: Phase 7 — expenses, computed treasurer reporting, and live
+dashboard summaries implemented._

@@ -362,3 +362,20 @@ export async function apiReimburseExpense(expenseId: string): Promise<ExpenseRes
 export async function apiGetTreasurerReport(): Promise<TreasurerReportResponse> {
   return apiFetch<TreasurerReportResponse>('/api/expenses/report');
 }
+
+export interface DashboardSummary {
+  activeMembers: number;
+  upcomingEvents: number;
+  openTasks: number;
+  pendingDues: number;
+}
+
+interface DashboardSummaryResponse {
+  status: 'ok';
+  summary: DashboardSummary;
+}
+
+/** Loads the authenticated club dashboard counts from current records. */
+export async function apiGetDashboardSummary(): Promise<DashboardSummaryResponse> {
+  return apiFetch<DashboardSummaryResponse>('/api/dashboard/summary');
+}

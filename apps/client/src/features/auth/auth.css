@@ -17,10 +17,7 @@
 .auth-bg-gradient {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 0%, var(--auth-glow) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 100%, var(--brand-glow) 0%, transparent 60%),
-    linear-gradient(160deg, var(--slate-50) 0%, var(--brand-50) 100%);
+  background: var(--app-background);
   pointer-events: none;
   z-index: 0;
 }
@@ -63,12 +60,12 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-btn-sm);
-  background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-700) 100%);
+  background: var(--brand-600);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 16px;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 4px 12px rgba(8, 135, 201, 0.3);
 }
 
 .auth-logo span {
@@ -224,7 +221,7 @@
   gap: 8px;
   padding: 0 20px;
   height: 44px;
-  background: var(--brand-700);
+  background: var(--brand-600);
   color: var(--surface);
   border: none;
   border-radius: var(--radius-card);
@@ -237,13 +234,13 @@
     transform 150ms ease,
     box-shadow 200ms ease;
   text-decoration: none;
-  box-shadow: 0 1px 3px rgba(14, 165, 233, 0.2);
+  box-shadow: 0 1px 3px rgba(8, 135, 201, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--brand-700);
   box-shadow: var(--shadow-card-hover);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 4px 12px rgba(8, 135, 201, 0.3);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -289,7 +286,7 @@
 }
 
 .auth-link {
-  color: var(--brand-700);
+  color: var(--brand-600);
   font-weight: 600;
   text-decoration: none;
   transition: color 150ms ease;
@@ -313,7 +310,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: var(--slate-100);
+  background: var(--app-background);
 }
 
 .loading-spinner {
@@ -347,7 +344,7 @@
   box-shadow: var(--shadow-card);
 }
 .auth-page--login .auth-logo {
-  background: linear-gradient(135deg, var(--brand-700), var(--auth-accent));
+  background: var(--brand-600);
 }
 .auth-link {
   display: inline-flex;

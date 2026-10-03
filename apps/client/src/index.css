@@ -6,17 +6,15 @@
 /* ── Google Fonts are loaded in index.html ──────────────────── */
 
 :root {
-  --brand-50: #f0f9ff;
-  --brand-100: #e0f2fe;
-  --brand-500: #0ea5e9;
-  --brand-600: #0284c7;
-  --brand-700: #0369a1;
+  --brand-50: #f0f8fc;
+  --brand-100: #e2f1f8;
+  --brand-500: #0887c9;
+  --brand-600: #0779b5;
+  --brand-700: #066b9f;
+  --app-background: #f4f8fa;
   --surface: #ffffff;
-  --focus-ring: 0 0 0 3px rgba(14, 165, 233, 0.25);
+  --focus-ring: 0 0 0 3px rgba(8, 135, 201, 0.25);
   --focus-danger: 0 0 0 3px rgba(220, 38, 38, 0.2);
-  --auth-accent: #7c3aed;
-  --auth-glow: rgba(139, 92, 246, 0.12);
-  --brand-glow: rgba(14, 165, 233, 0.1);
   --overlay: rgba(15, 23, 42, 0.45);
   --content-width: 1100px;
 
@@ -72,7 +70,7 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--slate-700);
-  background-color: var(--slate-100);
+  background-color: var(--app-background);
   line-height: 1.5;
   min-height: 100vh;
 }
