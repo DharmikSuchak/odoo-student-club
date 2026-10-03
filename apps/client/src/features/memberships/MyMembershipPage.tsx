@@ -9,6 +9,7 @@
  *
  * The page uses real API data — no static success responses.
  */
+import { AlertCircle, GraduationCap, Info } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import type { ApiError, Membership, MembershipTier } from '../../lib/api-client';
@@ -34,7 +35,8 @@ function formatMoney(cents: number): string {
 
 function MembershipSkeleton() {
   return (
-    <div className="ms-skeleton" aria-busy="true" aria-label="Loading membership">
+    <div className="ms-skeleton" role="status" aria-label="Loading membership">
+      <span className="sr-only">Loading membership…</span>
       <div className="ms-skeleton-line ms-skeleton-line--short" />
       <div className="ms-skeleton-line ms-skeleton-line--medium" />
       <div className="ms-skeleton-line ms-skeleton-line--full" />
@@ -61,7 +63,7 @@ function MembershipCard({
 
       {!isActive && membership.status === 'pending_payment' && (
         <div className="ms-notice ms-notice--warning" role="status">
-          <span>⚠️</span>
+          <AlertCircle size={18} aria-hidden="true" />
           <span>
             Your membership is awaiting payment confirmation. Please contact your club organizer or
             treasurer to record your dues payment.
@@ -71,7 +73,7 @@ function MembershipCard({
 
       {!isActive && membership.status === 'active' && (
         <div className="ms-notice ms-notice--warning" role="status">
-          <span>⚠️</span>
+          <AlertCircle size={18} aria-hidden="true" />
           <span>This membership has expired. Ask an organizer to renew it for you.</span>
         </div>
       )}
@@ -106,11 +108,11 @@ function MembershipCard({
       </div>
 
       {membership.status === 'pending_payment' && (
-        <div className="ms-notice ms-notice--info" role="note" style={{ marginBottom: 0 }}>
-          <span>ℹ️</span>
+        <div className="ms-notice ms-notice--info" role="note">
+          <Info size={18} aria-hidden="true" />
           <span>
-            <strong>Note:</strong> Dues are recorded manually by a treasurer after receiving
-            cash or bank transfer. Online payment is not yet available.
+            <strong>Note:</strong> Dues are recorded manually by a treasurer after receiving cash or
+            bank transfer. Online payment is not yet available.
           </span>
         </div>
       )}
@@ -128,9 +130,12 @@ export function MyMembershipPage() {
   const [tiers, setTiers] = useState<MembershipTier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setIsLoading(true);
+    setError(null);
 
     async function load() {
       try {
@@ -154,7 +159,7 @@ export function MyMembershipPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   const currentTier = tiers.find((t) => t._id === membership?.tierId);
 
@@ -173,38 +178,43 @@ export function MyMembershipPage() {
 
       {!isLoading && error !== null && (
         <div className="ms-error" role="alert">
-          <span>⚠️ {error}</span>
+          <AlertCircle size={24} aria-hidden="true" />
+          <p>{error}</p>
+          <button
+            type="button"
+            className="ms-btn ms-btn--ghost"
+            onClick={() => setReloadKey((previous) => previous + 1)}
+          >
+            Try again
+          </button>
         </div>
       )}
 
       {!isLoading && error === null && membership === null && (
         <div className="ms-empty">
-          <span className="ms-empty-icon" aria-hidden="true">🎓</span>
+          <span className="ms-empty-icon" aria-hidden="true">
+            <GraduationCap size={40} />
+          </span>
           <h2 className="ms-empty-title">No membership yet</h2>
           <p className="ms-empty-body">
             You don&apos;t have a membership record. Contact your club organizer to get one set up
             for you.
           </p>
 
+          {tiers.length === 0 && (
+            <p className="ms-muted">Membership tiers have not been set up yet.</p>
+          )}
           {tiers.length > 0 && (
-            <div style={{ marginTop: 20 }}>
-              <p className="ms-detail-label" style={{ marginBottom: 8, textAlign: 'center' }}>
-                Available tiers
-              </p>
+            <div className="ms-tier-list">
+              <p className="ms-detail-label">Available tiers</p>
               {tiers.map((tier) => (
-                <div
-                  key={tier._id}
-                  className="ms-card"
-                  style={{ textAlign: 'left', marginBottom: 10 }}
-                >
+                <div key={tier._id} className="ms-card ms-tier-card">
                   <div className="ms-card-header">
                     <span className="ms-card-title">{tier.name}</span>
                     <span className="ms-detail-value">{formatMoney(tier.priceCents)}</span>
                   </div>
                   {tier.description !== undefined && (
-                    <p className="ms-detail-value" style={{ fontWeight: 400 }}>
-                      {tier.description}
-                    </p>
+                    <p className="ms-tier-description">{tier.description}</p>
                   )}
                 </div>
               ))}

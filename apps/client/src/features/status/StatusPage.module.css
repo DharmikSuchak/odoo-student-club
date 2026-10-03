@@ -7,7 +7,7 @@
 }
 
 .card {
-  background: #ffffff;
+  background: var(--surface);
   border: 1px solid var(--slate-200);
   border-radius: var(--radius-auth);
   box-shadow: var(--shadow-card);
@@ -38,7 +38,7 @@
   font-family: var(--font-heading);
   font-size: 1.375rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--surface);
   letter-spacing: -0.02em;
 }
 
@@ -55,7 +55,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--slate-400);
+  color: var(--slate-500);
   margin-bottom: 24px;
 }
 
@@ -81,7 +81,7 @@
 }
 
 .muted {
-  color: var(--slate-400);
+  color: var(--slate-500);
 }
 
 .success {
@@ -110,7 +110,9 @@
   justify-content: space-between;
   font-size: 0.8125rem;
   color: var(--slate-500);
-  padding: 3px 0;
+  padding: 8px 0;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .detailRow dt {
@@ -147,4 +149,30 @@
   border-radius: 4px;
   padding: 1px 5px;
   color: var(--slate-700);
+}
+
+.icon {
+  display: flex;
+}
+.spinner {
+  animation: status-spin 1s linear infinite;
+}
+.retryButton {
+  min-height: 44px;
+  padding: 10px 16px;
+  margin-top: 16px;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-btn-sm);
+  color: var(--brand-700);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+.retryButton:hover {
+  background: var(--brand-50);
+}
+@keyframes status-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

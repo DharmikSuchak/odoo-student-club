@@ -49,7 +49,7 @@ export default function App() {
           <Route
             path="/manage/memberships"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="officer">
                 <AppShell>
                   <ManageMembershipsPage />
                 </AppShell>

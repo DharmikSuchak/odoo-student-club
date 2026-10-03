@@ -11,6 +11,14 @@
   --brand-500: #0ea5e9;
   --brand-600: #0284c7;
   --brand-700: #0369a1;
+  --surface: #ffffff;
+  --focus-ring: 0 0 0 3px rgba(14, 165, 233, 0.25);
+  --focus-danger: 0 0 0 3px rgba(220, 38, 38, 0.2);
+  --auth-accent: #7c3aed;
+  --auth-glow: rgba(139, 92, 246, 0.12);
+  --brand-glow: rgba(14, 165, 233, 0.1);
+  --overlay: rgba(15, 23, 42, 0.45);
+  --content-width: 1100px;
 
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;
@@ -130,4 +138,50 @@ body::before {
   :root {
     --page-padding: 16px;
   }
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--brand-700);
+  outline-offset: 3px;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+button svg,
+.ms-notice svg {
+  flex-shrink: 0;
+}
+a {
+  text-underline-offset: 3px;
+}
+.ui-dialog {
+  border: none;
+  background: transparent;
+  color: var(--slate-700);
+  margin: auto;
+  padding: 16px;
+  width: min(100%, 532px);
+  max-width: 100%;
+  max-height: 100dvh;
+  overflow-y: auto;
+}
+.ui-dialog::backdrop {
+  background: var(--overlay);
+}
+.ui-dialog .ms-modal {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
 }

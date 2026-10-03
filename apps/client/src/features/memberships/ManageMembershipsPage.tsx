@@ -9,9 +9,10 @@
  * All data comes from real API calls.
  * The manual payment form is clearly labelled as NOT an online payment.
  */
-import { X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { AlertCircle, FolderOpen, Info, Plus, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
+import { Dialog } from '../../components/Dialog';
 import type { ApiError, Membership, MembershipTier } from '../../lib/api-client';
 import {
   apiCreateMembership,
@@ -74,13 +75,10 @@ function todayIso(): string {
 
 function TableSkeleton() {
   return (
-    <div className="ms-skeleton" aria-busy="true" aria-label="Loading memberships">
+    <div className="ms-skeleton" role="status" aria-label="Loading memberships">
+      <span className="sr-only">Loading memberships…</span>
       {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="ms-skeleton-line ms-skeleton-line--full"
-          style={{ marginBottom: 14 }}
-        />
+        <div key={i} className="ms-skeleton-line ms-skeleton-line--full" />
       ))}
     </div>
   );
@@ -104,8 +102,7 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
 
   function validate(): CreateFormErrors {
     const e: CreateFormErrors = {};
-    if (!/^[0-9a-f]{24}$/i.test(form.userId))
-      e.userId = 'Must be a valid 24-character MongoDB ObjectId.';
+    if (!/^[0-9a-f]{24}$/i.test(form.userId)) e.userId = 'Enter the member’s 24-character ID.';
     if (form.tierId.length === 0) e.tierId = 'Please select a tier.';
     if (form.startDate.length === 0) e.startDate = 'Start date is required.';
     if (form.endDate.length === 0) e.endDate = 'End date is required.';
@@ -141,16 +138,7 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
   }
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-    <div
-      className="ms-modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="create-modal-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <Dialog titleId="create-modal-title" onClose={onClose} busy={isSubmitting}>
       <div className="ms-modal">
         <div className="ms-modal-header">
           <h2 id="create-modal-title" className="ms-modal-title">
@@ -160,6 +148,7 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
             type="button"
             className="ms-modal-close"
             onClick={onClose}
+            disabled={isSubmitting}
             aria-label="Close modal"
           >
             <X size={16} />
@@ -169,10 +158,12 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
         <form className="ms-form" onSubmit={(e) => void handleSubmit(e)} noValidate>
           <div className="ms-field">
             <label className="ms-label" htmlFor="create-userId">
-              User ID <span aria-hidden="true">(MongoDB ObjectId)</span>
+              Member ID
             </label>
             <input
               id="create-userId"
+              aria-invalid={errors.userId !== undefined}
+              aria-describedby={errors.userId !== undefined ? 'create-userId-error' : undefined}
               className={`ms-input${errors.userId !== undefined ? ' ms-input--error' : ''}`}
               type="text"
               placeholder="507f1f77bcf86cd799439011"
@@ -182,7 +173,7 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
               maxLength={24}
             />
             {errors.userId !== undefined && (
-              <span className="ms-field-error" role="alert">
+              <span id="create-userId-error" className="ms-field-error" role="alert">
                 {errors.userId}
               </span>
             )}
@@ -194,6 +185,8 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
             </label>
             <select
               id="create-tierId"
+              aria-invalid={errors.tierId !== undefined}
+              aria-describedby={errors.tierId !== undefined ? 'create-tierId-error' : undefined}
               className={`ms-select${errors.tierId !== undefined ? ' ms-select--error' : ''}`}
               value={form.tierId}
               onChange={(e) => setForm((f) => ({ ...f, tierId: e.target.value }))}
@@ -205,7 +198,7 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
               ))}
             </select>
             {errors.tierId !== undefined && (
-              <span className="ms-field-error" role="alert">
+              <span id="create-tierId-error" className="ms-field-error" role="alert">
                 {errors.tierId}
               </span>
             )}
@@ -218,13 +211,17 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
               </label>
               <input
                 id="create-startDate"
+                aria-invalid={errors.startDate !== undefined}
+                aria-describedby={
+                  errors.startDate !== undefined ? 'create-startDate-error' : undefined
+                }
                 className={`ms-input${errors.startDate !== undefined ? ' ms-input--error' : ''}`}
                 type="date"
                 value={form.startDate}
                 onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))}
               />
               {errors.startDate !== undefined && (
-                <span className="ms-field-error" role="alert">
+                <span id="create-startDate-error" className="ms-field-error" role="alert">
                   {errors.startDate}
                 </span>
               )}
@@ -235,13 +232,15 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
               </label>
               <input
                 id="create-endDate"
+                aria-invalid={errors.endDate !== undefined}
+                aria-describedby={errors.endDate !== undefined ? 'create-endDate-error' : undefined}
                 className={`ms-input${errors.endDate !== undefined ? ' ms-input--error' : ''}`}
                 type="date"
                 value={form.endDate}
                 onChange={(e) => setForm((f) => ({ ...f, endDate: e.target.value }))}
               />
               {errors.endDate !== undefined && (
-                <span className="ms-field-error" role="alert">
+                <span id="create-endDate-error" className="ms-field-error" role="alert">
                   {errors.endDate}
                 </span>
               )}
@@ -255,16 +254,26 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
           )}
 
           <div className="ms-modal-footer">
-            <button type="button" className="ms-btn ms-btn--ghost" onClick={onClose}>
+            <button
+              type="button"
+              className="ms-btn ms-btn--ghost"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </button>
-            <button type="submit" className="ms-btn ms-btn--primary" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="ms-btn ms-btn--primary"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
               {isSubmitting ? 'Creating…' : 'Create membership'}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -310,16 +319,7 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
   }
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-    <div
-      className="ms-modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="pay-modal-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <Dialog titleId="pay-modal-title" onClose={onClose} busy={isSubmitting}>
       <div className="ms-modal">
         <div className="ms-modal-header">
           <h2 id="pay-modal-title" className="ms-modal-title">
@@ -329,6 +329,7 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
             type="button"
             className="ms-modal-close"
             onClick={onClose}
+            disabled={isSubmitting}
             aria-label="Close modal"
           >
             <X size={16} />
@@ -337,7 +338,7 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
 
         {/* Clearly label this as NOT an online payment */}
         <div className="ms-notice ms-notice--warning" role="note">
-          <span>⚠️</span>
+          <Info size={18} aria-hidden="true" />
           <span>
             <strong>This is not an online payment.</strong> Use this form only to record that you
             have physically received cash or confirmed a bank transfer from the member.
@@ -351,6 +352,10 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
             </label>
             <input
               id="pay-amount"
+              aria-invalid={errors.amountPaidCents !== undefined}
+              aria-describedby={
+                errors.amountPaidCents !== undefined ? 'pay-amount-error' : undefined
+              }
               className={`ms-input${errors.amountPaidCents !== undefined ? ' ms-input--error' : ''}`}
               type="number"
               inputMode="numeric"
@@ -361,7 +366,7 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
               onChange={(e) => setForm((f) => ({ ...f, amountPaidCents: e.target.value }))}
             />
             {errors.amountPaidCents !== undefined && (
-              <span className="ms-field-error" role="alert">
+              <span id="pay-amount-error" className="ms-field-error" role="alert">
                 {errors.amountPaidCents}
               </span>
             )}
@@ -374,16 +379,26 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
           )}
 
           <div className="ms-modal-footer">
-            <button type="button" className="ms-btn ms-btn--ghost" onClick={onClose}>
+            <button
+              type="button"
+              className="ms-btn ms-btn--ghost"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </button>
-            <button type="submit" className="ms-btn ms-btn--primary" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="ms-btn ms-btn--primary"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
               {isSubmitting ? 'Recording…' : 'Confirm receipt'}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -401,52 +416,68 @@ export function ManageMembershipsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Membership | null>(null);
+  const [tiersLoading, setTiersLoading] = useState(true);
+  const [tiersError, setTiersError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const canRecordPayment = user !== null && (user.role === 'treasurer' || user.role === 'admin');
 
-  const loadMemberships = useCallback(async (status?: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await apiListMemberships(status !== '' ? status : undefined);
-      setMemberships(res.memberships);
-    } catch (err) {
-      const apiErr = err as ApiError;
-      setError(apiErr.message ?? 'Failed to load memberships.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     let cancelled = false;
-    async function init() {
-      try {
-        const tiersRes = await apiGetTiers();
-        if (!cancelled) setTiers(tiersRes.tiers);
-      } catch {
-        // non-fatal — tiers are optional for the table
-      }
-      await loadMemberships(statusFilter);
-    }
-    void init();
+    setIsLoading(true);
+    setError(null);
+    apiListMemberships(statusFilter || undefined)
+      .then((response) => {
+        if (!cancelled) setMemberships(response.memberships);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled)
+          setError(error instanceof Error ? error.message : 'Failed to load memberships.');
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [statusFilter, reloadKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setTiersLoading(true);
+    setTiersError(null);
+    apiGetTiers()
+      .then((response) => {
+        if (!cancelled) setTiers(response.tiers);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled)
+          setTiersError(
+            error instanceof Error ? error.message : 'Failed to load membership tiers.',
+          );
+      })
+      .finally(() => {
+        if (!cancelled) setTiersLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   function handleFilterChange(status: string) {
     setStatusFilter(status);
-    void loadMemberships(status !== '' ? status : undefined);
+    setNotice(null);
   }
 
-  function handleCreated(newMembership: Membership) {
-    setMemberships((prev) => [newMembership, ...prev]);
+  function handleCreated() {
+    setNotice('Membership created. It will remain pending until payment is recorded.');
+    setReloadKey((previous) => previous + 1);
   }
 
-  function handlePaymentRecorded(updated: Membership) {
-    setMemberships((prev) => prev.map((m) => (m._id === updated._id ? updated : m)));
+  function handlePaymentRecorded() {
+    setNotice('Payment recorded successfully.');
+    setReloadKey((previous) => previous + 1);
   }
 
   const tierById = new Map(tiers.map((t) => [t._id, t]));
@@ -465,13 +496,46 @@ export function ManageMembershipsPage() {
           className="ms-btn ms-btn--primary"
           onClick={() => setShowCreateModal(true)}
           id="btn-create-membership"
+          disabled={tiersLoading || tiersError !== null || tiers.length === 0}
+          aria-describedby="membership-tier-status"
         >
-          + New Membership
+          <Plus size={16} aria-hidden="true" /> New Membership
         </button>
       </div>
 
+      <div id="membership-tier-status">
+        {tiersLoading && (
+          <p className="ms-notice ms-notice--info" role="status">
+            Loading membership tiers…
+          </p>
+        )}
+        {!tiersLoading && tiersError && (
+          <div className="ms-notice ms-notice--warning" role="alert">
+            <AlertCircle size={18} aria-hidden="true" />
+            <span>Membership tiers could not be loaded. {tiersError}</span>
+            <button
+              type="button"
+              className="ms-btn ms-btn--ghost"
+              onClick={() => setReloadKey((previous) => previous + 1)}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        {!tiersLoading && !tiersError && tiers.length === 0 && (
+          <p className="ms-notice ms-notice--info" role="status">
+            No membership tiers are available. Ask your club administrator to set up a tier before
+            creating a membership.
+          </p>
+        )}
+      </div>
+      {notice && (
+        <p className="ms-alert ms-alert--success" role="status">
+          {notice}
+        </p>
+      )}
       <div className="ms-toolbar">
-        <label className="ms-label" htmlFor="status-filter" style={{ marginBottom: 0 }}>
+        <label className="ms-label" htmlFor="status-filter">
           Filter by status:
         </label>
         <select
@@ -492,26 +556,45 @@ export function ManageMembershipsPage() {
 
       {!isLoading && error !== null && (
         <div className="ms-error" role="alert">
-          ⚠️ {error}
+          <AlertCircle size={24} aria-hidden="true" />
+          <p>{error}</p>
+          <button
+            type="button"
+            className="ms-btn ms-btn--ghost"
+            onClick={() => setReloadKey((previous) => previous + 1)}
+          >
+            Try again
+          </button>
         </div>
       )}
 
       {!isLoading && error === null && memberships.length === 0 && (
         <div className="ms-empty">
           <span className="ms-empty-icon" aria-hidden="true">
-            🗂️
+            <FolderOpen size={40} />
           </span>
           <h2 className="ms-empty-title">No memberships found</h2>
           <p className="ms-empty-body">
             {statusFilter !== ''
-              ? `No memberships with status "${statusFilter}". Try a different filter.`
-              : 'No memberships have been created yet. Click "+ New Membership" to get started.'}
+              ? `No ${statusFilter.replaceAll('_', ' ')} memberships. Try a different filter.`
+              : 'No memberships have been created yet. Once a tier is available, use New Membership to get started.'}
           </p>
+          {statusFilter !== '' && (
+            <button
+              type="button"
+              className="ms-btn ms-btn--ghost"
+              onClick={() => handleFilterChange('')}
+            >
+              Clear filter
+            </button>
+          )}
         </div>
       )}
 
       {!isLoading && error === null && memberships.length > 0 && (
-        <div className="ms-table-wrap">
+        // Keyboard users need to focus this region to scroll a wide table on narrow screens.
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        <div className="ms-table-wrap" role="region" aria-label="Membership records" tabIndex={0}>
           <table className="ms-table" aria-label="Memberships list">
             <thead>
               <tr>
@@ -530,11 +613,11 @@ export function ManageMembershipsPage() {
                 return (
                   <tr key={m._id}>
                     <td>
-                      <code style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+                      <code className="ms-member-id" title={m.userId}>
                         {m.userId.slice(-8)}…
                       </code>
                     </td>
-                    <td>{tier?.name ?? '—'}</td>
+                    <td>{tier?.name ?? (tiersLoading ? 'Loading…' : 'Unavailable')}</td>
                     <td>
                       <MembershipStatusBadge status={m.status} />
                     </td>
@@ -544,7 +627,7 @@ export function ManageMembershipsPage() {
                       {m.amountPaidCents !== undefined ? (
                         formatMoney(m.amountPaidCents)
                       ) : (
-                        <span style={{ color: 'var(--slate-400)' }}>Unpaid</span>
+                        <span className="ms-muted">Unpaid</span>
                       )}
                     </td>
                     {canRecordPayment && (
@@ -553,7 +636,7 @@ export function ManageMembershipsPage() {
                           <button
                             type="button"
                             className="ms-btn ms-btn--ghost"
-                            style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
+
                             onClick={() => setPaymentTarget(m)}
                             id={`btn-record-payment-${m._id}`}
                           >

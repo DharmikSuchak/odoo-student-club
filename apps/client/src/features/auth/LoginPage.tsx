@@ -12,7 +12,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useState, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import type { ApiError } from '../../lib/api-client';
+import { ApiRequestError } from '../../lib/api-client';
 
 import { useAuth } from './AuthContext';
 import './auth.css';
@@ -41,28 +41,21 @@ export function LoginPage() {
       await login(email, password);
       void navigate('/dashboard');
     } catch (err) {
-      const apiError = err as ApiError;
-      if (apiError.fields) {
-        try {
-          const parsedFields = JSON.parse(apiError.message) as { fields: Record<string, string[]> };
-          setFieldErrors(parsedFields.fields);
-        } catch {
-          setErrorMessage(apiError.message);
-        }
-      } else {
-        setErrorMessage(apiError.message ?? 'An unexpected error occurred.');
+      if (err instanceof ApiRequestError && err.fields) {
+        setFieldErrors(err.fields);
       }
+      setErrorMessage(err instanceof Error ? err.message : 'Unable to connect. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-page--login">
       <div className="auth-bg-gradient" aria-hidden="true" />
 
       <main className="auth-container">
-        <div className="auth-card" role="main">
+        <div className="auth-card">
           <div className="auth-brand">
             <div className="auth-logo" aria-hidden="true">
               <span>SC</span>
@@ -77,7 +70,7 @@ export function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={(e) => void handleSubmit(e)} noValidate>
+          <form onSubmit={(e) => void handleSubmit(e)} noValidate aria-busy={isSubmitting}>
             <div className="form-field">
               <label htmlFor={emailId} className="form-label">
                 Email address

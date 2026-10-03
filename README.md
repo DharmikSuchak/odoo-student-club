@@ -155,6 +155,12 @@ npm run dev -w apps/client # Vite on :5173
 
 ## Current Status
 
+UI polish covers login, registration, dashboard, both membership screens,
+creation/payment dialogs, mobile navigation, and the legacy status component.
+Loading, empty, retry, submission, keyboard focus, and responsive states share
+the design tokens. Dashboard statistics and navigation marked “Soon” remain
+planned.
+
 Redundant source comments have been removed; API contracts, security and
 validation reasoning, and nonobvious behavior notes remain. Tests and test
 runners are unchanged.
@@ -173,7 +179,7 @@ runners are unchanged.
 | ESLint (both packages)                          | ✅ Done                                                                    |
 | Prettier (root)                                 | ✅ Done                                                                    |
 | `GET /api/health` endpoint                      | ✅ Done                                                                    |
-| Frontend status page (API reachability)         | ✅ Done                                                                    |
+| Legacy status component (not routed)            | ✅ Done                                                                    |
 | Env validation at startup (zod)                 | ✅ Done                                                                    |
 | Docker Compose (Mongo + Redis + API + Web)      | ✅ Done                                                                    |
 | MongoDB single-node replica set (rs0)           | ✅ Done                                                                    |

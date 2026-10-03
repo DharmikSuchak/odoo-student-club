@@ -1,10 +1,13 @@
+import { AlertCircle, CheckCircle2, LoaderCircle } from 'lucide-react';
+import type { ReactNode } from 'react';
+
 import { useApiHealth } from '@/hooks/use-api-health';
 
 import styles from './StatusPage.module.css';
 
 /**
  * Displays whether the API is reachable, with a useful failure state.
- * This is the scaffold's single page — replaced in Phase 1 with the real app shell.
+ * Legacy diagnostic view; currently not mounted in the application router.
  */
 export function StatusPage() {
   const status = useApiHealth();
@@ -17,16 +20,37 @@ export function StatusPage() {
         </div>
 
         <h1 className={styles.title}>Student Club Platform</h1>
-        <p className={styles.subtitle}>Scaffold — Phase 0</p>
+        <p className={styles.subtitle}>Service status</p>
 
-        <div className={styles.statusBox} data-status={status.kind}>
-          {status.kind === 'idle' && <StatusRow icon="○" label="Waiting…" muted />}
+        <div
+          className={styles.statusBox}
+          data-status={status.kind}
+          role="status"
+          aria-live="polite"
+        >
+          {status.kind === 'idle' && (
+            <StatusRow
+              icon={<LoaderCircle size={18} className={styles.spinner} />}
+              label="Waiting…"
+              muted
+            />
+          )}
 
-          {status.kind === 'loading' && <StatusRow icon="◌" label="Contacting API…" muted />}
+          {status.kind === 'loading' && (
+            <StatusRow
+              icon={<LoaderCircle size={18} className={styles.spinner} />}
+              label="Contacting API…"
+              muted
+            />
+          )}
 
           {status.kind === 'ok' && (
             <>
-              <StatusRow icon="✓" label="API reachable" variant="success" />
+              <StatusRow
+                icon={<CheckCircle2 size={18} />}
+                label="API reachable"
+                variant="success"
+              />
               <dl className={styles.details}>
                 <div className={styles.detailRow}>
                   <dt>Environment</dt>
@@ -46,12 +70,24 @@ export function StatusPage() {
 
           {status.kind === 'error' && (
             <>
-              <StatusRow icon="✕" label="API not reachable" variant="danger" />
+              <StatusRow
+                icon={<AlertCircle size={18} />}
+                label="API not reachable"
+                variant="danger"
+              />
               <p className={styles.errorMessage}>{status.message}</p>
               <p className={styles.hint}>
-                Start the API with <code className={styles.code}>npm run dev -w apps/server</code>{' '}
-                and ensure your <code className={styles.code}>.env</code> is copied from{' '}
-                <code className={styles.code}>.env.example</code>.
+                The service may be temporarily unavailable. Please try again shortly.
+              </p>
+              <button
+                type="button"
+                className={styles.retryButton}
+                onClick={() => window.location.reload()}
+              >
+                Try again
+              </button>
+              <p className={styles.hint}>
+                Contact your club administrator if the problem continues.
               </p>
             </>
           )}
@@ -62,7 +98,7 @@ export function StatusPage() {
 }
 
 interface StatusRowProps {
-  icon: string;
+  icon: ReactNode;
   label: string;
   muted?: boolean;
   variant?: 'success' | 'danger';
