@@ -7,7 +7,6 @@
   padding-bottom: 48px;
 }
 
-/* ── Heading row ─────────────────────────────────────────────── */
 .dashboard-heading-row {
   display: flex;
   align-items: flex-start;
@@ -19,7 +18,7 @@
 
 .dashboard-title {
   font-family: var(--font-heading);
-  font-size: 1.5rem; /* 24px — text-page-heading */
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--slate-800);
   margin-bottom: 4px;
@@ -31,7 +30,6 @@
   font-weight: 400;
 }
 
-/* ── Stat cards grid ─────────────────────────────────────────── */
 .dashboard-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -86,7 +84,7 @@
 
 .stat-card-value {
   font-family: var(--font-heading);
-  font-size: 1.875rem; /* 30px — text-stat */
+  font-size: 1.875rem;
   font-weight: 700;
   color: var(--slate-800);
   line-height: 1;
@@ -98,7 +96,6 @@
   color: var(--slate-500);
 }
 
-/* ── Empty state ─────────────────────────────────────────────── */
 .dashboard-empty-state {
   background: #ffffff;
   border: 1px solid var(--slate-200);
@@ -118,7 +115,7 @@
 
 .empty-state-title {
   font-family: var(--font-heading);
-  font-size: 1.125rem; /* text-card-title */
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--slate-700);
   margin-bottom: 8px;

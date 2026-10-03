@@ -8,7 +8,6 @@ import { nonEmptyString, objectIdSchema } from './common.js';
 export const TASK_STATUSES = ['open', 'full', 'completed', 'cancelled'] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
-// ── Task Document ──────────────────────────────────────────────────────────────
 export const taskDocumentSchema = z.object({
   clubId: objectIdSchema,
   createdBy: objectIdSchema, // ref: users
@@ -27,7 +26,6 @@ export const taskDocumentSchema = z.object({
 
 export type TaskDocument = z.infer<typeof taskDocumentSchema>;
 
-// ── Volunteer Assignment Document ──────────────────────────────────────────────
 export const volunteerAssignmentDocumentSchema = z.object({
   taskId: objectIdSchema,
   userId: objectIdSchema,

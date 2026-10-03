@@ -27,7 +27,6 @@ import { z } from 'zod';
 
 import { moneySchema, nonEmptyString, objectIdSchema } from './common.js';
 
-// ── Merchandise Item Variant (per-size) ───────────────────────────────────────
 export const merchandiseVariantSchema = z.object({
   /** Size label: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | or free-form */
   size: nonEmptyString.max(20),
@@ -37,7 +36,6 @@ export const merchandiseVariantSchema = z.object({
 
 export type MerchandiseVariant = z.infer<typeof merchandiseVariantSchema>;
 
-// ── Merchandise Item Document ─────────────────────────────────────────────────
 export const merchandiseItemDocumentSchema = z.object({
   clubId: objectIdSchema,
   name: nonEmptyString.max(200),
@@ -62,7 +60,6 @@ export const merchandiseItemDocumentSchema = z.object({
 
 export type MerchandiseItemDocument = z.infer<typeof merchandiseItemDocumentSchema>;
 
-// ── Order Line Item ────────────────────────────────────────────────────────────
 export const orderLineItemSchema = z.object({
   itemId: objectIdSchema,
   /** Size chosen by the buyer; required when the item has variants */
@@ -74,11 +71,9 @@ export const orderLineItemSchema = z.object({
 
 export type OrderLineItem = z.infer<typeof orderLineItemSchema>;
 
-// ── Order status ──────────────────────────────────────────────────────────────
 export const ORDER_STATUSES = ['pending_payment', 'paid', 'fulfilled', 'cancelled'] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-// ── Order Document ────────────────────────────────────────────────────────────
 export const orderDocumentSchema = z.object({
   userId: objectIdSchema,
   clubId: objectIdSchema,
@@ -97,7 +92,6 @@ export const orderDocumentSchema = z.object({
 
 export type OrderDocument = z.infer<typeof orderDocumentSchema>;
 
-// ── Request body schemas ───────────────────────────────────────────────────────
 export const createOrderBodySchema = z.object({
   lineItems: z
     .array(

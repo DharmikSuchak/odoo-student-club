@@ -55,7 +55,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Restore session on page load / refresh
   useEffect(() => {
     let cancelled = false;
 

@@ -63,7 +63,6 @@ export function LoginPage() {
 
       <main className="auth-container">
         <div className="auth-card" role="main">
-          {/* Branding */}
           <div className="auth-brand">
             <div className="auth-logo" aria-hidden="true">
               <span>SC</span>
@@ -72,7 +71,6 @@ export function LoginPage() {
             <p className="auth-subtitle">Sign in to your student club account</p>
           </div>
 
-          {/* Error banner */}
           {errorMessage !== null && (
             <div className="auth-error-banner" role="alert" aria-live="assertive">
               {errorMessage}
@@ -80,7 +78,6 @@ export function LoginPage() {
           )}
 
           <form onSubmit={(e) => void handleSubmit(e)} noValidate>
-            {/* Email */}
             <div className="form-field">
               <label htmlFor={emailId} className="form-label">
                 Email address
@@ -110,7 +107,6 @@ export function LoginPage() {
               )}
             </div>
 
-            {/* Password */}
             <div className="form-field">
               <label htmlFor={passwordId} className="form-label">
                 Password
@@ -148,7 +144,6 @@ export function LoginPage() {
               )}
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className="btn-primary btn-full"
@@ -164,7 +159,6 @@ export function LoginPage() {
             </button>
           </form>
 
-          {/* Footer link */}
           <p className="auth-footer-text">
             Don&apos;t have an account?{' '}
             <Link to="/register" className="auth-link">

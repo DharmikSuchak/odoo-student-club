@@ -35,7 +35,6 @@ async function run(): Promise<void> {
   await connectDb(MONGO_URI);
   const db = getDb();
 
-  // 1. Ensure club document exists
   const clubs = db.collection('clubs');
   const existingClub = await clubs.findOne({ _id: new ObjectId(CLUB_ID) });
   if (existingClub === null) {
@@ -51,7 +50,6 @@ async function run(): Promise<void> {
     console.info('ℹ️   Club document already exists — skipping.');
   }
 
-  // 2. Seed a default "General Member" tier if none exists
   const tiers = db.collection('membershipTiers');
   const existingTier = await tiers.findOne({ clubId: CLUB_ID, name: 'General Member' });
   if (existingTier === null) {
@@ -70,7 +68,6 @@ async function run(): Promise<void> {
     console.info('ℹ️   "General Member" tier already exists — skipping.');
   }
 
-  // 3. Create a sample pending_payment membership for the admin user
   const users = db.collection('users');
   const admin = await users.findOne({ email: ADMIN_EMAIL.toLowerCase() });
   if (admin !== null) {
@@ -82,11 +79,7 @@ async function run(): Promise<void> {
         const startDate = new Date();
         // endDate: midnight UTC one year from today
         const endDate = new Date(
-          Date.UTC(
-            startDate.getUTCFullYear() + 1,
-            startDate.getUTCMonth(),
-            startDate.getUTCDate(),
-          ),
+          Date.UTC(startDate.getUTCFullYear() + 1, startDate.getUTCMonth(), startDate.getUTCDate()),
         );
         await memberships.insertOne({
           userId: admin['_id'].toString(),

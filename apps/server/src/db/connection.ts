@@ -20,7 +20,6 @@ export async function connectDb(uri: string): Promise<MongoClient> {
   }
 
   client = new MongoClient(uri, {
-    // Wait up to 5 s for a server to become available before throwing.
     serverSelectionTimeoutMS: 5_000,
     // Heartbeat every 2 s; surface failures quickly in dev.
     heartbeatFrequencyMS: 2_000,

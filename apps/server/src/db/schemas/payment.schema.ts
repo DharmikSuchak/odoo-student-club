@@ -30,7 +30,6 @@ export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 export const PAYMENT_ENTITY_TYPES = ['membership', 'order', 'event_ticket'] as const;
 export type PaymentEntityType = (typeof PAYMENT_ENTITY_TYPES)[number];
 
-// ── Payment Document ───────────────────────────────────────────────────────────
 export const paymentDocumentSchema = z.object({
   provider: z.enum(PAYMENT_PROVIDERS),
 

@@ -163,5 +163,4 @@ export async function promoteToAdmin(collection: Collection, email: string): Pro
   }
 }
 
-// Re-export the roles array so callers can reference allowed role values.
 export { USER_ROLES };

@@ -24,8 +24,6 @@ import { useAuth } from '../auth/AuthContext';
 import { MembershipStatusBadge } from './MembershipStatusBadge';
 import './membership.css';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface CreateFormState {
   userId: string;
   tierId: string;
@@ -50,8 +48,6 @@ interface PaymentFormErrors {
   form?: string;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
     year: 'numeric',
@@ -68,9 +64,7 @@ function formatMoney(cents: number): string {
 /** Computes a default endDate = 1 year from today, at midnight UTC. */
 function defaultEndDate(): string {
   const now = new Date();
-  const d = new Date(
-    Date.UTC(now.getUTCFullYear() + 1, now.getUTCMonth(), now.getUTCDate()),
-  );
+  const d = new Date(Date.UTC(now.getUTCFullYear() + 1, now.getUTCMonth(), now.getUTCDate()));
   return d.toISOString().slice(0, 10);
 }
 
@@ -78,19 +72,19 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// ── Loading skeleton ──────────────────────────────────────────────────────────
-
 function TableSkeleton() {
   return (
     <div className="ms-skeleton" aria-busy="true" aria-label="Loading memberships">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="ms-skeleton-line ms-skeleton-line--full" style={{ marginBottom: 14 }} />
+        <div
+          key={i}
+          className="ms-skeleton-line ms-skeleton-line--full"
+          style={{ marginBottom: 14 }}
+        />
       ))}
     </div>
   );
 }
-
-// ── Create Membership Modal ───────────────────────────────────────────────────
 
 interface CreateModalProps {
   tiers: MembershipTier[];
@@ -123,7 +117,10 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const e = validate();
-    if (Object.keys(e).length > 0) { setErrors(e); return; }
+    if (Object.keys(e).length > 0) {
+      setErrors(e);
+      return;
+    }
     setErrors({});
     setIsSubmitting(true);
     try {
@@ -150,11 +147,15 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-modal-title"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div className="ms-modal">
         <div className="ms-modal-header">
-          <h2 id="create-modal-title" className="ms-modal-title">Create Membership</h2>
+          <h2 id="create-modal-title" className="ms-modal-title">
+            Create Membership
+          </h2>
           <button
             type="button"
             className="ms-modal-close"
@@ -181,12 +182,16 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
               maxLength={24}
             />
             {errors.userId !== undefined && (
-              <span className="ms-field-error" role="alert">{errors.userId}</span>
+              <span className="ms-field-error" role="alert">
+                {errors.userId}
+              </span>
             )}
           </div>
 
           <div className="ms-field">
-            <label className="ms-label" htmlFor="create-tierId">Membership tier</label>
+            <label className="ms-label" htmlFor="create-tierId">
+              Membership tier
+            </label>
             <select
               id="create-tierId"
               className={`ms-select${errors.tierId !== undefined ? ' ms-select--error' : ''}`}
@@ -200,13 +205,17 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
               ))}
             </select>
             {errors.tierId !== undefined && (
-              <span className="ms-field-error" role="alert">{errors.tierId}</span>
+              <span className="ms-field-error" role="alert">
+                {errors.tierId}
+              </span>
             )}
           </div>
 
           <div className="ms-form-row">
             <div className="ms-field">
-              <label className="ms-label" htmlFor="create-startDate">Start date (UTC)</label>
+              <label className="ms-label" htmlFor="create-startDate">
+                Start date (UTC)
+              </label>
               <input
                 id="create-startDate"
                 className={`ms-input${errors.startDate !== undefined ? ' ms-input--error' : ''}`}
@@ -215,11 +224,15 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
                 onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))}
               />
               {errors.startDate !== undefined && (
-                <span className="ms-field-error" role="alert">{errors.startDate}</span>
+                <span className="ms-field-error" role="alert">
+                  {errors.startDate}
+                </span>
               )}
             </div>
             <div className="ms-field">
-              <label className="ms-label" htmlFor="create-endDate">End date (UTC)</label>
+              <label className="ms-label" htmlFor="create-endDate">
+                End date (UTC)
+              </label>
               <input
                 id="create-endDate"
                 className={`ms-input${errors.endDate !== undefined ? ' ms-input--error' : ''}`}
@@ -228,13 +241,17 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
                 onChange={(e) => setForm((f) => ({ ...f, endDate: e.target.value }))}
               />
               {errors.endDate !== undefined && (
-                <span className="ms-field-error" role="alert">{errors.endDate}</span>
+                <span className="ms-field-error" role="alert">
+                  {errors.endDate}
+                </span>
               )}
             </div>
           </div>
 
           {errors.form !== undefined && (
-            <div className="ms-alert ms-alert--error" role="alert">{errors.form}</div>
+            <div className="ms-alert ms-alert--error" role="alert">
+              {errors.form}
+            </div>
           )}
 
           <div className="ms-modal-footer">
@@ -250,8 +267,6 @@ function CreateMembershipModal({ tiers, onClose, onCreated }: CreateModalProps) 
     </div>
   );
 }
-
-// ── Record Payment Modal ──────────────────────────────────────────────────────
 
 interface PaymentModalProps {
   membership: Membership;
@@ -269,15 +284,17 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
     const amount = Number(form.amountPaidCents);
     if (form.amountPaidCents.trim().length === 0 || isNaN(amount) || amount <= 0)
       e.amountPaidCents = 'Enter a positive amount in paise (e.g. 50000 = ₹500).';
-    if (!Number.isInteger(amount))
-      e.amountPaidCents = 'Amount must be a whole number of paise.';
+    if (!Number.isInteger(amount)) e.amountPaidCents = 'Amount must be a whole number of paise.';
     return e;
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const e = validate();
-    if (Object.keys(e).length > 0) { setErrors(e); return; }
+    if (Object.keys(e).length > 0) {
+      setErrors(e);
+      return;
+    }
     setErrors({});
     setIsSubmitting(true);
     try {
@@ -299,11 +316,15 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
       role="dialog"
       aria-modal="true"
       aria-labelledby="pay-modal-title"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div className="ms-modal">
         <div className="ms-modal-header">
-          <h2 id="pay-modal-title" className="ms-modal-title">Record Manual Payment</h2>
+          <h2 id="pay-modal-title" className="ms-modal-title">
+            Record Manual Payment
+          </h2>
           <button
             type="button"
             className="ms-modal-close"
@@ -340,12 +361,16 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
               onChange={(e) => setForm((f) => ({ ...f, amountPaidCents: e.target.value }))}
             />
             {errors.amountPaidCents !== undefined && (
-              <span className="ms-field-error" role="alert">{errors.amountPaidCents}</span>
+              <span className="ms-field-error" role="alert">
+                {errors.amountPaidCents}
+              </span>
             )}
           </div>
 
           {errors.form !== undefined && (
-            <div className="ms-alert ms-alert--error" role="alert">{errors.form}</div>
+            <div className="ms-alert ms-alert--error" role="alert">
+              {errors.form}
+            </div>
           )}
 
           <div className="ms-modal-footer">
@@ -362,8 +387,6 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
-
 /**
  * Organizer view — manage all club memberships.
  *
@@ -379,8 +402,7 @@ export function ManageMembershipsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Membership | null>(null);
 
-  const canRecordPayment =
-    user !== null && (user.role === 'treasurer' || user.role === 'admin');
+  const canRecordPayment = user !== null && (user.role === 'treasurer' || user.role === 'admin');
 
   const loadMemberships = useCallback(async (status?: string) => {
     setIsLoading(true);
@@ -408,7 +430,9 @@ export function ManageMembershipsPage() {
       await loadMemberships(statusFilter);
     }
     void init();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -422,9 +446,7 @@ export function ManageMembershipsPage() {
   }
 
   function handlePaymentRecorded(updated: Membership) {
-    setMemberships((prev) =>
-      prev.map((m) => (m._id === updated._id ? updated : m)),
-    );
+    setMemberships((prev) => prev.map((m) => (m._id === updated._id ? updated : m)));
   }
 
   const tierById = new Map(tiers.map((t) => [t._id, t]));
@@ -448,7 +470,6 @@ export function ManageMembershipsPage() {
         </button>
       </div>
 
-      {/* Filter toolbar */}
       <div className="ms-toolbar">
         <label className="ms-label" htmlFor="status-filter" style={{ marginBottom: 0 }}>
           Filter by status:
@@ -470,12 +491,16 @@ export function ManageMembershipsPage() {
       {isLoading && <TableSkeleton />}
 
       {!isLoading && error !== null && (
-        <div className="ms-error" role="alert">⚠️ {error}</div>
+        <div className="ms-error" role="alert">
+          ⚠️ {error}
+        </div>
       )}
 
       {!isLoading && error === null && memberships.length === 0 && (
         <div className="ms-empty">
-          <span className="ms-empty-icon" aria-hidden="true">🗂️</span>
+          <span className="ms-empty-icon" aria-hidden="true">
+            🗂️
+          </span>
           <h2 className="ms-empty-title">No memberships found</h2>
           <p className="ms-empty-body">
             {statusFilter !== ''
@@ -516,9 +541,11 @@ export function ManageMembershipsPage() {
                     <td>{formatDate(m.startDate)}</td>
                     <td>{formatDate(m.endDate)}</td>
                     <td>
-                      {m.amountPaidCents !== undefined
-                        ? formatMoney(m.amountPaidCents)
-                        : <span style={{ color: 'var(--slate-400)' }}>Unpaid</span>}
+                      {m.amountPaidCents !== undefined ? (
+                        formatMoney(m.amountPaidCents)
+                      ) : (
+                        <span style={{ color: 'var(--slate-400)' }}>Unpaid</span>
+                      )}
                     </td>
                     {canRecordPayment && (
                       <td>
@@ -543,7 +570,6 @@ export function ManageMembershipsPage() {
         </div>
       )}
 
-      {/* Create membership modal */}
       {showCreateModal && (
         <CreateMembershipModal
           tiers={tiers}
@@ -552,7 +578,6 @@ export function ManageMembershipsPage() {
         />
       )}
 
-      {/* Record payment modal */}
       {paymentTarget !== null && (
         <RecordPaymentModal
           membership={paymentTarget}

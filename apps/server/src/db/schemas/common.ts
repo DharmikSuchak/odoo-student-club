@@ -7,7 +7,6 @@
  */
 import { z } from 'zod';
 
-// ── Money ──────────────────────────────────────────────────────────────────────
 /**
  * Money values are always stored as **integer minor units** (e.g. cents for USD,
  * paise for INR). This eliminates floating-point rounding errors.
@@ -20,18 +19,15 @@ export const moneySchema = z
   .int('Money must be an integer (minor units)')
   .nonnegative('Money cannot be negative');
 
-// ── ObjectId (as string coming from client) ────────────────────────────────────
 /** 24-hex-character MongoDB ObjectId string */
 export const objectIdSchema = z
   .string()
   .regex(/^[0-9a-f]{24}$/i, 'Must be a 24-character hexadecimal ObjectId');
 
-// ── ISO date string → Date ─────────────────────────────────────────────────────
 /**
  * Accepts ISO 8601 strings (e.g. from JSON) and coerces to Date.
  * Use `z.date()` for values already stored as native Dates in MongoDB.
  */
 export const isoDateSchema = z.coerce.date();
 
-// ── Non-empty trimmed string ───────────────────────────────────────────────────
 export const nonEmptyString = z.string().trim().min(1, 'Must not be empty');

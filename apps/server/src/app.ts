@@ -36,7 +36,6 @@ export function createApp(env: Env) {
     }),
   );
 
-  // ── CORS ───────────────────────────────────────────────────────────────────
   app.use(
     cors({
       origin: env.CLIENT_ORIGIN,
@@ -46,7 +45,6 @@ export function createApp(env: Env) {
     }),
   );
 
-  // ── Body parsing ───────────────────────────────────────────────────────────
   app.use(json({ limit: '1mb' }));
   app.use(urlencoded({ extended: true, limit: '1mb' }));
 
@@ -54,17 +52,14 @@ export function createApp(env: Env) {
   // Sign cookies when COOKIE_SECRET is available (optional in dev)
   app.use(cookieParser(env.COOKIE_SECRET));
 
-  // ── Request logging ────────────────────────────────────────────────────────
   if (env.NODE_ENV !== 'test') {
     app.use(requestLogger);
   }
 
-  // ── Routes ─────────────────────────────────────────────────────────────────
   app.use('/api/health', healthRouter);
   app.use('/api/auth', authRouter);
   app.use('/api/memberships', membershipRouter);
 
-  // 404 handler for unknown routes
   app.use((_req, res) => {
     res.status(404).json({ status: 'error', message: 'Route not found.' });
   });

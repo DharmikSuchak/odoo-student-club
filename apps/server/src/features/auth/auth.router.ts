@@ -21,8 +21,6 @@ import { findSafeUserById, registerUser, validateCredentials } from './auth.serv
 
 export const authRouter = Router();
 
-// ── Shared rate limiters ─────────────────────────────────────────────────────
-
 /**
  * 10 registration attempts per IP per 60 seconds.
  */
@@ -40,8 +38,6 @@ const loginRateLimiter = createRateLimiter({
   windowSeconds: 60,
   keyPrefix: 'rl:login',
 });
-
-// ── Cookie configuration helper ──────────────────────────────────────────────
 
 /**
  * Returns cookie options appropriate for the current environment.
@@ -62,8 +58,6 @@ function cookieOptions(maxAgeMs: number): CookieOptions {
   };
 }
 
-// ── POST /api/auth/register ──────────────────────────────────────────────────
-
 /**
  * Register a new member account.
  *
@@ -71,45 +65,47 @@ function cookieOptions(maxAgeMs: number): CookieOptions {
  * Authorization: none.
  * Rate limit: 10 req / 60 s per IP.
  */
-authRouter.post('/register', registerRateLimiter, (req: Request, res: Response, next: NextFunction) => {
-  void (async () => {
-    const parsed = registerBodySchema.safeParse(req.body);
-    if (!parsed.success) {
-      next(new AppError(JSON.stringify({ fields: parsed.error.flatten().fieldErrors }), 422));
-      return;
-    }
+authRouter.post(
+  '/register',
+  registerRateLimiter,
+  (req: Request, res: Response, next: NextFunction) => {
+    void (async () => {
+      const parsed = registerBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        next(new AppError(JSON.stringify({ fields: parsed.error.flatten().fieldErrors }), 422));
+        return;
+      }
 
-    try {
-      const users = getDb().collection('users');
-      const user = await registerUser(users, parsed.data);
+      try {
+        const users = getDb().collection('users');
+        const user = await registerUser(users, parsed.data);
 
-      const token = signJwt({
-        userId: (user._id as { toString(): string }).toString(),
-        email: user.email,
-        displayName: user.displayName,
-        role: user.role,
-      });
-
-      // 7-day max-age (matches JWT_EXPIRES_IN default)
-      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-      res.cookie('access_token', token, cookieOptions(sevenDaysMs));
-
-      res.status(201).json({
-        status: 'ok',
-        user: {
-          id: (user._id as { toString(): string }).toString(),
+        const token = signJwt({
+          userId: (user._id as { toString(): string }).toString(),
           email: user.email,
           displayName: user.displayName,
           role: user.role,
-        },
-      });
-    } catch (err) {
-      next(err);
-    }
-  })();
-});
+        });
 
-// ── POST /api/auth/login ─────────────────────────────────────────────────────
+        // 7-day max-age (matches JWT_EXPIRES_IN default)
+        const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+        res.cookie('access_token', token, cookieOptions(sevenDaysMs));
+
+        res.status(201).json({
+          status: 'ok',
+          user: {
+            id: (user._id as { toString(): string }).toString(),
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role,
+          },
+        });
+      } catch (err) {
+        next(err);
+      }
+    })();
+  },
+);
 
 /**
  * Authenticate with email + password; receives an HTTP-only JWT cookie.
@@ -155,8 +151,6 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response, next: 
   })();
 });
 
-// ── POST /api/auth/logout ────────────────────────────────────────────────────
-
 /**
  * Clears the HTTP-only auth cookie.
  *
@@ -172,8 +166,6 @@ authRouter.post('/logout', (_req: Request, res: Response): void => {
   });
   res.status(200).json({ status: 'ok', message: 'Signed out successfully.' });
 });
-
-// ── GET /api/auth/me ─────────────────────────────────────────────────────────
 
 /**
  * Returns the currently authenticated user's safe profile.

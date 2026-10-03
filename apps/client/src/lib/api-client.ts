@@ -55,8 +55,6 @@ export interface ApiHealthResponse {
   environment: string;
 }
 
-// ── Membership types ──────────────────────────────────────────────────────────
-
 export type MembershipStatus = 'pending_payment' | 'active' | 'expired' | 'cancelled';
 
 export interface MembershipTier {
@@ -144,8 +142,6 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   return data as T;
 }
 
-// ── Auth API calls ────────────────────────────────────────────────────────────
-
 /**
  * Registers a new member account.
  *
@@ -196,8 +192,6 @@ export async function apiLogout(): Promise<MessageResponse> {
 export async function apiGetCurrentUser(): Promise<AuthResponse> {
   return apiFetch<AuthResponse>('/api/auth/me');
 }
-
-// ── Membership API calls ──────────────────────────────────────────────────────
 
 /**
  * Fetches the current user's membership status.
@@ -263,11 +257,8 @@ export async function apiRecordManualPayment(
   membershipId: string,
   amountPaidCents: number,
 ): Promise<CreateMembershipResponse> {
-  return apiFetch<CreateMembershipResponse>(
-    `/api/memberships/${membershipId}/record-payment`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ amountPaidCents }),
-    },
-  );
+  return apiFetch<CreateMembershipResponse>(`/api/memberships/${membershipId}/record-payment`, {
+    method: 'POST',
+    body: JSON.stringify({ amountPaidCents }),
+  });
 }

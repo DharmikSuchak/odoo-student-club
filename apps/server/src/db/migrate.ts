@@ -7,7 +7,6 @@
 import { connectDb, getDb, closeDb } from './connection.js';
 
 async function migrate() {
-  // Use a default URI if not provided (matches docker-compose)
   const uri = process.env['MONGO_URI'] || 'mongodb://localhost:27017/student_club?replicaSet=rs0';
   console.info(`Connecting to MongoDB at ${uri}...`);
 
@@ -16,33 +15,27 @@ async function migrate() {
 
   console.info('Creating collections and indexes...');
 
-  // 1. users
   const users = db.collection('users');
   await users.createIndex({ email: 1 }, { unique: true });
   await users.createIndex({ role: 1 });
 
-  // 2. membershipTiers
   const membershipTiers = db.collection('membershipTiers');
   await membershipTiers.createIndex({ clubId: 1, isActive: 1 });
 
-  // 3. memberships
   const memberships = db.collection('memberships');
   await memberships.createIndex({ userId: 1, status: 1 });
   await memberships.createIndex({ tierId: 1 });
   await memberships.createIndex({ clubId: 1 });
   await memberships.createIndex({ endDate: 1 }); // for expiry queries
 
-  // 3. events
   const events = db.collection('events');
   await events.createIndex({ clubId: 1, startsAt: -1 });
   await events.createIndex({ isPublished: 1, startsAt: 1 });
 
-  // 4. eventTickets (previously eventRegistrations)
   const eventTickets = db.collection('eventTickets');
   await eventTickets.createIndex({ eventId: 1, status: 1 }); // for capacity count
   await eventTickets.createIndex({ userId: 1, eventId: 1 }, { unique: true }); // prevent double registration
 
-  // 5. payments
   const payments = db.collection('payments');
   // Unique sparse index: only applies if providerEventId is non-null
   await payments.createIndex(
@@ -51,11 +44,9 @@ async function migrate() {
   );
   await payments.createIndex({ 'relatedEntity.id': 1 });
 
-  // 6. merchandiseItems & orders
   const orders = db.collection('orders');
   await orders.createIndex({ userId: 1, status: 1 });
 
-  // 7. tasks & volunteerAssignments
   const volunteerAssignments = db.collection('volunteerAssignments');
   await volunteerAssignments.createIndex({ taskId: 1, userId: 1 }, { unique: true });
 

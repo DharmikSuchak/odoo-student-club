@@ -16,13 +16,12 @@ export function DashboardPage() {
         <div>
           <h1 className="dashboard-title">Dashboard</h1>
           <p className="dashboard-subtitle">
-            Welcome back, <strong>{user?.displayName ?? 'member'}</strong>! Here&apos;s what&apos;s happening
-            in your club.
+            Welcome back, <strong>{user?.displayName ?? 'member'}</strong>! Here&apos;s what&apos;s
+            happening in your club.
           </p>
         </div>
       </div>
 
-      {/* Placeholder stat cards */}
       <div className="dashboard-stats-grid">
         {PLACEHOLDER_STATS.map((stat) => (
           <div key={stat.label} className="stat-card">
@@ -37,7 +36,6 @@ export function DashboardPage() {
         ))}
       </div>
 
-      {/* Empty state */}
       <div className="dashboard-empty-state">
         <div className="empty-state-icon" aria-hidden="true">
           📊

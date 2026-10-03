@@ -30,7 +30,6 @@ import { z } from 'zod';
 
 import { moneySchema, nonEmptyString, objectIdSchema } from './common.js';
 
-// ── Event Document ─────────────────────────────────────────────────────────────
 export const eventDocumentSchema = z.object({
   clubId: objectIdSchema,
   createdBy: objectIdSchema, // ref: users (officer/admin)
@@ -41,7 +40,6 @@ export const eventDocumentSchema = z.object({
   endsAt: z.date(),
   isPublished: z.boolean().default(false),
 
-  // Ticketing configuration
   hasTickets: z.boolean().default(false),
   // undefined → unlimited capacity; 0 is not allowed
   ticketCapacity: z.number().int().positive().optional(),
@@ -57,11 +55,9 @@ export const eventDocumentSchema = z.object({
 
 export type EventDocument = z.infer<typeof eventDocumentSchema>;
 
-// ── Ticket status ──────────────────────────────────────────────────────────────
 export const TICKET_STATUSES = ['pending_payment', 'confirmed', 'waitlisted', 'cancelled'] as const;
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 
-// ── Event Ticket Document ──────────────────────────────────────────────────────
 /**
  * One document per ticket purchase.
  *
@@ -78,14 +74,12 @@ export const eventTicketDocumentSchema = z.object({
 
   // Price snapshotted at purchase time; 0 for free tickets
   pricePaidCents: moneySchema.default(0),
-  // Indicates whether member pricing was applied
   memberPriceApplied: z.boolean().default(false),
 
   // Payment — only set after server-side confirmation (AGENTS.md §12)
   paymentId: objectIdSchema.optional(),
   paidAt: z.date().optional(),
 
-  // Check-in
   checkedInAt: z.date().optional(),
   checkedInBy: objectIdSchema.optional(), // ref: users (officer)
 
@@ -95,7 +89,6 @@ export const eventTicketDocumentSchema = z.object({
 
 export type EventTicketDocument = z.infer<typeof eventTicketDocumentSchema>;
 
-// ── Request body schemas ───────────────────────────────────────────────────────
 export const createEventBodySchema = z
   .object({
     title: nonEmptyString.max(200),

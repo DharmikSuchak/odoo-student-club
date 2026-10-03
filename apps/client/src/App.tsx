@@ -21,11 +21,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public auth routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Protected routes — require authentication */}
           <Route
             path="/dashboard"
             element={
@@ -37,7 +35,6 @@ export default function App() {
             }
           />
 
-          {/* Member: own membership view */}
           <Route
             path="/membership"
             element={
@@ -49,7 +46,6 @@ export default function App() {
             }
           />
 
-          {/* Organizer: membership management (officer/treasurer/admin) */}
           <Route
             path="/manage/memberships"
             element={
@@ -64,7 +60,6 @@ export default function App() {
           {/* Redirect root → dashboard (ProtectedRoute will redirect to /login if not auth'd) */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* Catch-all */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>

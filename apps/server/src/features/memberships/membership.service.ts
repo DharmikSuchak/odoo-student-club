@@ -83,8 +83,6 @@ function parseObjectId(id: string, name: string): ObjectId {
   return new ObjectId(id);
 }
 
-// ── Membership Tier operations ────────────────────────────────────────────────
-
 /**
  * Lists all active membership tiers for a club.
  *
@@ -113,7 +111,12 @@ export async function listActiveTiers(
 export async function createTier(
   tiers: Collection,
   clubId: string,
-  body: { name: string; description?: string | undefined; durationDays: number; priceCents: number },
+  body: {
+    name: string;
+    description?: string | undefined;
+    durationDays: number;
+    priceCents: number;
+  },
 ): Promise<SafeMembershipTier> {
   const clubOid = parseObjectId(clubId, 'clubId');
   const now = new Date();
@@ -134,8 +137,6 @@ export async function createTier(
   }
   return inserted;
 }
-
-// ── Membership operations ─────────────────────────────────────────────────────
 
 /**
  * Returns the current membership for a user (most recent, any status).
@@ -234,13 +235,11 @@ export async function createMembership(
   const userOid = parseObjectId(body.userId, 'userId');
   const clubOid = parseObjectId(body.clubId, 'clubId');
 
-  // Verify tier exists
   const tier = await tiers.findOne({ _id: tierOid });
   if (tier === null) {
     throw new AppError('Membership tier not found.', 404);
   }
 
-  // Block if an active membership already exists
   const existing = await memberships.findOne({
     userId: userOid.toHexString(),
     status: 'active',
@@ -338,7 +337,6 @@ export async function recordManualPayment(
     createdAt: now,
   });
 
-  // Transition membership to active
   await memberships.updateOne(
     { _id: membershipOid },
     {

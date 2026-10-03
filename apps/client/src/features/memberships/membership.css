@@ -3,7 +3,6 @@
    Token reference: index.css :root
    ============================================================ */
 
-/* ── Page layout ──────────────────────────────────────────────── */
 .memberships-page {
   max-width: 900px;
 }
@@ -19,7 +18,7 @@
 
 .memberships-title {
   font-family: var(--font-heading);
-  font-size: 1.5rem; /* 24px text-page-heading */
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--slate-800);
   margin-bottom: 4px;
@@ -30,7 +29,6 @@
   color: var(--slate-500);
 }
 
-/* ── Card ────────────────────────────────────────────────────── */
 .ms-card {
   background: #fff;
   border: 1px solid var(--slate-200);
@@ -56,19 +54,18 @@
 
 .ms-card-title {
   font-family: var(--font-heading);
-  font-size: 1.125rem; /* 18px text-card-title */
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--slate-800);
 }
 
-/* ── Status badge ─────────────────────────────────────────────── */
 .ms-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 2px 10px;
   border-radius: var(--radius-pill);
-  font-size: 0.5625rem; /* 9px text-badge */
+  font-size: 0.5625rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -94,7 +91,6 @@
   color: var(--slate-500);
 }
 
-/* ── Detail rows ─────────────────────────────────────────────── */
 .ms-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -122,7 +118,6 @@
   color: var(--slate-700);
 }
 
-/* ── Empty state ─────────────────────────────────────────────── */
 .ms-empty {
   text-align: center;
   padding: 48px 24px;
@@ -154,7 +149,6 @@
   margin: 0 auto 20px;
 }
 
-/* ── Loading / Error states ──────────────────────────────────── */
 .ms-loading,
 .ms-error {
   display: flex;
@@ -171,7 +165,6 @@
   color: var(--danger-text);
 }
 
-/* Shimmer skeleton */
 .ms-skeleton {
   background: #fff;
   border: 1px solid var(--slate-200);
@@ -194,16 +187,25 @@
   margin-bottom: 10px;
 }
 
-.ms-skeleton-line--short { width: 40%; }
-.ms-skeleton-line--medium { width: 65%; }
-.ms-skeleton-line--full { width: 100%; }
-
-@keyframes ms-shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+.ms-skeleton-line--short {
+  width: 40%;
+}
+.ms-skeleton-line--medium {
+  width: 65%;
+}
+.ms-skeleton-line--full {
+  width: 100%;
 }
 
-/* ── Button styles ───────────────────────────────────────────── */
+@keyframes ms-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
 .ms-btn {
   display: inline-flex;
   align-items: center;
@@ -268,7 +270,6 @@
   background: #fecaca;
 }
 
-/* ── Form ────────────────────────────────────────────────────── */
 .ms-form {
   display: flex;
   flex-direction: column;
@@ -282,7 +283,9 @@
 }
 
 @media (max-width: 600px) {
-  .ms-form-row { grid-template-columns: 1fr; }
+  .ms-form-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .ms-field {
@@ -307,7 +310,9 @@
   font-size: 0.875rem;
   color: var(--slate-700);
   outline: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
   width: 100%;
 }
 
@@ -332,7 +337,6 @@
   color: var(--danger-text);
 }
 
-/* ── Modal overlay ───────────────────────────────────────────── */
 .ms-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -346,8 +350,12 @@
 }
 
 @keyframes ms-backdrop-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .ms-modal {
@@ -361,8 +369,14 @@
 }
 
 @keyframes ms-modal-in {
-  from { opacity: 0; transform: scale(0.95) translateY(-8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .ms-modal-header {
@@ -410,7 +424,6 @@
   margin-top: 24px;
 }
 
-/* ── Notice banner ───────────────────────────────────────────── */
 .ms-notice {
   display: flex;
   align-items: flex-start;
@@ -432,7 +445,6 @@
   color: var(--warning-text);
 }
 
-/* ── Table ───────────────────────────────────────────────────── */
 .ms-table-wrap {
   background: #fff;
   border: 1px solid var(--slate-200);
@@ -479,7 +491,6 @@
   background: var(--slate-50);
 }
 
-/* ── Toolbar ─────────────────────────────────────────────────── */
 .ms-toolbar {
   display: flex;
   align-items: center;
@@ -506,7 +517,6 @@
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
 }
 
-/* ── Inline alert ─────────────────────────────────────────────── */
 .ms-alert {
   padding: 10px 14px;
   border-radius: var(--radius-dropdown);

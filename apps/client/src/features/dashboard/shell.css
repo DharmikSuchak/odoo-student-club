@@ -3,13 +3,11 @@
    Token reference: index.css :root
    ============================================================ */
 
-/* ── Shell container ─────────────────────────────────────────── */
 .shell {
   display: flex;
   min-height: 100vh;
 }
 
-/* ── Desktop sidebar — 240px fixed ──────────────────────────── */
 .shell-sidebar {
   width: 240px;
   flex-shrink: 0;
@@ -24,7 +22,6 @@
   z-index: 30;
 }
 
-/* ── Mobile drawer ───────────────────────────────────────────── */
 .shell-drawer {
   position: fixed;
   top: 0;
@@ -36,7 +33,7 @@
   transform: translateX(-100%);
   transition: transform 350ms ease-in-out;
   overflow-y: auto;
-  display: none; /* hidden on desktop, shown via media query */
+  display: none;
 }
 
 .shell-drawer--open {
@@ -60,7 +57,6 @@
   }
 }
 
-/* ── Right panel ─────────────────────────────────────────────── */
 .shell-right {
   flex: 1;
   min-width: 0;
@@ -68,7 +64,6 @@
   flex-direction: column;
 }
 
-/* ── Sticky header ───────────────────────────────────────────── */
 .shell-header {
   position: sticky;
   top: 0;
@@ -84,7 +79,7 @@
 }
 
 .shell-hamburger {
-  display: none; /* shown on mobile */
+  display: none;
   align-items: center;
   justify-content: center;
   width: 40px;
@@ -142,14 +137,12 @@
   flex: 1;
 }
 
-/* ── Main content ────────────────────────────────────────────── */
 .shell-content {
   flex: 1;
   overflow-y: auto;
   padding: var(--page-padding);
 }
 
-/* ── Sidebar nav internal ────────────────────────────────────── */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -203,7 +196,7 @@
 }
 
 .sidebar-section-label {
-  font-size: 0.6875rem; /* ~11px → text-table-header style */
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -218,7 +211,6 @@
   overflow-y: auto;
 }
 
-/* Nav item — pill shape */
 .sidebar-nav-item {
   display: flex;
   align-items: center;
@@ -226,7 +218,7 @@
   padding: 10px 12px;
   border-radius: var(--radius-pill);
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.65); /* slate-400 equivalent on dark */
+  color: rgba(255, 255, 255, 0.65);
   font-size: 0.875rem;
   font-weight: 500;
   transition:
@@ -248,10 +240,9 @@
   outline-offset: 2px;
 }
 
-/* Active state: brand-50 bg, brand-700 text, left border, dot */
 .sidebar-nav-item--active {
   background: rgba(14, 165, 233, 0.14);
-  color: #7dd3fc; /* light sky blue on dark */
+  color: #7dd3fc;
   border-left-color: var(--brand-500);
 }
 
@@ -286,7 +277,6 @@
   opacity: 0.5;
 }
 
-/* ── User card ───────────────────────────────────────────────── */
 .sidebar-user-card {
   display: flex;
   align-items: center;
@@ -328,13 +318,12 @@
   text-overflow: ellipsis;
 }
 
-/* Role badge */
 .sidebar-user-role {
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
   border-radius: 9999px;
-  font-size: 0.5625rem; /* 9px — text-badge */
+  font-size: 0.5625rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -385,7 +374,6 @@
   outline-offset: 2px;
 }
 
-/* ── Responsive: show drawer, hide sidebar on mobile ─────────── */
 @media (max-width: 768px) {
   .shell-sidebar {
     display: none;

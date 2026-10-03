@@ -40,7 +40,6 @@ export function RegisterPage() {
       void navigate('/dashboard');
     } catch (err) {
       const apiError = err as ApiError;
-      // Try to parse structured field errors from the server
       try {
         const parsed = JSON.parse(apiError.message) as { fields: Record<string, string[]> };
         setFieldErrors(parsed.fields);
@@ -58,7 +57,6 @@ export function RegisterPage() {
 
       <main className="auth-container">
         <div className="auth-card" role="main">
-          {/* Branding */}
           <div className="auth-brand">
             <div className="auth-logo" aria-hidden="true">
               <span>SC</span>
@@ -67,7 +65,6 @@ export function RegisterPage() {
             <p className="auth-subtitle">Join your student club platform</p>
           </div>
 
-          {/* Error banner */}
           {errorMessage !== null && (
             <div className="auth-error-banner" role="alert" aria-live="assertive">
               {errorMessage}
@@ -75,7 +72,6 @@ export function RegisterPage() {
           )}
 
           <form onSubmit={(e) => void handleSubmit(e)} noValidate>
-            {/* Display name */}
             <div className="form-field">
               <label htmlFor={nameId} className="form-label">
                 Full name
@@ -105,7 +101,6 @@ export function RegisterPage() {
               )}
             </div>
 
-            {/* Email */}
             <div className="form-field">
               <label htmlFor={emailId} className="form-label">
                 Email address
@@ -135,7 +130,6 @@ export function RegisterPage() {
               )}
             </div>
 
-            {/* Password */}
             <div className="form-field">
               <label htmlFor={passwordId} className="form-label">
                 Password
@@ -174,7 +168,6 @@ export function RegisterPage() {
               )}
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className="btn-primary btn-full"
@@ -190,7 +183,6 @@ export function RegisterPage() {
             </button>
           </form>
 
-          {/* Footer link */}
           <p className="auth-footer-text">
             Already have an account?{' '}
             <Link to="/login" className="auth-link">

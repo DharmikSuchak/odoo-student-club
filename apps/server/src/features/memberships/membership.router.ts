@@ -38,8 +38,6 @@ import {
 
 export const membershipRouter = Router();
 
-// ── Validation schemas ────────────────────────────────────────────────────────
-
 const createTierBodySchema = z.object({
   name: z.string().trim().min(1).max(100),
   description: z.string().max(500).optional(),
@@ -62,16 +60,12 @@ const listQuerySchema = z.object({
   status: z.enum(MEMBERSHIP_STATUSES).optional(),
 });
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 /** Returns the club ID from the environment (single-club Phase 1). */
 function getClubId(): string {
   const id = env.CLUB_ID;
   if (!id) throw new AppError('CLUB_ID is not configured.', 500, false);
   return id;
 }
-
-// ── GET /api/memberships/tiers ────────────────────────────────────────────────
 
 /**
  * List all active tiers for the club.
@@ -88,8 +82,6 @@ membershipRouter.get('/tiers', requireAuth, (_req: Request, res: Response, next:
     }
   })();
 });
-
-// ── POST /api/memberships/tiers ───────────────────────────────────────────────
 
 /**
  * Create a new membership tier.
@@ -117,8 +109,6 @@ membershipRouter.post(
   },
 );
 
-// ── GET /api/memberships/me ───────────────────────────────────────────────────
-
 /**
  * Get the current user's latest membership.
  * Authentication: required. Authorization: any role.
@@ -138,8 +128,6 @@ membershipRouter.get('/me', requireAuth, (req: Request, res: Response, next: Nex
     }
   })();
 });
-
-// ── GET /api/memberships/me/history ──────────────────────────────────────────
 
 /**
  * Get the current user's full membership history.
@@ -162,8 +150,6 @@ membershipRouter.get(
     })();
   },
 );
-
-// ── GET /api/memberships ──────────────────────────────────────────────────────
 
 /**
  * List all memberships for the club (paginated; organizer view).
@@ -190,8 +176,6 @@ membershipRouter.get(
     })();
   },
 );
-
-// ── POST /api/memberships ─────────────────────────────────────────────────────
 
 /**
  * Create a new membership for a user (pending_payment status).
@@ -222,8 +206,6 @@ membershipRouter.post(
     })();
   },
 );
-
-// ── POST /api/memberships/:id/record-payment ──────────────────────────────────
 
 /**
  * Record a manual (cash/offline) payment and activate the membership.

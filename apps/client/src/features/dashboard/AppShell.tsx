@@ -39,7 +39,12 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={18} /> },
   { label: 'My Membership', to: '/membership', icon: <CreditCard size={18} /> },
   { label: 'Members', to: '/members', icon: <Users size={18} />, minRole: 'officer' },
-  { label: 'Manage Memberships', to: '/manage/memberships', icon: <Receipt size={18} />, minRole: 'officer' },
+  {
+    label: 'Manage Memberships',
+    to: '/manage/memberships',
+    icon: <Receipt size={18} />,
+    minRole: 'officer',
+  },
   { label: 'Events', to: '/events', icon: <Calendar size={18} /> },
   { label: 'Announcements', to: '/announcements', icon: <Megaphone size={18} /> },
   { label: 'Merchandise', to: '/merchandise', icon: <ShoppingBag size={18} /> },
@@ -117,7 +122,6 @@ function SidebarNav({ onNavClick }: SidebarNavProps) {
         ))}
       </ul>
 
-      {/* User card at bottom */}
       {user !== null && (
         <div className="sidebar-user-card">
           <div className="sidebar-user-avatar" aria-hidden="true">
@@ -158,7 +162,6 @@ export function AppShell({ children }: AppShellProps) {
 
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
-  // Close drawer on Escape key (design-system.md §5 Mobile)
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape' && drawerOpen) {
@@ -183,12 +186,10 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="shell">
-      {/* ── Desktop sidebar (always visible ≥ 769px) ─────────── */}
       <aside className="shell-sidebar" aria-label="Sidebar">
         <SidebarNav />
       </aside>
 
-      {/* ── Mobile drawer ─────────────────────────────────────── */}
       {drawerOpen && (
         <div className="shell-drawer-backdrop" onClick={closeDrawer} aria-hidden="true" />
       )}
@@ -199,11 +200,8 @@ export function AppShell({ children }: AppShellProps) {
         <SidebarNav onNavClick={closeDrawer} />
       </aside>
 
-      {/* ── Right panel ───────────────────────────────────────── */}
       <div className="shell-right">
-        {/* Sticky header */}
         <header className="shell-header" role="banner">
-          {/* Hamburger — mobile only */}
           <button
             type="button"
             className="shell-hamburger"
@@ -225,7 +223,6 @@ export function AppShell({ children }: AppShellProps) {
           <div className="shell-header-spacer" />
         </header>
 
-        {/* Scrollable content */}
         <main className="shell-content" id="main-content">
           {children}
         </main>

@@ -23,7 +23,6 @@ import { z } from 'zod';
 
 import { moneySchema, objectIdSchema } from './common.js';
 
-// ── Membership Tier ────────────────────────────────────────────────────────────
 /**
  * Club-defined membership products (e.g. "General Member – ₹500/year").
  * A tier is a *template*; each actual purchase creates a `membership` document.
@@ -41,11 +40,9 @@ export const membershipTierDocumentSchema = z.object({
 
 export type MembershipTierDocument = z.infer<typeof membershipTierDocumentSchema>;
 
-// ── Membership status ──────────────────────────────────────────────────────────
 export const MEMBERSHIP_STATUSES = ['pending_payment', 'active', 'expired', 'cancelled'] as const;
 export type MembershipStatus = (typeof MEMBERSHIP_STATUSES)[number];
 
-// ── Membership Document ────────────────────────────────────────────────────────
 export const membershipDocumentSchema = z.object({
   userId: objectIdSchema,
   tierId: objectIdSchema,

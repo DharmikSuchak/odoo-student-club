@@ -61,8 +61,6 @@ export function StatusPage() {
   );
 }
 
-/* ── Sub-component ──────────────────────────────────────────── */
-
 interface StatusRowProps {
   icon: string;
   label: string;

@@ -15,11 +15,9 @@ import { z } from 'zod';
 
 import { nonEmptyString } from './common.js';
 
-// ── Role hierarchy ─────────────────────────────────────────────────────────────
 export const USER_ROLES = ['member', 'officer', 'treasurer', 'admin'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-// ── Document schema (shape that lives in MongoDB) ──────────────────────────────
 /**
  * Full user document as stored in MongoDB.
  * `passwordHash` is excluded from all client-facing responses.
@@ -35,7 +33,6 @@ export const userDocumentSchema = z.object({
   passwordResetTokenHash: z.string().optional(),
   passwordResetExpiresAt: z.date().optional(),
 
-  // Email verification
   emailVerifiedAt: z.date().optional(),
 
   // Soft-delete: set to a Date when the account is deactivated/banned
@@ -56,7 +53,6 @@ export const safeUserSchema = userDocumentSchema.omit({
 
 export type SafeUser = z.infer<typeof safeUserSchema>;
 
-// ── Request body schemas (used in route validators) ────────────────────────────
 export const registerBodySchema = z.object({
   email: z.string().email(),
   password: z

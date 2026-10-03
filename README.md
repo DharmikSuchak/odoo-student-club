@@ -155,6 +155,10 @@ npm run dev -w apps/client # Vite on :5173
 
 ## Current Status
 
+Redundant source comments have been removed; API contracts, security and
+validation reasoning, and nonobvious behavior notes remain. Tests and test
+runners are unchanged.
+
 | Item                                            | Status                                                                     |
 | ----------------------------------------------- | -------------------------------------------------------------------------- |
 | `AGENTS.md` — coding-agent rules                | ✅ Done                                                                    |
