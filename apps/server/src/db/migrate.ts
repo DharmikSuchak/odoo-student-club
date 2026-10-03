@@ -60,7 +60,11 @@ async function migrate() {
   await announcements.createIndex({ clubId: 1, authorId: 1 });
 
   const orders = db.collection('orders');
-  await orders.createIndex({ userId: 1, status: 1 });
+  await orders.createIndex({ clubId: 1, userId: 1, createdAt: -1 });
+  await orders.createIndex({ itemId: 1, createdAt: -1 });
+
+  const merchandiseItems = db.collection('merchandiseItems');
+  await merchandiseItems.createIndex({ clubId: 1, name: 1 });
 
   console.info('✅ Migrations completed successfully.');
 }

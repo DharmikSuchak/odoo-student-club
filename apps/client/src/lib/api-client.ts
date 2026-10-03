@@ -525,3 +525,136 @@ export async function apiUpdateTaskStatus(
     body: JSON.stringify({ status }),
   });
 }
+
+// ── Club Store ────────────────────────────────────────────────────────────────
+
+export interface MerchandiseVariant {
+  size: string;
+  stockQuantity: number;
+}
+
+export interface MerchandiseProduct {
+  _id: string;
+  clubId: string;
+  createdBy: string;
+  name: string;
+  priceCents: number;
+  currency: string;
+  variants: MerchandiseVariant[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OrderStatus = 'pending_payment' | 'paid' | 'fulfilled' | 'cancelled';
+
+export interface StoreOrder {
+  _id: string;
+  userId: string;
+  clubId: string;
+  itemId: string;
+  itemName: string;
+  size: string;
+  quantity: 1;
+  unitPriceCents: number;
+  totalCents: number;
+  currency: string;
+  status: OrderStatus;
+  paymentId?: string;
+  paidAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProductResponse {
+  status: 'ok';
+  product: MerchandiseProduct;
+}
+
+interface ProductListResponse {
+  status: 'ok';
+  products: MerchandiseProduct[];
+}
+
+interface OrderResponse {
+  status: 'ok';
+  order: StoreOrder;
+}
+
+interface OrderListResponse {
+  status: 'ok';
+  orders: StoreOrder[];
+}
+
+/** Lists all club merchandise products (any authenticated user). */
+export async function apiListProducts(): Promise<ProductListResponse> {
+  return apiFetch<ProductListResponse>('/api/store/products');
+}
+
+/** Loads one product by id (any authenticated user). */
+export async function apiGetProduct(productId: string): Promise<ProductResponse> {
+  return apiFetch<ProductResponse>(`/api/store/products/${productId}`);
+}
+
+/**
+ * Creates a new merchandise product with size variants.
+ * Requires officer or admin role (enforced server-side).
+ *
+ * @param input  Product name, price, currency, and size variants with stock.
+ * @returns The created product.
+ */
+export async function apiCreateProduct(input: {
+  name: string;
+  priceCents: number;
+  currency: string;
+  variants: MerchandiseVariant[];
+}): Promise<ProductResponse> {
+  return apiFetch<ProductResponse>('/api/store/products', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+/**
+ * Updates an existing merchandise product.
+ * Requires officer or admin role (enforced server-side).
+ *
+ * @param productId  The product to update.
+ * @param input      Updated name, price, currency, and size variants.
+ * @returns The updated product.
+ */
+export async function apiUpdateProduct(
+  productId: string,
+  input: {
+    name: string;
+    priceCents: number;
+    currency: string;
+    variants: MerchandiseVariant[];
+  },
+): Promise<ProductResponse> {
+  return apiFetch<ProductResponse>(`/api/store/products/${productId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+/**
+ * Places a one-unit order for a product size.
+ *
+ * ⚠️  This creates a PENDING_PAYMENT order only. No payment is charged.
+ *     Stock is decremented atomically. Payment collection is not yet implemented.
+ *
+ * @param itemId  The product id.
+ * @param size    The size variant to order.
+ * @returns The created order (status: pending_payment).
+ */
+export async function apiPlaceOrder(itemId: string, size: string): Promise<OrderResponse> {
+  return apiFetch<OrderResponse>('/api/store/orders', {
+    method: 'POST',
+    body: JSON.stringify({ itemId, size }),
+  });
+}
+
+/** Returns the authenticated user's order history newest first. */
+export async function apiListMyOrders(): Promise<OrderListResponse> {
+  return apiFetch<OrderListResponse>('/api/store/orders/mine');
+}

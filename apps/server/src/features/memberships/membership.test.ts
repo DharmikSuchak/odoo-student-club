@@ -63,20 +63,30 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
               const dateVal = val as { $gt: Date };
               const docDate = doc[key] as Date;
               if (!(docDate > dateVal.$gt)) match = false;
+            } else if (val !== null && typeof val === 'object' && '$exists' in val) {
+              const existsOp = (val as { $exists: boolean })['$exists'];
+              if (!existsOp && key in doc) match = false;
+              if (existsOp && !(key in doc)) match = false;
             } else {
               if (doc[key] !== val) match = false;
             }
           }
           if (match) {
+            const resultDoc = { ...doc } as DocRecord;
             if (options?.projection) {
-              const result: Record<string, unknown> = {};
+              const isExclusion = Object.values(options.projection).some(v => v === 0);
+              const projected = isExclusion ? { ...resultDoc } : (({ _id: resultDoc['_id'] }) as Record<string, unknown>);
+              
               for (const [k, v] of Object.entries(options.projection)) {
-                if (v !== 0) result[k] = doc[k];
+                if (v === 0) {
+                  delete projected[k];
+                } else if (v === 1 || v === true) {
+                  projected[k] = resultDoc[k];
+                }
               }
-              result['_id'] = doc['_id'];
-              return Promise.resolve(result as DocRecord);
+              return Promise.resolve(projected as DocRecord);
             }
-            return Promise.resolve({ ...doc } as DocRecord);
+            return Promise.resolve(resultDoc);
           }
         }
         return Promise.resolve(null);
@@ -109,13 +119,17 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
           });
         }
         if (options?.projection) {
+          const isExclusion = Object.values(options.projection).some(v => v === 0);
           const projected = results.map((doc) => {
-            const result: Record<string, unknown> = {};
+            const p = isExclusion ? { ...doc } : (({ _id: doc['_id'] }) as Record<string, unknown>);
             for (const [k, v] of Object.entries(options.projection ?? {})) {
-              if (v !== 0) result[k] = doc[k];
+              if (v === 0) {
+                delete p[k];
+              } else if (v === 1 || v === true) {
+                p[k] = doc[k];
+              }
             }
-            result['_id'] = doc['_id'];
-            return result as DocRecord;
+            return p as DocRecord;
           });
           return { toArray: () => Promise.resolve(projected) };
         }
@@ -125,7 +139,7 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
       insertOne: (doc: Record<string, unknown>) => {
         const store = getStore(name);
         const hexId = makeId();
-        const id = { toString: () => hexId, toHexString: () => hexId };
+        const id = { toString: () => hexId, toHexString: () => hexId, toJSON: () => hexId };
         const stored = { ...doc, _id: id } as DocRecord;
         store.set(hexId, stored);
         return Promise.resolve({ insertedId: id });
@@ -517,7 +531,7 @@ describe('POST /api/memberships/:id/record-payment', () => {
       .post(`/api/memberships/${membershipId}/record-payment`)
       .set('Cookie', treasurerCookie)
       .send({ amountPaidCents: 0 });
-    expect(res.status).toBe(422);
+    expect(res.status).toBe(400);
   });
 
   it('returns 409 when membership is already active', async () => {

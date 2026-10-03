@@ -2,7 +2,7 @@
 # Multi-stage build: deps → dev (for Compose watch) / build → production
 
 # ── Stage 1: Install dependencies ──────────────────────────────
-FROM node:24-alpine AS deps
+FROM node:20-slim AS deps
 WORKDIR /app
 
 # Copy workspace manifests only (layer-cache friendly)
@@ -27,8 +27,10 @@ COPY apps/server ./apps/server
 RUN npm run build -w apps/server
 
 # ── Stage 4: Production runtime ─────────────────────────────────
-FROM node:24-alpine AS production
+FROM node:20-slim AS production
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 

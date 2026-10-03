@@ -80,14 +80,14 @@ describe('Schema Validations', () => {
     it('should support size-based variants', () => {
       const item = {
         clubId: mockObjectId,
+        createdBy: mockObjectId,
         name: 'Club T-Shirt',
         priceCents: 2000,
-        isActive: true,
+        currency: 'INR',
         variants: [
           { size: 'M', stockQuantity: 50 },
           { size: 'L', stockQuantity: 20 },
         ],
-        stockQuantity: 0, // Top level defaults to 0 if not passed, but schema allows it
         createdAt: new Date(),
         updatedAt: new Date(),
       };

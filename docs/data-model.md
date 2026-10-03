@@ -73,9 +73,21 @@ _Note: For exact fields, required types, and validations, see the Zod schemas in
 
 ### `merchandiseItems` & `orders`
 
-- **Items** support `variants` for size-based stock.
-- **Orders** contain a snapshot of `unitPriceCents`.
-- Same strict payment guards as memberships.
+- **Items** support `variants` for size-based stock. Each variant stores `size`
+  (uppercase string) and `stockQuantity` (non-negative integer). Variants are
+  stored normalized (trimmed, uppercased) and must be unique within an item.
+- **Orders** contain a snapshot of `unitPriceCents`, `itemName`, and `size` at
+  order time so the history is stable even if the product changes.
+- Stock is decremented atomically inside a MongoDB transaction using a
+  conditional `findOneAndUpdate` with `$elemMatch { stockQuantity: { $gt: 0 } }`.
+  This makes simultaneous requests for the last unit mutually exclusive.
+- Orders are created with `status: 'pending_payment'`. They do **not** become
+  `paid` until a verified payment event is recorded (same guard as memberships
+  and event tickets). Online payment integration is planned but not yet
+  implemented.
+- Creating and editing products requires the `officer` or `admin` role, enforced
+  server-side by `requireRole` middleware on `POST /api/store/products` and
+  `PATCH /api/store/products/:id`.
 
 ### `announcements`
 
@@ -161,10 +173,15 @@ Indexes are managed by `apps/server/src/db/migrate.ts`.
 - [x] `announcements.clubId + isPinned + createdAt`
 - [x] `announcements.clubId + authorId`
 - [x] `orders.userId + status`
+- [x] `orders.clubId + userId + createdAt`
+- [x] `orders.itemId + createdAt`
+- [x] `merchandiseItems.clubId + name`
 - [x] `tasks.clubId + status + createdAt`
 - [x] `tasks.clubId + assigneeId + status`
 
 ---
 
-_Last updated: Volunteer tasks, announcements, expenses, computed treasurer
-reporting, and live dashboard summaries implemented._
+_Last updated: Phase 5 — merchandise ordering implemented (catalog, size
+variants, atomic stock decrement, pending-payment orders, organizer product
+manager, order history view)._
+

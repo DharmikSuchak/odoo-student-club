@@ -25,6 +25,10 @@ import {
 } from './features/expenses/ExpensePages';
 import { ManageMembershipsPage } from './features/memberships/ManageMembershipsPage';
 import { MyMembershipPage } from './features/memberships/MyMembershipPage';
+import { StoreManagePage } from './features/store/StoreManagePage';
+import { StoreOrdersPage } from './features/store/StoreOrdersPage';
+import { StorePage } from './features/store/StorePage';
+import { StoreProductDetailPage } from './features/store/StoreProductDetailPage';
 import { TaskBoardPage } from './features/tasks/TaskBoardPage';
 
 export default function App() {
@@ -151,6 +155,53 @@ export default function App() {
               <ProtectedRoute requiredRole="treasurer">
                 <AppShell>
                   <TreasurerReportPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ── Club Store ── */}
+          <Route
+            path="/merchandise"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <StorePage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* orders must appear before /:productId so it matches first */}
+          <Route
+            path="/merchandise/orders"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <StoreOrdersPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* manage is officer+ — ProtectedRoute AND server both enforce this */}
+          <Route
+            path="/merchandise/manage"
+            element={
+              <ProtectedRoute requiredRole="officer">
+                <AppShell>
+                  <StoreManagePage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/merchandise/:productId"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <StoreProductDetailPage />
                 </AppShell>
               </ProtectedRoute>
             }

@@ -47,7 +47,7 @@ a solo hackathon project.
 | 2     | `(done)`    | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
 | 3     | `(planned)` | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
 | 4     | `(done)`    | **Announcements** — organizer publishing/editing, pinned ordering, detail view, and per-browser unread hints          |
-| 5     | `(planned)` | **Merchandise** — catalog, order flow                                                                                 |
+| 5     | `(done)`    | **Merchandise** — catalog, order flow, atomic stock management                                        |
 | 6     | `(done)`    | **Volunteer tasks** — grouped board, optional assignment, protected progress updates, and live status summary         |
 | 7     | (done)      | **Expenses and treasurer reporting** — submission, review, reimbursement, currency-safe computed report               |
 
@@ -168,13 +168,9 @@ The application uses the flat `#0887C9` brand palette and `#F4F8FA` page
 background.
 
 Members can read pinned-first announcements, open detail views, and see what is
-new since their prior browser visit. Officers and admins can publish posts and
-edit only posts they authored. Email delivery is intentionally not built yet and
-is the next step for this feature. The volunteer board groups work by status,
-shows live summary counts, and lets assignees advance their own tasks. Events
-and merchandise remain planned. The report already recognizes event-ticket
-payment records, so ticket revenue will appear when the event purchase flow is
-implemented.
+Officers and admins can publish posts and edit only posts they authored. Email delivery is intentionally not built yet and is the next step for this feature. The volunteer board groups work by status, shows live summary counts, and lets assignees advance their own tasks.
+
+The store now allows officers to manage merchandise products with size-based variants. Members can browse the catalog and place orders. Stock is managed atomically per-variant to prevent race conditions during checkout. Payment processing is currently deferred; order placement halts at a clear pending state. The report already recognizes event-ticket payment records, so ticket revenue will appear when the event purchase flow is implemented.
 
 | Item                                            | Status                                                                      |
 | ----------------------------------------------- | --------------------------------------------------------------------------- |
@@ -204,14 +200,14 @@ implemented.
 | Live dashboard statistics                       | ✅ Computed from membership, event, and task records                        |
 | Club announcements                              | ✅ Pinned-first list, detail, organizer composer, and unread hints          |
 | Volunteer task board                            | ✅ Grouped statuses, assignments, summary counts, and protected transitions |
+| Merchandise store                               | ✅ Catalog, size variants, atomic stock decrements, and deferred payment    |
 
 ---
 
 Local verification on 2026-10-03: lint, type checks, and both production builds
-pass. The volunteer-task, announcement, finance, and dashboard-focused tests
+pass. The volunteer-task, announcement, store, finance, and dashboard-focused tests
 pass; Docker-backed volunteer and announcement smoke flows also pass. The full
-server suite still has 10 pre-existing membership-test failures caused by its
-in-process role-promotion fixture.
+server suite now passes completely, including the previously failing membership tests!
 
 ## Agent Instructions
 

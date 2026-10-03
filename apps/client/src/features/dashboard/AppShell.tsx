@@ -44,7 +44,13 @@ const NAV_ITEMS: NavItem[] = [
   },
   { label: 'Events', to: '/events', icon: <Calendar size={18} />, planned: true },
   { label: 'Announcements', to: '/announcements', icon: <Megaphone size={18} /> },
-  { label: 'Merchandise', to: '/merchandise', icon: <ShoppingBag size={18} />, planned: true },
+  { label: 'Merchandise', to: '/merchandise', icon: <ShoppingBag size={18} /> },
+  {
+    label: 'Manage Products',
+    to: '/merchandise/manage',
+    icon: <ShoppingBag size={18} />,
+    minRole: 'officer' as const,
+  },
   { label: 'Volunteer Tasks', to: '/tasks', icon: <ClipboardList size={18} /> },
   { label: 'Submit Expense', to: '/expenses', icon: <Receipt size={18} />, minRole: 'officer' },
   {

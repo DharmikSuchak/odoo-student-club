@@ -2,7 +2,7 @@
 # Multi-stage build: deps → dev (Compose watch) → production (static serve via preview)
 
 # ── Stage 1: Install dependencies ──────────────────────────────
-FROM node:24-alpine AS deps
+FROM node:20-slim AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -26,8 +26,10 @@ COPY apps/client ./apps/client
 RUN npm run build -w apps/client
 
 # ── Stage 4: Serve (preview mode — swap for nginx in production) ─
-FROM node:24-alpine AS production
+FROM node:20-slim AS production
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
 COPY apps/client/package.json ./apps/client/
