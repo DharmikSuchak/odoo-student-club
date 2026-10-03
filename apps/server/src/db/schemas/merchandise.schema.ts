@@ -15,6 +15,7 @@ export const merchandiseItemDocumentSchema = z.object({
   name: nonEmptyString.max(200),
   priceCents: moneySchema.positive(),
   currency: z.string().length(3),
+  imageUrl: z.string().url().optional(),
   variants: z.array(merchandiseVariantSchema).min(1),
   createdAt: z.date(),
   updatedAt: z.date(),

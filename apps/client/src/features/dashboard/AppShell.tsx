@@ -10,9 +10,10 @@ import {
   Menu,
   X,
   LogOut,
+  HelpCircle,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 
 import { Dialog } from '../../components/Dialog';
 import { useAuth } from '../auth/AuthContext';
@@ -64,6 +65,13 @@ const NAV_ITEMS: NavItem[] = [
     to: '/treasurer/report',
     icon: <CreditCard size={18} />,
     minRole: 'treasurer',
+  },
+  { label: 'Help & Support', to: '/support', icon: <HelpCircle size={18} /> },
+  {
+    label: 'Support Tickets',
+    to: '/manage/support',
+    icon: <HelpCircle size={18} />,
+    minRole: 'officer',
   },
 ];
 const ROLE_ORDER = ['member', 'officer', 'treasurer', 'admin'] as const;
@@ -132,13 +140,19 @@ function SidebarUser() {
         </p>
       )}
       <div className="sidebar-user-card">
-        <span className="sidebar-user-avatar" aria-hidden="true">
-          {user.displayName.charAt(0).toUpperCase()}
-        </span>
+        <Link to="/profile" className="sidebar-user-avatar-link" aria-label="Go to profile">
+          {user.avatarUrl ? (
+            <img src={user.avatarUrl} alt={user.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+          ) : (
+            <span className="sidebar-user-avatar" aria-hidden="true">
+              {user.displayName.charAt(0).toUpperCase()}
+            </span>
+          )}
+        </Link>
         <div className="sidebar-user-info">
-          <span className="sidebar-user-name" title={user.displayName}>
+          <Link to="/profile" className="sidebar-user-name" title={user.displayName} style={{ textDecoration: 'none' }}>
             {user.displayName}
-          </span>
+          </Link>
           <span className={`sidebar-user-role sidebar-user-role--${user.role}`}>{user.role}</span>
         </div>
         <button

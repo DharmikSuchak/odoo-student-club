@@ -24,6 +24,7 @@ export interface AuthUser {
   id: string;
   email: string;
   displayName: string;
+  avatarUrl?: string;
   role: 'member' | 'officer' | 'treasurer' | 'admin';
   createdAt?: string;
 }
@@ -148,6 +149,13 @@ export async function apiLogout(): Promise<MessageResponse> {
 
 export async function apiGetCurrentUser(): Promise<AuthResponse> {
   return apiFetch<AuthResponse>('/api/auth/me');
+}
+
+export async function apiUpdateProfile(displayName: string, avatarUrl?: string): Promise<{status: 'ok', user: AuthUser}> {
+  return apiFetch<{status: 'ok', user: AuthUser}>('/api/users/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ displayName, avatarUrl }),
+  });
 }
 
 export interface UsersListResponse {
@@ -526,6 +534,7 @@ export interface MerchandiseProduct {
   name: string;
   priceCents: number;
   currency: string;
+  imageUrl?: string;
   variants: MerchandiseVariant[];
   createdAt: string;
   updatedAt: string;
@@ -583,6 +592,7 @@ export async function apiCreateProduct(input: {
   name: string;
   priceCents: number;
   currency: string;
+  imageUrl?: string;
   variants: MerchandiseVariant[];
 }): Promise<ProductResponse> {
   return apiFetch<ProductResponse>('/api/store/products', {
@@ -597,6 +607,7 @@ export async function apiUpdateProduct(
     name: string;
     priceCents: number;
     currency: string;
+    imageUrl?: string;
     variants: MerchandiseVariant[];
   },
 ): Promise<ProductResponse> {
@@ -731,5 +742,58 @@ export async function apiCheckInEventTicket(
 ): Promise<EventTicketResponse> {
   return apiFetch<EventTicketResponse>(`/api/events/${eventId}/tickets/${ticketId}/check-in`, {
     method: 'PATCH',
+  });
+}
+
+// ── Support Tickets ────────────────────────────────────────────────────────────
+
+export interface SupportTicket {
+  _id: string;
+  clubId: string;
+  userId: string;
+  userName: string;
+  subject: string;
+  description: string;
+  status: 'open' | 'in_progress' | 'resolved';
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+}
+
+export interface SupportTicketResponse {
+  status: 'ok';
+  ticket: SupportTicket;
+}
+
+export interface SupportTicketListResponse {
+  status: 'ok';
+  tickets: SupportTicket[];
+}
+
+export async function apiCreateSupportTicket(
+  subject: string,
+  description: string,
+): Promise<SupportTicketResponse> {
+  return apiFetch<SupportTicketResponse>('/api/support', {
+    method: 'POST',
+    body: JSON.stringify({ subject, description }),
+  });
+}
+
+export async function apiListMySupportTickets(): Promise<SupportTicketListResponse> {
+  return apiFetch<SupportTicketListResponse>('/api/support/mine');
+}
+
+export async function apiListAllSupportTickets(): Promise<SupportTicketListResponse> {
+  return apiFetch<SupportTicketListResponse>('/api/support');
+}
+
+export async function apiUpdateSupportTicketStatus(
+  ticketId: string,
+  status: 'open' | 'in_progress' | 'resolved',
+): Promise<SupportTicketResponse> {
+  return apiFetch<SupportTicketResponse>(`/api/support/${ticketId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
   });
 }

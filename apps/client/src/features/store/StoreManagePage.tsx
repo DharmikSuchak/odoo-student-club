@@ -16,6 +16,7 @@ interface FormErrors {
   name?: string;
   priceCents?: string;
   currency?: string;
+  imageUrl?: string;
   variants?: string;
 }
 
@@ -52,6 +53,7 @@ function ProductForm({
     initial !== undefined && initial !== null ? String(initial.priceCents / 100) : '',
   );
   const [currency, setCurrency] = useState(initial?.currency ?? 'INR');
+  const [imageUrl, setImageUrl] = useState(initial?.imageUrl ?? '');
   const [variants, setVariants] = useState<VariantDraft[]>(
     initial?.variants.map((v) => ({ size: v.size, stockQuantity: String(v.stockQuantity) })) ?? [
       makeEmptyVariant(),
@@ -85,6 +87,8 @@ function ProductForm({
     if (isNaN(priceNum) || priceNum <= 0) nextErrors.priceCents = 'Enter a positive price.';
     if (!/^[A-Za-z]{3}$/.test(currency.trim()))
       nextErrors.currency = 'Use a 3-letter currency code (e.g. INR, USD).';
+    if (imageUrl.trim().length > 0 && !imageUrl.trim().startsWith('http'))
+      nextErrors.imageUrl = 'Image URL must start with http:// or https://';
 
     const parsed: MerchandiseVariant[] = [];
     const seenSizes = new Set<string>();
@@ -127,6 +131,7 @@ function ProductForm({
       name: name.trim(),
       priceCents: Math.round(parseFloat(priceCents) * 100),
       currency: currency.trim().toUpperCase(),
+      ...(imageUrl.trim() ? { imageUrl: imageUrl.trim() } : {}),
       variants: parsedVariants,
     };
 
@@ -146,6 +151,7 @@ function ProductForm({
         setName('');
         setPriceCents('');
         setCurrency('INR');
+        setImageUrl('');
         setVariants([makeEmptyVariant()]);
       }
     } catch (err) {
@@ -191,6 +197,25 @@ function ProductForm({
         {errors.name !== undefined && (
           <p className="store-field-error" role="alert">
             {errors.name}
+          </p>
+        )}
+      </div>
+
+      <div className="store-field">
+        <label className="store-label" htmlFor="product-image">
+          Image URL (optional)
+        </label>
+        <input
+          id="product-image"
+          type="url"
+          className={`store-input${errors.imageUrl !== undefined ? ' store-input--error' : ''}`}
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="https://example.com/image.png"
+        />
+        {errors.imageUrl !== undefined && (
+          <p className="store-field-error" role="alert">
+            {errors.imageUrl}
           </p>
         )}
       </div>

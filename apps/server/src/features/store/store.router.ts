@@ -33,6 +33,7 @@ const productBodySchema = z
       .string()
       .trim()
       .regex(/^[A-Za-z]{3}$/, 'Use a three-letter currency code'),
+    imageUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
     variants: z.array(variantSchema).min(1).max(30),
   })
   .strict()

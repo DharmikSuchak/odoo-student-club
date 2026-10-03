@@ -1,6 +1,7 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 
 import { hash } from 'bcrypt';
+import { ObjectId } from 'mongodb';
 
 import { getDb } from '../../db/connection.js';
 import type { UserDocument } from '../../db/schemas/user.schema.js';
@@ -11,6 +12,53 @@ import { AppError } from '../../middleware/error-handler.js';
 const BCRYPT_ROUNDS = 12;
 
 export const userRouter = Router();
+
+userRouter.patch('/me', requireAuth, (req: Request, res: Response, next: NextFunction) => {
+  void (async () => {
+    try {
+      const { displayName, avatarUrl } = req.body;
+      const user = req.user!;
+      if (!displayName || typeof displayName !== 'string' || displayName.trim().length === 0) {
+        next(new AppError('Display name is required.', 400));
+        return;
+      }
+
+      const usersCollection = getDb().collection<UserDocument>('users');
+      const updateDoc: Partial<UserDocument> = {
+        displayName: displayName.trim(),
+        updatedAt: new Date(),
+      };
+      
+      if (avatarUrl !== undefined) {
+        updateDoc.avatarUrl = avatarUrl;
+      }
+
+      const result = await usersCollection.findOneAndUpdate(
+        { _id: new ObjectId(user.userId) },
+        { $set: updateDoc },
+        { returnDocument: 'after' }
+      );
+
+      if (!result) {
+        next(new AppError('User not found.', 404));
+        return;
+      }
+
+      res.status(200).json({
+        status: 'ok',
+        user: {
+          id: result._id.toString(),
+          email: result.email,
+          displayName: result.displayName,
+          avatarUrl: result.avatarUrl,
+          role: result.role,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  })();
+});
 
 userRouter.get('/', requireAuth, (req: Request, res: Response, next: NextFunction) => {
   void (async () => {

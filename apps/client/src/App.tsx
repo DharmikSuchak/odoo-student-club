@@ -29,6 +29,9 @@ import { StoreManagePage } from './features/store/StoreManagePage';
 import { StoreOrdersPage } from './features/store/StoreOrdersPage';
 import { StorePage } from './features/store/StorePage';
 import { StoreProductDetailPage } from './features/store/StoreProductDetailPage';
+import { MyTicketsPage } from './features/support/MyTicketsPage';
+import { ManageTicketsPage } from './features/support/ManageTicketsPage';
+import { ProfilePage } from './features/users/ProfilePage';
 import { TaskBoardPage } from './features/tasks/TaskBoardPage';
 
 export default function App() {
@@ -275,6 +278,39 @@ export default function App() {
               <ProtectedRoute>
                 <AppShell>
                   <StoreProductDetailPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/support"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <MyTicketsPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/manage/support"
+            element={
+              <ProtectedRoute requiredRole="officer">
+                <AppShell>
+                  <ManageTicketsPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <ProfilePage />
                 </AppShell>
               </ProtectedRoute>
             }

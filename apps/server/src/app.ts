@@ -12,6 +12,7 @@ import { expenseRouter } from './features/expenses/expense.router.js';
 import { membershipRouter } from './features/memberships/membership.router.js';
 import { storeRouter } from './features/store/store.router.js';
 import { mockPaymentRouter } from './features/stripe/mock-payment.router.js';
+import { supportRouter } from './features/support/support.router.js';
 import { stripeRouter, stripeWebhookRouter } from './features/stripe/stripe.router.js';
 import { taskRouter } from './features/tasks/task.router.js';
 import { userRouter } from './features/users/user.router.js';
@@ -69,6 +70,7 @@ export function createApp(env: Env) {
   app.use('/api/store', storeRouter);
   app.use('/api/tasks', taskRouter);
   app.use('/api/users', userRouter);
+  app.use('/api/support', supportRouter);
 
   app.use((_req, res) => {
     res.status(404).json({ status: 'error', message: 'Route not found.' });

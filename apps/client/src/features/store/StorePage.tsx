@@ -49,7 +49,11 @@ function ProductCard({ product }: { product: MerchandiseProduct }) {
     >
       <div className="store-product-card-header">
         <div className="store-product-icon" aria-hidden="true">
-          <ShoppingBag size={20} />
+          {product.imageUrl ? (
+            <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+          ) : (
+            <ShoppingBag size={20} />
+          )}
         </div>
         <span className="store-product-price">
           {formatMoney(product.priceCents, product.currency)}

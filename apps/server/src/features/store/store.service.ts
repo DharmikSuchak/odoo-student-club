@@ -18,6 +18,7 @@ export interface ProductInput {
   name: string;
   priceCents: number;
   currency: string;
+  imageUrl?: string;
   variants: MerchandiseVariant[];
 }
 
@@ -25,6 +26,7 @@ export interface ProductUpdateInput {
   name: string;
   priceCents: number;
   currency: string;
+  imageUrl?: string;
   variants: MerchandiseVariant[];
 }
 
@@ -103,7 +105,7 @@ export async function updateProduct(
 ): Promise<StoredMerchandiseItem> {
   const existing = await getProduct(database, clubId, itemId);
   const fields = merchandiseItemDocumentSchema
-    .pick({ name: true, priceCents: true, currency: true, variants: true, updatedAt: true })
+    .pick({ name: true, priceCents: true, currency: true, imageUrl: true, variants: true, updatedAt: true })
     .parse({
       ...input,
       currency: input.currency.toUpperCase(),

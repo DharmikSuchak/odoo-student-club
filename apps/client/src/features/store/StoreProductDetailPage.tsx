@@ -176,8 +176,12 @@ export function StoreProductDetailPage() {
       <div className="store-detail-layout">
         <div className="store-detail-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div className="store-product-icon" aria-hidden="true">
-              <ShoppingBag size={24} />
+            <div className="store-product-icon" aria-hidden="true" style={product.imageUrl ? { padding: 0, width: '64px', height: '64px', overflow: 'hidden' } : {}}>
+              {product.imageUrl ? (
+                <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <ShoppingBag size={24} />
+              )}
             </div>
             <div>
               <h1 className="store-detail-title">{product.name}</h1>
