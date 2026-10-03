@@ -1,0 +1,147 @@
+/* ============================================================
+   Global CSS — Student Club Platform
+   Token reference: docs/design-system.md
+   ============================================================ */
+
+/* ── Google Fonts are loaded in index.html ──────────────────── */
+
+/* ── CSS custom properties (design tokens) ──────────────────── */
+:root {
+  /* Brand (Sky) */
+  --brand-50: #f0f9ff;
+  --brand-100: #e0f2fe;
+  --brand-500: #0ea5e9;
+  --brand-600: #0284c7;
+  --brand-700: #0369a1;
+
+  /* Slate (Neutral) */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+
+  /* Status */
+  --success-bg: #dcfce7;
+  --success-text: #15803d;
+  --warning-bg: #fef3c7;
+  --warning-text: #b45309;
+  --info-bg: #dbeafe;
+  --info-text: #1d4ed8;
+  --danger-bg: #fee2e2;
+  --danger-text: #dc2626;
+
+  /* Shadows */
+  --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 8px 16px rgba(0, 0, 0, 0.06);
+
+  /* Radii */
+  --radius-pill: 9999px;
+  --radius-auth: 24px;
+  --radius-card: 16px;
+  --radius-dropdown: 12px;
+  --radius-btn-sm: 8px;
+
+  /* Spacing */
+  --page-padding: 32px;
+  --card-padding: 24px;
+  --grid-gap: 24px;
+
+  /* Typography */
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+}
+
+/* ── Reset ───────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 0.875rem; /* 14px body */
+  font-weight: 500;
+  color: var(--slate-700);
+  background-color: var(--slate-100);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* Subtle diagonal background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 40px,
+    rgba(148, 163, 184, 0.04) 40px,
+    rgba(148, 163, 184, 0.04) 41px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* ── Subtle scrollbars ───────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Utility: visually hidden (accessible) ───────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Mobile overrides ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --page-padding: 16px;
+  }
+}

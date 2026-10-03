@@ -1,0 +1,46 @@
+# ── Agent instruction files (local only — never publish) ──────────────────────
+/AGENTS.md
+/CLAUDE.md
+/.claude/
+
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
+dist/
+build/
+.vite/
+
+# ── Environment files (never commit real credentials) ─────────────────────────
+.env
+.env.local
+.env.*.local
+# keep .env.example committed
+
+# ── TypeScript ────────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ── Test / coverage ───────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Docker volumes (local bind mounts if any) ────────────────────────────────
+.docker-data/
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+.cache/
