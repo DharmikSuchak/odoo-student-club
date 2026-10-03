@@ -61,3 +61,8 @@ export async function closeDb(): Promise<void> {
     database = null;
   }
 }
+
+/** Compatibility shutdown name used by the process entry point. */
+export async function disconnectDb(): Promise<void> {
+  await closeDb();
+}

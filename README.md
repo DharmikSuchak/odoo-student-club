@@ -39,7 +39,7 @@ a solo hackathon project.
 
 ---
 
-## Planned Features
+## Feature Roadmap
 
 | Phase | Status      | Features                                                                                                              |
 | ----- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -49,7 +49,7 @@ a solo hackathon project.
 | 4     | `(planned)` | **Announcements** — publish, audience filter (all / members / officers)                                               |
 | 5     | `(planned)` | **Merchandise** — catalog, order flow                                                                                 |
 | 6     | `(planned)` | **Volunteer tasks** — task board, volunteer assignments, completion tracking                                          |
-| 7     | `(planned)` | **Expenses and treasurer reporting** — ledger, approval workflow, export                                              |
+| 7     | (done)      | **Expenses and treasurer reporting** — submission, review, reimbursement, currency-safe computed report               |
 
 ---
 
@@ -155,15 +155,15 @@ npm run dev -w apps/client # Vite on :5173
 
 ## Current Status
 
-UI polish covers login, registration, dashboard, both membership screens,
-creation/payment dialogs, mobile navigation, and the legacy status component.
-Loading, empty, retry, submission, keyboard focus, and responsive states share
-the design tokens. Dashboard statistics and navigation marked “Soon” remain
-planned.
+Authentication, memberships, expense submission, treasurer review/reimbursement,
+and the treasurer report are implemented end to end. Finance totals are computed
+from payment and expense records, grouped by currency, and label settled versus
+pending values. All finance endpoints enforce roles on the server; the UI also
+provides role-aware navigation and useful empty states.
 
-Redundant source comments have been removed; API contracts, security and
-validation reasoning, and nonobvious behavior notes remain. Tests and test
-runners are unchanged.
+Announcements, events, merchandise, and volunteer tasks remain planned. The
+report already recognizes event-ticket payment records, so ticket revenue will
+appear when the event purchase flow is implemented.
 
 | Item                                            | Status                                                                     |
 | ----------------------------------------------- | -------------------------------------------------------------------------- |
@@ -184,16 +184,19 @@ runners are unchanged.
 | Docker Compose (Mongo + Redis + API + Web)      | ✅ Done                                                                    |
 | MongoDB single-node replica set (rs0)           | ✅ Done                                                                    |
 | Local lint, typecheck, tests, and build scripts | ✅ Available                                                               |
-| Typecheck                                       | Client passes; server startup imports reference missing disconnect helpers |
-| Existing tests                                  | Client: 1 passed; server: 35 passed, 10 membership tests fail              |
-| Production build                                | Client passes; server blocked by the same startup imports                  |
+| Typecheck                                       | ✅ Client and server pass                                                  |
+| Existing tests                                  | Client: 1 passed; server: 39 passed, 10 pre-existing membership tests fail |
+| Production build                                | ✅ Client and server pass                                                  |
 | Authentication (Phase 1 features)               | Implemented                                                                |
+| Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                          |
+| Treasurer report                                | ✅ Computed by currency from payments and approved expenses                |
 
 ---
 
-Local verification on 2026-10-03 also found six lint errors in the existing
-server startup code. The running Docker frontend and API respond successfully;
-this does not establish that the current server source builds.
+Local verification on 2026-10-03: lint, type checks, and both production builds
+pass. The finance-focused tests pass; the full server suite still has 10
+pre-existing membership-test failures caused by its in-process role-promotion
+fixture.
 
 ## Agent Instructions
 

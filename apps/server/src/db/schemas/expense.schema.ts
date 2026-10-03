@@ -1,12 +1,9 @@
 /**
- * Zod schema for the `expenses` collection.
+ * Zod schema for outgoing club expenses and reimbursements.
  *
- * This represents the treasurer's ledger for outgoing club funds (reimbursements,
- * vendor payments).
- *
- * Decisions (Prompt 3):
- * - Simple two-step approval workflow is sufficient for MVP (`pending` -> `approved`/`rejected`).
- * - Approved expenses can transition to `reimbursed` once funds are dispersed.
+ * An organizer submits an expense in `pending`. A treasurer records an
+ * auditable review decision, and an approved expense can later be marked as
+ * reimbursed when money is actually paid out.
  */
 import { z } from 'zod';
 
@@ -17,19 +14,18 @@ export type ExpenseStatus = (typeof EXPENSE_STATUSES)[number];
 
 export const expenseDocumentSchema = z.object({
   clubId: objectIdSchema,
-  submittedBy: objectIdSchema, // ref: users
-  approvedBy: objectIdSchema.optional(), // ref: users (officer/treasurer)
+  submittedBy: objectIdSchema,
+  reviewedBy: objectIdSchema.optional(),
+  reimbursedBy: objectIdSchema.optional(),
 
   category: nonEmptyString.max(100),
-  description: nonEmptyString.max(1000),
   amountCents: moneySchema,
-  currency: z.string().length(3).default('USD'),
-
-  receiptUrl: z.string().url().optional(),
+  currency: z.string().regex(/^[A-Z]{3}$/, 'Currency must be a three-letter ISO code'),
+  receiptReference: nonEmptyString.max(500),
 
   status: z.enum(EXPENSE_STATUSES).default('pending'),
-
-  occurredAt: z.date(),
+  reviewedAt: z.date().optional(),
+  reimbursedAt: z.date().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

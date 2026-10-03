@@ -13,6 +13,11 @@ import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { RegisterPage } from './features/auth/RegisterPage';
 import { AppShell } from './features/dashboard/AppShell';
 import { DashboardPage } from './features/dashboard/DashboardPage';
+import {
+  ExpenseReviewPage,
+  ExpenseSubmissionPage,
+  TreasurerReportPage,
+} from './features/expenses/ExpensePages';
 import { ManageMembershipsPage } from './features/memberships/ManageMembershipsPage';
 import { MyMembershipPage } from './features/memberships/MyMembershipPage';
 
@@ -52,6 +57,39 @@ export default function App() {
               <ProtectedRoute requiredRole="officer">
                 <AppShell>
                   <ManageMembershipsPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/expenses"
+            element={
+              <ProtectedRoute requiredRole="officer">
+                <AppShell>
+                  <ExpenseSubmissionPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/treasurer/expenses"
+            element={
+              <ProtectedRoute requiredRole="treasurer">
+                <AppShell>
+                  <ExpenseReviewPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/treasurer/report"
+            element={
+              <ProtectedRoute requiredRole="treasurer">
+                <AppShell>
+                  <TreasurerReportPage />
                 </AppShell>
               </ProtectedRoute>
             }

@@ -50,3 +50,8 @@ export async function closeRedis(): Promise<void> {
     redisClient = null;
   }
 }
+
+/** Compatibility shutdown name used by the process entry point. */
+export async function disconnectRedis(): Promise<void> {
+  await closeRedis();
+}

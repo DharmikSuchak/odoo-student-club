@@ -43,6 +43,11 @@ async function migrate() {
     { unique: true, partialFilterExpression: { providerEventId: { $type: 'string' } } },
   );
   await payments.createIndex({ 'relatedEntity.id': 1 });
+  await payments.createIndex({ status: 1, 'relatedEntity.type': 1, currency: 1 });
+
+  const expenses = db.collection('expenses');
+  await expenses.createIndex({ clubId: 1, status: 1, createdAt: -1 });
+  await expenses.createIndex({ clubId: 1, submittedBy: 1, createdAt: -1 });
 
   const orders = db.collection('orders');
   await orders.createIndex({ userId: 1, status: 1 });

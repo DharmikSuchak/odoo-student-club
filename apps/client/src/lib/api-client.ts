@@ -262,3 +262,103 @@ export async function apiRecordManualPayment(
     body: JSON.stringify({ amountPaidCents }),
   });
 }
+
+export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'reimbursed';
+
+export interface Expense {
+  _id: string;
+  clubId: string;
+  submittedBy: string;
+  reviewedBy?: string;
+  reimbursedBy?: string;
+  category: string;
+  amountCents: number;
+  currency: string;
+  receiptReference: string;
+  status: ExpenseStatus;
+  reviewedAt?: string;
+  reimbursedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MoneyBreakdown {
+  settled: number;
+  pending: number;
+  total: number;
+}
+
+export interface TreasurerCurrencySummary {
+  currency: string;
+  dues: MoneyBreakdown;
+  ticketRevenue: MoneyBreakdown;
+  income: MoneyBreakdown;
+  outgoing: MoneyBreakdown;
+  balance: { settled: number; projected: number };
+  expenseCounts: {
+    pendingReview: number;
+    awaitingReimbursement: number;
+    reimbursed: number;
+  };
+}
+
+interface ExpenseResponse {
+  status: 'ok';
+  expense: Expense;
+}
+
+interface ExpenseListResponse {
+  status: 'ok';
+  expenses: Expense[];
+}
+
+interface TreasurerReportResponse {
+  status: 'ok';
+  summaries: TreasurerCurrencySummary[];
+  generatedAt: string;
+}
+
+/** Submits an organizer expense in pending state. */
+export async function apiCreateExpense(input: {
+  category: string;
+  amountCents: number;
+  currency: string;
+  receiptReference: string;
+}): Promise<ExpenseResponse> {
+  return apiFetch<ExpenseResponse>('/api/expenses', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+/** Lists expenses submitted by the current organizer. */
+export async function apiListMyExpenses(): Promise<ExpenseListResponse> {
+  return apiFetch<ExpenseListResponse>('/api/expenses/mine');
+}
+
+/** Lists expenses for treasurer review, optionally filtered by status. */
+export async function apiListExpenses(status?: ExpenseStatus): Promise<ExpenseListResponse> {
+  const query = status === undefined ? '' : `?status=${encodeURIComponent(status)}`;
+  return apiFetch<ExpenseListResponse>(`/api/expenses${query}`);
+}
+
+/** Records the treasurer's approval or rejection decision. */
+export async function apiReviewExpense(
+  expenseId: string,
+  decision: 'approved' | 'rejected',
+): Promise<ExpenseResponse> {
+  return apiFetch<ExpenseResponse>(`/api/expenses/${expenseId}/review`, {
+    method: 'PATCH',
+    body: JSON.stringify({ decision }),
+  });
+}
+
+/** Marks an approved expense as reimbursed. */
+export async function apiReimburseExpense(expenseId: string): Promise<ExpenseResponse> {
+  return apiFetch<ExpenseResponse>(`/api/expenses/${expenseId}/reimburse`, { method: 'PATCH' });
+}
+
+/** Loads the currency-safe treasurer report computed from source records. */
+export async function apiGetTreasurerReport(): Promise<TreasurerReportResponse> {
+  return apiFetch<TreasurerReportResponse>('/api/expenses/report');
+}
