@@ -79,8 +79,9 @@ _Note: For exact fields, required types, and validations, see the Zod schemas in
 - **Orders** contain a snapshot of `unitPriceCents`, `itemName`, and `size` at
   order time so the history is stable even if the product changes.
 - Stock is decremented atomically inside a MongoDB transaction using a
-  conditional `findOneAndUpdate` with `$elemMatch { stockQuantity: { $gt: 0 } }`.
-  This makes simultaneous requests for the last unit mutually exclusive.
+  conditional `findOneAndUpdate` with
+  `$elemMatch { stockQuantity: { $gt: 0 } }`. This makes simultaneous requests
+  for the last unit mutually exclusive.
 - Orders are created with `status: 'pending_payment'`. They do **not** become
   `paid` until a verified payment event is recorded (same guard as memberships
   and event tickets). Online payment integration is planned but not yet
@@ -117,7 +118,8 @@ _Note: For exact fields, required types, and validations, see the Zod schemas in
 - Unique sparse index on `providerEventId` guarantees webhook idempotency.
 - Treasurer reporting counts `succeeded` payments as settled and `pending`
   payments as pending.
-- Membership and event-ticket sources are reported separately.
+- Membership, event-ticket, and merchandise-order sources are reported
+  separately.
 
 ### `expenses`
 
@@ -135,9 +137,9 @@ _Note: For exact fields, required types, and validations, see the Zod schemas in
 - No running balance is stored. The API derives the report from `payments` and
   `expenses` on each request.
 - Results are grouped by currency so unlike currencies are never added.
-- Per currency, income is dues plus ticket revenue; outgoing is approved plus
-  reimbursed expenses. The settled balance uses only settled records, while the
-  projected balance includes pending income and outgoing.
+- Per currency, income is dues plus ticket and merchandise revenue; outgoing is
+  approved plus reimbursed expenses. The settled balance uses only settled
+  records, while the projected balance includes pending income and outgoing.
 
 ---
 
@@ -184,4 +186,3 @@ Indexes are managed by `apps/server/src/db/migrate.ts`.
 _Last updated: Phase 5 — merchandise ordering implemented (catalog, size
 variants, atomic stock decrement, pending-payment orders, organizer product
 manager, order history view)._
-

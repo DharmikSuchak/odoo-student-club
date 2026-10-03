@@ -40,7 +40,10 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
 
   function makeCollection(name: string) {
     return {
-      findOne: (filter: Record<string, unknown>, options?: { projection?: Record<string, number> }) => {
+      findOne: (
+        filter: Record<string, unknown>,
+        options?: { projection?: Record<string, number> },
+      ) => {
         const store = getStore(name);
         for (const doc of store.values()) {
           let match = true;
@@ -48,25 +51,15 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
             if (key === '_id') {
               const idVal = val as { toString(): string };
               if (doc['_id'].toString() !== idVal.toString()) match = false;
-            } else if (
-              val !== null &&
-              typeof val === 'object' &&
-              '$exists' in val
-            ) {
+            } else if (val !== null && typeof val === 'object' && '$exists' in val) {
               const existsOp = (val as { $exists: boolean })['$exists'];
               // $exists: false means the field must not be present
               if (!existsOp && key in doc) match = false;
               // $exists: true means the field must be present
               if (existsOp && !(key in doc)) match = false;
-            } else if (
-              val !== null &&
-              typeof val === 'object' &&
-              '$elemMatch' in val
-            ) {
+            } else if (val !== null && typeof val === 'object' && '$elemMatch' in val) {
               // Support $elemMatch for variant queries
-              const elemMatch = (val as { $elemMatch: Record<string, unknown> })[
-                '$elemMatch'
-              ];
+              const elemMatch = (val as { $elemMatch: Record<string, unknown> })['$elemMatch'];
               const arr = doc[key] as Array<Record<string, unknown>>;
               if (!Array.isArray(arr)) {
                 match = false;
@@ -91,13 +84,15 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
           if (match) {
             const resultDoc = { ...doc } as DocRecord;
             if (options?.projection) {
-              const isExclusion = Object.values(options.projection).some(v => v === 0);
-              const projected = isExclusion ? { ...resultDoc } : (({ _id: resultDoc['_id'] }) as Record<string, unknown>);
-              
+              const isExclusion = Object.values(options.projection).some((v) => v === 0);
+              const projected = isExclusion
+                ? { ...resultDoc }
+                : ({ _id: resultDoc['_id'] } as Record<string, unknown>);
+
               for (const [k, v] of Object.entries(options.projection)) {
                 if (v === 0) {
                   delete projected[k];
-                } else if (v === 1 || v === true) {
+                } else if (v === 1) {
                   projected[k] = resultDoc[k];
                 }
               }
@@ -153,14 +148,8 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
             if (key === '_id') {
               const idVal = val as { toString(): string };
               if (doc['_id'].toString() !== idVal.toString()) match = false;
-            } else if (
-              val !== null &&
-              typeof val === 'object' &&
-              '$elemMatch' in val
-            ) {
-              const elemMatch = (val as { $elemMatch: Record<string, unknown> })[
-                '$elemMatch'
-              ];
+            } else if (val !== null && typeof val === 'object' && '$elemMatch' in val) {
+              const elemMatch = (val as { $elemMatch: Record<string, unknown> })['$elemMatch'];
               const arr = doc[key] as Array<Record<string, unknown>>;
               if (!Array.isArray(arr)) {
                 match = false;
@@ -190,10 +179,8 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
                 // Support nested paths like 'variants.$.stockQuantity'
                 if (incPath === 'variants.$.stockQuantity') {
                   const filterVariant = (
-                    (filter['variants'] as { $elemMatch: Record<string, unknown> })?.[
-                      '$elemMatch'
-                    ]
-                  ) as Record<string, unknown> | undefined;
+                    filter['variants'] as { $elemMatch: Record<string, unknown> }
+                  )?.['$elemMatch'] as Record<string, unknown> | undefined;
                   if (filterVariant !== undefined) {
                     const variantSize = filterVariant['size'] as string;
                     const variants = doc['variants'] as Array<Record<string, unknown>>;
@@ -370,16 +357,18 @@ async function registerAndLogin(
   return extractCookie(res);
 }
 
-async function promoteRole(cookie: string, role: 'officer' | 'treasurer' | 'admin'): Promise<string> {
+async function promoteRole(
+  cookie: string,
+  role: 'officer' | 'treasurer' | 'admin',
+): Promise<string> {
   const meRes = await request(app).get('/api/auth/me').set('Cookie', cookie);
   if (meRes.status >= 400) {
     throw new Error(`GET /me failed with ${meRes.status}: ${JSON.stringify(meRes.body)}`);
   }
   const userId = (meRes.body as { user: { id: string } }).user.id;
-  await fakeDb.collection('users').updateOne(
-    { _id: { toString: () => userId, toHexString: () => userId } },
-    { $set: { role } },
-  );
+  await fakeDb
+    .collection('users')
+    .updateOne({ _id: { toString: () => userId, toHexString: () => userId } }, { $set: { role } });
   // Re-login to get updated JWT
   const emailMatch = /@/.test(cookie) ? cookie : '';
   void emailMatch; // unused — we derive email from the me response
@@ -483,10 +472,7 @@ describe('POST /api/store/products', () => {
 
 describe('GET /api/store/products', () => {
   it('authenticated member can list products', async () => {
-    await request(app)
-      .post('/api/store/products')
-      .set('Cookie', officerCookie)
-      .send(VALID_PRODUCT);
+    await request(app).post('/api/store/products').set('Cookie', officerCookie).send(VALID_PRODUCT);
 
     const res = await request(app).get('/api/store/products').set('Cookie', memberCookie);
 
@@ -578,53 +564,48 @@ describe('POST /api/store/orders', () => {
   });
 
   it('unauthenticated order returns 401', async () => {
-    const res = await request(app)
-      .post('/api/store/orders')
-      .send({ itemId: productId, size: 'S' });
+    const res = await request(app).post('/api/store/orders').send({ itemId: productId, size: 'S' });
 
     expect(res.status).toBe(401);
   });
 
-  it(
-    'simultaneous orders for the last unit — only one succeeds',
-    async () => {
-      // Create a product with exactly one M in stock
-      const singleStockRes = await request(app)
-        .post('/api/store/products')
-        .set('Cookie', officerCookie)
-        .send({
-          name: 'Last-Unit Tee',
-          priceCents: 1000,
-          currency: 'INR',
-          variants: [{ size: 'M', stockQuantity: 1 }],
-        });
-      const singleId = (singleStockRes.body as ResponseBody).product?._id ?? '';
+  it('simultaneous orders for the last unit — only one succeeds', async () => {
+    // Create a product with exactly one M in stock
+    const singleStockRes = await request(app)
+      .post('/api/store/products')
+      .set('Cookie', officerCookie)
+      .send({
+        name: 'Last-Unit Tee',
+        priceCents: 1000,
+        currency: 'INR',
+        variants: [{ size: 'M', stockQuantity: 1 }],
+      });
+    const singleId = (singleStockRes.body as ResponseBody).product?._id ?? '';
 
-      // Register a second member
-      const member2Cookie = await registerAndLogin(
-        'member2@store.test',
-        'Password123!',
-        'Carol Second',
-      );
+    // Register a second member
+    const member2Cookie = await registerAndLogin(
+      'member2@store.test',
+      'Password123!',
+      'Carol Second',
+    );
 
-      // Fire both requests simultaneously
-      const [res1, res2] = await Promise.all([
-        request(app)
-          .post('/api/store/orders')
-          .set('Cookie', memberCookie)
-          .send({ itemId: singleId, size: 'M' }),
-        request(app)
-          .post('/api/store/orders')
-          .set('Cookie', member2Cookie)
-          .send({ itemId: singleId, size: 'M' }),
-      ]);
+    // Fire both requests simultaneously
+    const [res1, res2] = await Promise.all([
+      request(app)
+        .post('/api/store/orders')
+        .set('Cookie', memberCookie)
+        .send({ itemId: singleId, size: 'M' }),
+      request(app)
+        .post('/api/store/orders')
+        .set('Cookie', member2Cookie)
+        .send({ itemId: singleId, size: 'M' }),
+    ]);
 
-      const statuses = [res1.status, res2.status];
-      // Exactly one should succeed (201) and the other should fail (409)
-      expect(statuses).toContain(201);
-      expect(statuses).toContain(409);
-    },
-  );
+    const statuses = [res1.status, res2.status];
+    // Exactly one should succeed (201) and the other should fail (409)
+    expect(statuses).toContain(201);
+    expect(statuses).toContain(409);
+  });
 });
 
 // ── Order history ─────────────────────────────────────────────────────────────

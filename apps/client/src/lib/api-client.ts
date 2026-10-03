@@ -292,6 +292,7 @@ export interface TreasurerCurrencySummary {
   currency: string;
   dues: MoneyBreakdown;
   ticketRevenue: MoneyBreakdown;
+  merchandiseRevenue: MoneyBreakdown;
   income: MoneyBreakdown;
   outgoing: MoneyBreakdown;
   balance: { settled: number; projected: number };

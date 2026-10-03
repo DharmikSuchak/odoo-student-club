@@ -438,6 +438,11 @@ function CurrencyReport({ summary }: { summary: TreasurerCurrencySummary }) {
               values={summary.ticketRevenue}
               currency={summary.currency}
             />
+            <ReportRow
+              label="Merchandise revenue"
+              values={summary.merchandiseRevenue}
+              currency={summary.currency}
+            />
             <ReportRow label="Total income" values={summary.income} currency={summary.currency} />
             <ReportRow
               label="Approved expenses"
@@ -492,7 +497,10 @@ export function TreasurerReportPage() {
       <header className="expense-heading">
         <div>
           <h1>Treasurer report</h1>
-          <p>Dues, ticket revenue, approved expenses, and remaining funds by currency.</p>
+          <p>
+            Dues, ticket and merchandise revenue, approved expenses, and remaining funds by
+            currency.
+          </p>
         </div>
         {generatedAt !== null && <small>Updated {new Date(generatedAt).toLocaleString()}</small>}
       </header>
@@ -509,7 +517,7 @@ export function TreasurerReportPage() {
         <div className="expense-empty">
           <WalletCards size={38} aria-hidden="true" />
           <h2>No financial records yet</h2>
-          <p>Dues, ticket payments, and approved expenses will be summarized here.</p>
+          <p>Dues, ticket and merchandise payments, and approved expenses will appear here.</p>
         </div>
       )}
       {summaries.map((summary) => (

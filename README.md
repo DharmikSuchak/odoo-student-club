@@ -41,15 +41,15 @@ a solo hackathon project.
 
 ## Feature Roadmap
 
-| Phase | Status      | Features                                                                                                              |
-| ----- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| 1     | `(done)`    | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
-| 2     | `(done)`    | **Memberships and dues** — tier management, payment recording (server-side confirmed only), membership-status badges  |
-| 3     | `(planned)` | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
-| 4     | `(done)`    | **Announcements** — organizer publishing/editing, pinned ordering, detail view, and per-browser unread hints          |
-| 5     | `(done)`    | **Merchandise** — catalog, order flow, atomic stock management                                        |
-| 6     | `(done)`    | **Volunteer tasks** — grouped board, optional assignment, protected progress updates, and live status summary         |
-| 7     | (done)      | **Expenses and treasurer reporting** — submission, review, reimbursement, currency-safe computed report               |
+| Phase | Status          | Features                                                                                                              |
+| ----- | --------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1     | `(done)`        | **Authentication and roles** — register, login (bcrypt + JWT), role assignment (member / officer / treasurer / admin) |
+| 2     | `(in progress)` | **Memberships and dues** — tier management, payment recording, and status badges; automated lapse reminders planned   |
+| 3     | `(planned)`     | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
+| 4     | `(in progress)` | **Announcements** — publishing, editing, pinning, and unread hints implemented; audience targeting and email planned  |
+| 5     | `(in progress)` | **Merchandise** — catalog, pending orders, and atomic stock implemented; payment and fulfillment planned              |
+| 6     | `(done)`        | **Volunteer tasks** — grouped board, optional assignment, protected progress updates, and live status summary         |
+| 7     | `(in progress)` | **Expenses and treasurer reporting** — ledger and computed report implemented; export planned                         |
 
 ---
 
@@ -158,9 +158,13 @@ npm run dev -w apps/client # Vite on :5173
 Authentication, memberships, announcements, volunteer tasks, expense submission,
 treasurer review/reimbursement, and the treasurer report are implemented end to
 end. Finance totals are computed from payment and expense records, grouped by
-currency, and label settled versus pending values. All finance endpoints enforce
-roles on the server; the UI also provides role-aware navigation and useful empty
-states.
+currency, and label settled versus pending values. Dues, event-ticket payments,
+and merchandise-order payments are reported separately and included in total
+income. All finance endpoints enforce roles on the server; the UI also provides
+role-aware navigation and useful empty states.
+
+Automated membership-lapse reminders are planned; they still require a scheduled
+notification or email delivery mechanism.
 
 The dashboard now reads current active memberships, published future events,
 open volunteer tasks, and pending dues from an authenticated summary endpoint.
@@ -168,9 +172,17 @@ The application uses the flat `#0887C9` brand palette and `#F4F8FA` page
 background.
 
 Members can read pinned-first announcements, open detail views, and see what is
-Officers and admins can publish posts and edit only posts they authored. Email delivery is intentionally not built yet and is the next step for this feature. The volunteer board groups work by status, shows live summary counts, and lets assignees advance their own tasks.
+new since their prior browser visit. Officers and admins can publish posts and
+edit only posts they authored. Audience targeting and email delivery are
+planned. The volunteer board groups work by status, shows live summary counts,
+and lets assignees advance their own tasks.
 
-The store now allows officers to manage merchandise products with size-based variants. Members can browse the catalog and place orders. Stock is managed atomically per-variant to prevent race conditions during checkout. Payment processing is currently deferred; order placement halts at a clear pending state. The report already recognizes event-ticket payment records, so ticket revenue will appear when the event purchase flow is implemented.
+The store now allows officers to manage merchandise products with size-based
+variants. Members can browse the catalog and place orders. Stock is managed
+atomically per-variant to prevent race conditions during checkout. Payment
+processing is currently deferred; order placement halts at a clear pending
+state. The report recognizes event-ticket and merchandise-order payment records,
+but neither unfinished payment flow produces settled records yet.
 
 | Item                                            | Status                                                                      |
 | ----------------------------------------------- | --------------------------------------------------------------------------- |
@@ -192,11 +204,11 @@ The store now allows officers to manage merchandise products with size-based var
 | MongoDB single-node replica set (rs0)           | ✅ Done                                                                     |
 | Local lint, typecheck, tests, and build scripts | ✅ Available                                                                |
 | Typecheck                                       | ✅ Client and server pass                                                   |
-| Existing tests                                  | Client: 1 passed; server: 47 passed, 10 pre-existing membership tests fail  |
+| Existing tests                                  | Client: 1 passed; server: 75 passed                                         |
 | Production build                                | ✅ Client and server pass                                                   |
 | Authentication (Phase 1 features)               | Implemented                                                                 |
 | Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                           |
-| Treasurer report                                | ✅ Computed by currency from payments and approved expenses                 |
+| Treasurer report                                | ✅ Dues, tickets, merchandise, expenses, and balances grouped by currency   |
 | Live dashboard statistics                       | ✅ Computed from membership, event, and task records                        |
 | Club announcements                              | ✅ Pinned-first list, detail, organizer composer, and unread hints          |
 | Volunteer task board                            | ✅ Grouped statuses, assignments, summary counts, and protected transitions |
@@ -205,9 +217,10 @@ The store now allows officers to manage merchandise products with size-based var
 ---
 
 Local verification on 2026-10-03: lint, type checks, and both production builds
-pass. The volunteer-task, announcement, store, finance, and dashboard-focused tests
-pass; Docker-backed volunteer and announcement smoke flows also pass. The full
-server suite now passes completely, including the previously failing membership tests!
+pass. The volunteer-task, announcement, store, finance, and dashboard-focused
+tests pass; Docker-backed volunteer and announcement smoke flows also pass. The
+full server suite now passes completely, including the previously failing
+membership tests!
 
 ## Agent Instructions
 

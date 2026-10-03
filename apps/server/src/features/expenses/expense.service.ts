@@ -20,6 +20,7 @@ export interface TreasurerCurrencySummary {
   currency: string;
   dues: MoneyBreakdown;
   ticketRevenue: MoneyBreakdown;
+  merchandiseRevenue: MoneyBreakdown;
   income: MoneyBreakdown;
   outgoing: MoneyBreakdown;
   balance: { settled: number; projected: number };
@@ -62,6 +63,7 @@ function emptyCurrencySummary(currency: string): TreasurerCurrencySummary {
     currency,
     dues: emptyMoneyBreakdown(),
     ticketRevenue: emptyMoneyBreakdown(),
+    merchandiseRevenue: emptyMoneyBreakdown(),
     income: emptyMoneyBreakdown(),
     outgoing: emptyMoneyBreakdown(),
     balance: { settled: 0, projected: 0 },
@@ -87,12 +89,18 @@ function addPayment(
   if (payment.status !== 'succeeded' && payment.status !== 'pending') return;
   if (
     payment.relatedEntity.type !== 'membership' &&
-    payment.relatedEntity.type !== 'event_ticket'
+    payment.relatedEntity.type !== 'event_ticket' &&
+    payment.relatedEntity.type !== 'order'
   ) {
     return;
   }
   const summary = getCurrencySummary(summaries, payment.currency);
-  const target = payment.relatedEntity.type === 'membership' ? summary.dues : summary.ticketRevenue;
+  const target =
+    payment.relatedEntity.type === 'membership'
+      ? summary.dues
+      : payment.relatedEntity.type === 'event_ticket'
+        ? summary.ticketRevenue
+        : summary.merchandiseRevenue;
   target[payment.status === 'succeeded' ? 'settled' : 'pending'] += payment.amountCents;
 }
 
@@ -111,8 +119,12 @@ function addExpense(summary: TreasurerCurrencySummary, expense: ExpenseDocument)
 function finalizeSummary(summary: TreasurerCurrencySummary): void {
   summary.dues.total = summary.dues.settled + summary.dues.pending;
   summary.ticketRevenue.total = summary.ticketRevenue.settled + summary.ticketRevenue.pending;
-  summary.income.settled = summary.dues.settled + summary.ticketRevenue.settled;
-  summary.income.pending = summary.dues.pending + summary.ticketRevenue.pending;
+  summary.merchandiseRevenue.total =
+    summary.merchandiseRevenue.settled + summary.merchandiseRevenue.pending;
+  summary.income.settled =
+    summary.dues.settled + summary.ticketRevenue.settled + summary.merchandiseRevenue.settled;
+  summary.income.pending =
+    summary.dues.pending + summary.ticketRevenue.pending + summary.merchandiseRevenue.pending;
   summary.income.total = summary.income.settled + summary.income.pending;
   summary.outgoing.total = summary.outgoing.settled + summary.outgoing.pending;
   summary.balance.settled = summary.income.settled - summary.outgoing.settled;

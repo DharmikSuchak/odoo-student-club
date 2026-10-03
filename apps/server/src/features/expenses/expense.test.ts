@@ -204,6 +204,12 @@ describe('treasurer report', () => {
       status: 'succeeded',
       relatedEntity: { type: 'order' },
     });
+    await payments.insertOne({
+      amountCents: 1500,
+      currency: 'INR',
+      status: 'pending',
+      relatedEntity: { type: 'order' },
+    });
 
     const baseExpense = {
       clubId: env.CLUB_ID,
@@ -227,7 +233,14 @@ describe('treasurer report', () => {
     if (summary === undefined) throw new Error('Expected an INR report summary.');
     expect(summary.dues).toEqual({ settled: 10000, pending: 2000, total: 12000 });
     expect(summary.ticketRevenue).toEqual({ settled: 5000, pending: 0, total: 5000 });
-    expect(summary.income.total).toBe(summary.dues.total + summary.ticketRevenue.total);
+    expect(summary.merchandiseRevenue).toEqual({
+      settled: 9999,
+      pending: 1500,
+      total: 11499,
+    });
+    expect(summary.income.total).toBe(
+      summary.dues.total + summary.ticketRevenue.total + summary.merchandiseRevenue.total,
+    );
     expect(summary.outgoing).toEqual({ settled: 1000, pending: 4000, total: 5000 });
     expect(summary.balance.settled).toBe(summary.income.settled - summary.outgoing.settled);
     expect(summary.balance.projected).toBe(summary.income.total - summary.outgoing.total);
