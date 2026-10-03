@@ -35,7 +35,8 @@ async function migrate() {
   await events.createIndex({ clubId: 1, isPublished: 1, startsAt: 1 });
 
   const tasks = db.collection('tasks');
-  await tasks.createIndex({ clubId: 1, status: 1 });
+  await tasks.createIndex({ clubId: 1, status: 1, createdAt: -1 });
+  await tasks.createIndex({ clubId: 1, assigneeId: 1, status: 1 });
 
   const eventTickets = db.collection('eventTickets');
   await eventTickets.createIndex({ eventId: 1, status: 1 }); // for capacity count
@@ -60,9 +61,6 @@ async function migrate() {
 
   const orders = db.collection('orders');
   await orders.createIndex({ userId: 1, status: 1 });
-
-  const volunteerAssignments = db.collection('volunteerAssignments');
-  await volunteerAssignments.createIndex({ taskId: 1, userId: 1 }, { unique: true });
 
   console.info('✅ Migrations completed successfully.');
 }

@@ -25,6 +25,7 @@ import {
 } from './features/expenses/ExpensePages';
 import { ManageMembershipsPage } from './features/memberships/ManageMembershipsPage';
 import { MyMembershipPage } from './features/memberships/MyMembershipPage';
+import { TaskBoardPage } from './features/tasks/TaskBoardPage';
 
 export default function App() {
   return (
@@ -106,6 +107,17 @@ export default function App() {
               <ProtectedRoute requiredRole="officer">
                 <AppShell>
                   <ManageMembershipsPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <TaskBoardPage />
                 </AppShell>
               </ProtectedRoute>
             }

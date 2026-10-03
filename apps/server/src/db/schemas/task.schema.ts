@@ -1,37 +1,20 @@
-/**
- * Zod schemas for the `tasks` and `volunteerAssignments` collections.
- */
 import { z } from 'zod';
 
 import { nonEmptyString, objectIdSchema } from './common.js';
 
-export const TASK_STATUSES = ['open', 'full', 'completed', 'cancelled'] as const;
+export const TASK_STATUSES = ['not_started', 'in_progress', 'done'] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 export const taskDocumentSchema = z.object({
   clubId: objectIdSchema,
-  createdBy: objectIdSchema, // ref: users
+  createdBy: objectIdSchema,
   title: nonEmptyString.max(200),
-  description: z.string().max(2000).optional(),
-  dueAt: z.date().optional(),
-
-  /** Max number of volunteers needed. null = unlimited */
-  maxVolunteers: z.number().int().positive().nullable().default(null),
-
-  status: z.enum(TASK_STATUSES).default('open'),
-
+  description: nonEmptyString.max(2000),
+  status: z.enum(TASK_STATUSES).default('not_started'),
+  assigneeId: objectIdSchema.nullable().default(null),
+  completedAt: z.date().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export type TaskDocument = z.infer<typeof taskDocumentSchema>;
-
-export const volunteerAssignmentDocumentSchema = z.object({
-  taskId: objectIdSchema,
-  userId: objectIdSchema,
-  assignedAt: z.date(),
-  completedAt: z.date().optional(),
-  notes: z.string().max(1000).optional(),
-});
-
-export type VolunteerAssignmentDocument = z.infer<typeof volunteerAssignmentDocumentSchema>;

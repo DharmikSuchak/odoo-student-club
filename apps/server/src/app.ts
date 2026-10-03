@@ -9,6 +9,7 @@ import { authRouter } from './features/auth/auth.router.js';
 import { dashboardRouter } from './features/dashboard/dashboard.router.js';
 import { expenseRouter } from './features/expenses/expense.router.js';
 import { membershipRouter } from './features/memberships/membership.router.js';
+import { taskRouter } from './features/tasks/task.router.js';
 import { globalErrorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/request-logger.js';
 import { healthRouter } from './routes/health.js';
@@ -65,6 +66,7 @@ export function createApp(env: Env) {
   app.use('/api/dashboard', dashboardRouter);
   app.use('/api/expenses', expenseRouter);
   app.use('/api/memberships', membershipRouter);
+  app.use('/api/tasks', taskRouter);
 
   app.use((_req, res) => {
     res.status(404).json({ status: 'error', message: 'Route not found.' });

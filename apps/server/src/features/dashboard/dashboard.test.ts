@@ -22,6 +22,9 @@ function matches(record: FakeRecord, filter: Record<string, unknown>): boolean {
     if (expected !== null && typeof expected === 'object' && '$gt' in expected) {
       return actual instanceof Date && actual > (expected as { $gt: Date }).$gt;
     }
+    if (expected !== null && typeof expected === 'object' && '$in' in expected) {
+      return (expected as { $in: unknown[] }).$in.includes(actual);
+    }
     return actual === expected;
   });
 }
@@ -54,13 +57,14 @@ describe('dashboard summary', () => {
       },
     ]);
     const tasks = fakeCollection([
-      { clubId: env.CLUB_ID, status: 'open' },
-      { clubId: env.CLUB_ID, status: 'completed' },
+      { clubId: env.CLUB_ID, status: 'not_started' },
+      { clubId: env.CLUB_ID, status: 'in_progress' },
+      { clubId: env.CLUB_ID, status: 'done' },
     ]);
 
     await expect(
       getDashboardSummary(memberships, events, tasks, env.CLUB_ID, asOf),
-    ).resolves.toEqual({ activeMembers: 1, upcomingEvents: 1, openTasks: 1, pendingDues: 1 });
+    ).resolves.toEqual({ activeMembers: 1, upcomingEvents: 1, openTasks: 2, pendingDues: 1 });
   });
 
   it('requires authentication at the HTTP boundary', async () => {

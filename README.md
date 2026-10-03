@@ -48,7 +48,7 @@ a solo hackathon project.
 | 3     | `(planned)` | **Events and limited tickets** — event CRUD, capacity enforcement, registration, waitlist                             |
 | 4     | `(done)`    | **Announcements** — organizer publishing/editing, pinned ordering, detail view, and per-browser unread hints          |
 | 5     | `(planned)` | **Merchandise** — catalog, order flow                                                                                 |
-| 6     | `(planned)` | **Volunteer tasks** — task board, volunteer assignments, completion tracking                                          |
+| 6     | `(done)`    | **Volunteer tasks** — grouped board, optional assignment, protected progress updates, and live status summary         |
 | 7     | (done)      | **Expenses and treasurer reporting** — submission, review, reimbursement, currency-safe computed report               |
 
 ---
@@ -155,9 +155,9 @@ npm run dev -w apps/client # Vite on :5173
 
 ## Current Status
 
-Authentication, memberships, announcements, expense submission, treasurer
-review/reimbursement, and the treasurer report are implemented end to end.
-Finance totals are computed from payment and expense records, grouped by
+Authentication, memberships, announcements, volunteer tasks, expense submission,
+treasurer review/reimbursement, and the treasurer report are implemented end to
+end. Finance totals are computed from payment and expense records, grouped by
 currency, and label settled versus pending values. All finance endpoints enforce
 roles on the server; the UI also provides role-aware navigation and useful empty
 states.
@@ -170,45 +170,48 @@ background.
 Members can read pinned-first announcements, open detail views, and see what is
 new since their prior browser visit. Officers and admins can publish posts and
 edit only posts they authored. Email delivery is intentionally not built yet and
-is the next step for this feature. Events, merchandise, and volunteer task flows
-remain planned. The report already recognizes event-ticket payment records, so
-ticket revenue will appear when the event purchase flow is implemented.
+is the next step for this feature. The volunteer board groups work by status,
+shows live summary counts, and lets assignees advance their own tasks. Events
+and merchandise remain planned. The report already recognizes event-ticket
+payment records, so ticket revenue will appear when the event purchase flow is
+implemented.
 
-| Item                                            | Status                                                                     |
-| ----------------------------------------------- | -------------------------------------------------------------------------- |
-| `AGENTS.md` — coding-agent rules                | ✅ Done                                                                    |
-| `CLAUDE.md` — Claude agent pointer              | ✅ Done                                                                    |
-| `docs/design-system.md`                         | ✅ Done                                                                    |
-| `docs/architecture.md`                          | ✅ Done                                                                    |
-| `docs/data-model.md` (proposal)                 | ✅ Done                                                                    |
-| npm workspaces monorepo                         | ✅ Done                                                                    |
-| `apps/server` — Express + TypeScript            | ✅ Done                                                                    |
-| `apps/client` — React + Vite + TypeScript       | ✅ Done                                                                    |
-| TypeScript strict mode (both packages)          | ✅ Done                                                                    |
-| ESLint (both packages)                          | ✅ Done                                                                    |
-| Prettier (root)                                 | ✅ Done                                                                    |
-| `GET /api/health` endpoint                      | ✅ Done                                                                    |
-| Legacy status component (not routed)            | ✅ Done                                                                    |
-| Env validation at startup (zod)                 | ✅ Done                                                                    |
-| Docker Compose (Mongo + Redis + API + Web)      | ✅ Done                                                                    |
-| MongoDB single-node replica set (rs0)           | ✅ Done                                                                    |
-| Local lint, typecheck, tests, and build scripts | ✅ Available                                                               |
-| Typecheck                                       | ✅ Client and server pass                                                  |
-| Existing tests                                  | Client: 1 passed; server: 44 passed, 10 pre-existing membership tests fail |
-| Production build                                | ✅ Client and server pass                                                  |
-| Authentication (Phase 1 features)               | Implemented                                                                |
-| Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                          |
-| Treasurer report                                | ✅ Computed by currency from payments and approved expenses                |
-| Live dashboard statistics                       | ✅ Computed from membership, event, and task records                       |
-| Club announcements                              | ✅ Pinned-first list, detail, organizer composer, and unread hints         |
+| Item                                            | Status                                                                      |
+| ----------------------------------------------- | --------------------------------------------------------------------------- |
+| `AGENTS.md` — coding-agent rules                | ✅ Done                                                                     |
+| `CLAUDE.md` — Claude agent pointer              | ✅ Done                                                                     |
+| `docs/design-system.md`                         | ✅ Done                                                                     |
+| `docs/architecture.md`                          | ✅ Done                                                                     |
+| `docs/data-model.md` (proposal)                 | ✅ Done                                                                     |
+| npm workspaces monorepo                         | ✅ Done                                                                     |
+| `apps/server` — Express + TypeScript            | ✅ Done                                                                     |
+| `apps/client` — React + Vite + TypeScript       | ✅ Done                                                                     |
+| TypeScript strict mode (both packages)          | ✅ Done                                                                     |
+| ESLint (both packages)                          | ✅ Done                                                                     |
+| Prettier (root)                                 | ✅ Done                                                                     |
+| `GET /api/health` endpoint                      | ✅ Done                                                                     |
+| Legacy status component (not routed)            | ✅ Done                                                                     |
+| Env validation at startup (zod)                 | ✅ Done                                                                     |
+| Docker Compose (Mongo + Redis + API + Web)      | ✅ Done                                                                     |
+| MongoDB single-node replica set (rs0)           | ✅ Done                                                                     |
+| Local lint, typecheck, tests, and build scripts | ✅ Available                                                                |
+| Typecheck                                       | ✅ Client and server pass                                                   |
+| Existing tests                                  | Client: 1 passed; server: 47 passed, 10 pre-existing membership tests fail  |
+| Production build                                | ✅ Client and server pass                                                   |
+| Authentication (Phase 1 features)               | Implemented                                                                 |
+| Expenses and reimbursements                     | ✅ Implemented with auditable treasurer decisions                           |
+| Treasurer report                                | ✅ Computed by currency from payments and approved expenses                 |
+| Live dashboard statistics                       | ✅ Computed from membership, event, and task records                        |
+| Club announcements                              | ✅ Pinned-first list, detail, organizer composer, and unread hints          |
+| Volunteer task board                            | ✅ Grouped statuses, assignments, summary counts, and protected transitions |
 
 ---
 
 Local verification on 2026-10-03: lint, type checks, and both production builds
-pass. The announcement, finance, and dashboard-focused tests pass; a
-Docker-backed announcement smoke flow also passes. The full server suite still
-has 10 pre-existing membership-test failures caused by its in-process
-role-promotion fixture.
+pass. The volunteer-task, announcement, finance, and dashboard-focused tests
+pass; Docker-backed volunteer and announcement smoke flows also pass. The full
+server suite still has 10 pre-existing membership-test failures caused by its
+in-process role-promotion fixture.
 
 ## Agent Instructions
 

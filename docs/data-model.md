@@ -1,7 +1,7 @@
 # Data Model — Student Club Platform
 
-> **Status: Confirmed through Phase 7 and announcements.** Zod schemas in
-> `apps/server/src/db/schemas/` are the single source of truth.
+> **Status: Confirmed through Phase 7, announcements, and volunteer tasks.** Zod
+> schemas in `apps/server/src/db/schemas/` are the single source of truth.
 
 ---
 
@@ -17,7 +17,7 @@ users ──────────< memberships
   ├──────────< eventTickets       >─────── events
   ├──────────< announcements
   ├──────────< orders              (merchandise)
-  ├──────────< volunteerAssignments >───── tasks
+  ├──────────< tasks                (optional assignee)
   └──────────< expenses            (treasurer ledger)
 
 clubs ──────────< announcements
@@ -88,6 +88,17 @@ _Note: For exact fields, required types, and validations, see the Zod schemas in
 - The unread hint is per-browser UI state keyed by the current user. It is not a
   permanent club record and does not add a second server-side source of truth.
 
+### `tasks`
+
+- Fundraiser and event tasks store a title, description, creator, status, and
+  optional single `assigneeId`.
+- Status is `not_started`, `in_progress`, or `done`. Progress may move forward;
+  completed work is not reopened in the MVP.
+- Officers and admins create and reassign tasks. An assignee may advance their
+  own task, while organizers may advance any task.
+- The board summary is computed from current task records rather than stored as
+  duplicate counters.
+
 ### `payments`
 
 - Immutable ledger of all incoming money.
@@ -150,10 +161,10 @@ Indexes are managed by `apps/server/src/db/migrate.ts`.
 - [x] `announcements.clubId + isPinned + createdAt`
 - [x] `announcements.clubId + authorId`
 - [x] `orders.userId + status`
-- [x] `tasks.clubId + status`
-- [x] `volunteerAssignments.taskId + userId` — unique
+- [x] `tasks.clubId + status + createdAt`
+- [x] `tasks.clubId + assigneeId + status`
 
 ---
 
-_Last updated: Announcements, expenses, computed treasurer reporting, and live
-dashboard summaries implemented._
+_Last updated: Volunteer tasks, announcements, expenses, computed treasurer
+reporting, and live dashboard summaries implemented._

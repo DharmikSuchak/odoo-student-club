@@ -45,7 +45,10 @@ export async function getDashboardSummary(
       isPublished: true,
       startsAt: { $gt: asOf },
     }),
-    tasks.countDocuments({ clubId: scopedClubId, status: 'open' }),
+    tasks.countDocuments({
+      clubId: scopedClubId,
+      status: { $in: ['not_started', 'in_progress'] },
+    }),
     memberships.countDocuments({ clubId: scopedClubId, status: 'pending_payment' }),
   ]);
 

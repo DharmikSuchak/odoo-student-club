@@ -434,3 +434,94 @@ export async function apiUpdateAnnouncement(
     body: JSON.stringify(input),
   });
 }
+
+export type TaskStatus = 'not_started' | 'in_progress' | 'done';
+
+export interface VolunteerTask {
+  _id: string;
+  clubId: string;
+  createdBy: string;
+  createdByName: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  assigneeId: string | null;
+  assigneeName: string | null;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskStatusSummary {
+  notStarted: number;
+  inProgress: number;
+  done: number;
+  total: number;
+}
+
+export interface AssignableMember {
+  id: string;
+  displayName: string;
+  role: AuthUser['role'];
+}
+
+interface TaskResponse {
+  status: 'ok';
+  task: VolunteerTask;
+}
+
+interface TaskBoardResponse {
+  status: 'ok';
+  tasks: VolunteerTask[];
+  summary: TaskStatusSummary;
+}
+
+interface AssignableMembersResponse {
+  status: 'ok';
+  members: AssignableMember[];
+}
+
+/** Loads the authenticated club's volunteer task board and live summary. */
+export async function apiListTasks(): Promise<TaskBoardResponse> {
+  return apiFetch<TaskBoardResponse>('/api/tasks');
+}
+
+/** Lists active accounts available for organizer assignment controls. */
+export async function apiListAssignableMembers(): Promise<AssignableMembersResponse> {
+  return apiFetch<AssignableMembersResponse>('/api/tasks/members');
+}
+
+/** Creates a volunteer task as an organizer. */
+export async function apiCreateTask(input: {
+  title: string;
+  description: string;
+  status: TaskStatus;
+  assigneeId: string | null;
+}): Promise<TaskResponse> {
+  return apiFetch<TaskResponse>('/api/tasks', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+/** Assigns or unassigns a volunteer task as an organizer. */
+export async function apiAssignTask(
+  taskId: string,
+  assigneeId: string | null,
+): Promise<TaskResponse> {
+  return apiFetch<TaskResponse>(`/api/tasks/${taskId}/assignee`, {
+    method: 'PATCH',
+    body: JSON.stringify({ assigneeId }),
+  });
+}
+
+/** Advances volunteer-task progress as its assignee or an organizer. */
+export async function apiUpdateTaskStatus(
+  taskId: string,
+  status: TaskStatus,
+): Promise<TaskResponse> {
+  return apiFetch<TaskResponse>(`/api/tasks/${taskId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
