@@ -2,7 +2,6 @@ import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-// Env vars are injected by vitest.config.ts before this file is loaded.
 import { createApp } from '../app.js';
 import { env } from '../config/env.js';
 
@@ -24,7 +23,6 @@ describe('GET /api/health', () => {
     const body = res.body as { uptime: number; timestamp: string };
     expect(typeof body.uptime).toBe('number');
     expect(typeof body.timestamp).toBe('string');
-    // Timestamp must be a valid ISO 8601 date
     expect(() => new Date(body.timestamp)).not.toThrow();
   });
 });

@@ -5,12 +5,6 @@ import { env } from './config/env.js';
 import { connectDb, disconnectDb } from './db/connection.js';
 import { connectRedis, disconnectRedis } from './redis/client.js';
 
-/**
- * Process entry point.
- *
- * Environment is validated by importing env.ts first (it exits on failure).
- * Then the Express app is created and bound to the configured port.
- */
 const app = createApp(env);
 const port = Number(env.PORT);
 
@@ -19,7 +13,7 @@ async function start() {
   await connectRedis(env.REDIS_URL);
 
   const server = app.listen(port, () => {
-    console.info(`✅  API server listening on http://localhost:${port.toString()}`);
+    console.info(`API server listening on http://localhost:${port.toString()}`);
     console.info(`    NODE_ENV: ${env.NODE_ENV}`);
     console.info(`    CORS origin: ${env.CLIENT_ORIGIN}`);
   });

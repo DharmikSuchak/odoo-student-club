@@ -1,4 +1,3 @@
-/** Zod schemas for the club store catalog and pending-payment orders. */
 import { z } from 'zod';
 
 import { moneySchema, nonEmptyString, objectIdSchema } from './common.js';

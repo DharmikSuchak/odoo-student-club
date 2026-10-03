@@ -1,15 +1,3 @@
-/**
- * StorePage — /merchandise
- *
- * Member catalog view:
- *   - Lists all club merchandise products in a responsive card grid.
- *   - Shows per-size stock availability (out-of-stock shown, not hidden).
- *   - Officers and admins see a link to the product manager.
- *   - Loading skeleton, error, and empty states.
- *
- * Organizer note: The "Manage Products" tab at /merchandise/manage is
- * restricted to officer+ by both ProtectedRoute and the server.
- */
 import { AlertCircle, Package, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -20,7 +8,6 @@ import { useAuth } from '../auth/AuthContext';
 
 import './store.css';
 
-/** Formats an integer minor-unit amount as a readable currency string. */
 function formatMoney(cents: number, currency: string): string {
   try {
     return new Intl.NumberFormat(undefined, {
@@ -76,12 +63,14 @@ function ProductCard({ product }: { product: MerchandiseProduct }) {
           <span
             key={variant.size}
             className={`store-variant-pill${variant.stockQuantity === 0 ? ' store-variant-pill--out' : ''}`}
-            title={variant.stockQuantity === 0 ? 'Out of stock' : `${variant.stockQuantity.toString()} left`}
+            title={
+              variant.stockQuantity === 0
+                ? 'Out of stock'
+                : `${variant.stockQuantity.toString()} left`
+            }
           >
             {variant.size}
-            {variant.stockQuantity === 0 && (
-              <AlertCircle size={10} aria-label="Out of stock" />
-            )}
+            {variant.stockQuantity === 0 && <AlertCircle size={10} aria-label="Out of stock" />}
           </span>
         ))}
       </div>
@@ -99,10 +88,6 @@ function ProductCard({ product }: { product: MerchandiseProduct }) {
   );
 }
 
-/**
- * Member-facing merchandise catalog.
- * Fetches products from the API; officers see a manage-products link.
- */
 export function StorePage() {
   const { user } = useAuth();
   const [products, setProducts] = useState<MerchandiseProduct[]>([]);
@@ -184,7 +169,11 @@ export function StorePage() {
               : 'The club store is empty for now. Check back later.'}
           </p>
           {isOrganizer && (
-            <Link to="/merchandise/manage" className="store-btn-ghost" style={{ marginTop: '16px' }}>
+            <Link
+              to="/merchandise/manage"
+              className="store-btn-ghost"
+              style={{ marginTop: '16px' }}
+            >
               Add a product
             </Link>
           )}

@@ -176,10 +176,6 @@ function SidebarNav({ onNavClick }: { onNavClick?: (() => void) | undefined }) {
   );
 }
 
-/** Provides the shared header, role-aware navigation and scrollable page content.
- * @param props Page content to render inside the authenticated shell.
- * @returns The desktop shell with an accessible mobile navigation dialog.
- */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);

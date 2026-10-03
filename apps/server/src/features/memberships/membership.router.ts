@@ -1,20 +1,3 @@
-/**
- * Membership router.
- *
- * Routes:
- *   GET  /api/memberships/tiers                 — list active tiers (any auth)
- *   POST /api/memberships/tiers                 — create tier (officer+)
- *   GET  /api/memberships/me                    — own current membership (any auth)
- *   GET  /api/memberships/me/history            — own membership history (any auth)
- *   GET  /api/memberships                       — list all (officer+)
- *   POST /api/memberships                       — create membership (officer+)
- *   POST /api/memberships/:id/record-payment    — record manual payment (treasurer+)
- *
- * AGENTS.md §7: every input validated via zod.
- * AGENTS.md §11: officer+ role required for create; treasurer+ for payment.
- * AGENTS.md §12: manual payment clearly NOT a real online payment.
- * AGENTS.md §6: CLUB_ID comes from env (not from request body).
- */
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
 
@@ -60,17 +43,13 @@ const listQuerySchema = z.object({
   status: z.enum(MEMBERSHIP_STATUSES).optional(),
 });
 
-/** Returns the club ID from the environment (single-club Phase 1). */
 function getClubId(): string {
   const id = env.CLUB_ID;
   if (!id) throw new AppError('CLUB_ID is not configured.', 500, false);
   return id;
 }
 
-/**
- * List all active tiers for the club.
- * Authentication: required. Authorization: any role.
- */
+/** Authentication required; all roles may list active tiers. */
 membershipRouter.get('/tiers', requireAuth, (_req: Request, res: Response, next: NextFunction) => {
   void (async () => {
     try {
@@ -83,10 +62,7 @@ membershipRouter.get('/tiers', requireAuth, (_req: Request, res: Response, next:
   })();
 });
 
-/**
- * Create a new membership tier.
- * Authentication: required. Authorization: officer, treasurer, admin.
- */
+/** Authentication required; officer, treasurer, or admin may create tiers. */
 membershipRouter.post(
   '/tiers',
   requireAuth,
@@ -109,10 +85,7 @@ membershipRouter.post(
   },
 );
 
-/**
- * Get the current user's latest membership.
- * Authentication: required. Authorization: any role.
- */
+/** Authentication required; members may view their own current membership. */
 membershipRouter.get('/me', requireAuth, (req: Request, res: Response, next: NextFunction) => {
   void (async () => {
     try {
@@ -129,10 +102,7 @@ membershipRouter.get('/me', requireAuth, (req: Request, res: Response, next: Nex
   })();
 });
 
-/**
- * Get the current user's full membership history.
- * Authentication: required. Authorization: any role.
- */
+/** Authentication required; members may view their own membership history. */
 membershipRouter.get(
   '/me/history',
   requireAuth,
@@ -151,10 +121,7 @@ membershipRouter.get(
   },
 );
 
-/**
- * List all memberships for the club (paginated; organizer view).
- * Authentication: required. Authorization: officer, treasurer, admin.
- */
+/** Authentication required; officer, treasurer, or admin may list memberships. */
 membershipRouter.get(
   '/',
   requireAuth,
@@ -177,10 +144,7 @@ membershipRouter.get(
   },
 );
 
-/**
- * Create a new membership for a user (pending_payment status).
- * Authentication: required. Authorization: officer, treasurer, admin.
- */
+/** Authentication required; officer, treasurer, or admin may create memberships. */
 membershipRouter.post(
   '/',
   requireAuth,
@@ -207,14 +171,7 @@ membershipRouter.post(
   },
 );
 
-/**
- * Record a manual (cash/offline) payment and activate the membership.
- *
- * ⚠️  This is NOT an online payment. It records that a treasurer physically
- *     accepted cash or a bank transfer. The UI must present this clearly.
- *
- * Authentication: required. Authorization: treasurer, admin only.
- */
+/** Authentication required; treasurer or admin only. This records received offline funds, not an online payment. */
 membershipRouter.post(
   '/:id/record-payment',
   requireAuth,

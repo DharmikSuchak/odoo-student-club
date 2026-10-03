@@ -5,10 +5,6 @@ import { useApiHealth } from '@/hooks/use-api-health';
 
 import styles from './StatusPage.module.css';
 
-/**
- * Displays whether the API is reachable, with a useful failure state.
- * Legacy diagnostic view; currently not mounted in the application router.
- */
 export function StatusPage() {
   const status = useApiHealth();
 

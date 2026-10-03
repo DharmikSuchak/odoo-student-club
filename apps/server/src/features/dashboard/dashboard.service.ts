@@ -16,16 +16,6 @@ function parseClubId(clubId: string): string {
   return new ObjectId(clubId).toHexString();
 }
 
-/**
- * Counts the current club records displayed by the dashboard stat cards.
- *
- * @param memberships MongoDB memberships collection.
- * @param events MongoDB events collection.
- * @param tasks MongoDB volunteer tasks collection.
- * @param clubId Current single-club identifier.
- * @param asOf Time boundary used for active memberships and future events.
- * @returns Four live dashboard counts.
- */
 export async function getDashboardSummary(
   memberships: Collection,
   events: Collection,

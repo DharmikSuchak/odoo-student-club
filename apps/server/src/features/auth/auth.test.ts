@@ -1,22 +1,6 @@
-/**
- * Integration tests for auth endpoints.
- *
- * Tests per AGENTS.md §13:
- *   - Happy path register + login + me
- *   - Wrong credentials (wrong password, non-existent email)
- *   - Duplicate email
- *   - Protected route without token
- *   - Privilege escalation attempt (role in request body)
- *   - Rate limiting trigger (> 10 req / 60 s)
- *
- * External services (MongoDB, Redis) are replaced with in-process fakes so
- * tests are deterministic and do not require real infrastructure.
- */
 import type { Express } from 'express';
 import request from 'supertest';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-
-// ── Hoisted fakes (must be defined before vi.mock calls) ─────────────────────
 
 const { fakeRedisStore, fakeCollection, resetFakes } = vi.hoisted(() => {
   interface FakeUserDoc {
@@ -113,8 +97,6 @@ const { fakeRedisStore, fakeCollection, resetFakes } = vi.hoisted(() => {
   return { fakeUsers, fakeRedisStore, fakeCollection, resetFakes };
 });
 
-// ── Module mocks ─────────────────────────────────────────────────────────────
-
 vi.mock('../../redis/client.js', () => ({
   getRedis: () => ({
     incr: (key: string) => {
@@ -158,8 +140,6 @@ vi.mock('mongodb', () => {
   };
 });
 
-// ── App under test ───────────────────────────────────────────────────────────
-
 import { createApp } from '../../app.js';
 import { env } from '../../config/env.js';
 
@@ -177,17 +157,12 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
 interface RegisterBody {
   email?: string;
   password?: string;
   displayName?: string;
 }
 
-/**
- * Registers a test user and returns the response.
- */
 async function registerTestUser(overrides: Partial<RegisterBody> = {}) {
   const body = {
     email: overrides.email ?? 'alice@example.com',
@@ -197,9 +172,6 @@ async function registerTestUser(overrides: Partial<RegisterBody> = {}) {
   return request(app).post('/api/auth/register').send(body);
 }
 
-/**
- * Extracts the `access_token` cookie string from a supertest response.
- */
 function extractCookie(res: request.Response): string {
   const setCookie = res.headers['set-cookie'] as string[] | string | undefined;
   if (!setCookie) return '';
@@ -217,8 +189,6 @@ interface ResponseBody {
   };
   message?: string;
 }
-
-// ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('POST /api/auth/register', () => {
   it('creates a new user and returns 201 with safe profile', async () => {
@@ -243,7 +213,7 @@ describe('POST /api/auth/register', () => {
       email: 'hacker@example.com',
       password: 'Password123!',
       displayName: 'Hacker',
-      role: 'admin', // privilege escalation attempt
+      role: 'admin',
     });
     expect(res.status).toBe(201);
     const body = res.body as ResponseBody;
@@ -252,7 +222,7 @@ describe('POST /api/auth/register', () => {
 
   it('returns 409 for duplicate email', async () => {
     await registerTestUser();
-    const res = await registerTestUser(); // same email
+    const res = await registerTestUser();
     expect(res.status).toBe(409);
     const body = res.body as ResponseBody;
     expect(body.status).toBe('error');

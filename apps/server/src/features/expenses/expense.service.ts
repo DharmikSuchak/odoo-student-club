@@ -131,7 +131,6 @@ function finalizeSummary(summary: TreasurerCurrencySummary): void {
   summary.balance.projected = summary.income.total - summary.outgoing.total;
 }
 
-/** Creates a pending expense from validated organizer input. */
 export async function createExpense(
   expenses: Collection,
   input: CreateExpenseInput,
@@ -154,7 +153,6 @@ export async function createExpense(
   return created;
 }
 
-/** Lists expenses submitted by one organizer within the current club. */
 export async function listOwnExpenses(
   expenses: Collection,
   clubId: string,
@@ -171,7 +169,6 @@ export async function listOwnExpenses(
     .toArray();
 }
 
-/** Lists club expenses for the treasurer review queue with an optional status filter. */
 export async function listExpenses(
   expenses: Collection,
   clubId: string,
@@ -184,7 +181,6 @@ export async function listExpenses(
   return expenses.find<SafeExpense>(filter, { sort: { createdAt: -1 } }).toArray();
 }
 
-/** Records an approved or rejected decision and the treasurer who made it. */
 export async function reviewExpense(
   expenses: Collection,
   clubId: string,
@@ -216,7 +212,6 @@ export async function reviewExpense(
   return getUpdatedExpense(expenses, objectId);
 }
 
-/** Marks an approved expense as paid and records the treasurer responsible. */
 export async function reimburseExpense(
   expenses: Collection,
   clubId: string,
@@ -254,7 +249,6 @@ async function getUpdatedExpense(expenses: Collection, objectId: ObjectId): Prom
   return updated;
 }
 
-/** Computes the report directly from payment and expense records, grouped by currency. */
 export async function buildTreasurerReport(
   payments: Collection,
   expenses: Collection,

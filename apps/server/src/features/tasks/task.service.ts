@@ -106,7 +106,6 @@ async function findTask(tasks: Collection, clubId: string, taskId: string): Prom
   return task;
 }
 
-/** Creates a volunteer task and validates its optional assignee. */
 export async function createTask(
   tasks: Collection,
   users: Collection,
@@ -132,7 +131,6 @@ export async function createTask(
   return toTaskView(users, created);
 }
 
-/** Lists club tasks and computes the live count for every status. */
 export async function listTasks(
   tasks: Collection,
   users: Collection,
@@ -150,7 +148,6 @@ export async function listTasks(
   };
 }
 
-/** Lists active accounts available in the organizer assignment control. */
 export async function listAssignableMembers(users: Collection): Promise<AssignableMember[]> {
   const records = await users
     .find<UserRecord>({}, { projection: { displayName: 1, role: 1, deletedAt: 1 } })
@@ -161,7 +158,6 @@ export async function listAssignableMembers(users: Collection): Promise<Assignab
     .sort((left, right) => left.displayName.localeCompare(right.displayName));
 }
 
-/** Assigns or unassigns a volunteer task after validating the target account. */
 export async function assignTask(
   tasks: Collection,
   users: Collection,
@@ -180,7 +176,6 @@ export async function assignTask(
   return getUpdatedTask(tasks, users, existing._id);
 }
 
-/** Moves a task forward when called by its assignee or an organizer. */
 export async function updateTaskStatus(
   tasks: Collection,
   users: Collection,

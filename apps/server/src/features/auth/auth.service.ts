@@ -1,13 +1,3 @@
-/**
- * Auth feature — service layer.
- *
- * All database writes and reads for user authentication are centralised here.
- * Route handlers must not access the database directly.
- *
- * AGENTS.md §2: single-purpose functions, ≤ 40 lines.
- * AGENTS.md §10: bcrypt rounds ≥ 12.
- * AGENTS.md §11: role is never read from the request.
- */
 import { hash, compare } from 'bcrypt';
 import { ObjectId, type Collection } from 'mongodb';
 
@@ -22,10 +12,6 @@ import { AppError } from '../../middleware/error-handler.js';
 
 const BCRYPT_ROUNDS = 12;
 
-/**
- * Safe public projection — fields returned to the client.
- * Excludes `passwordHash`, `passwordResetTokenHash`, `passwordResetExpiresAt`.
- */
 const SAFE_USER_PROJECTION = {
   passwordHash: 0,
   passwordResetTokenHash: 0,
@@ -37,15 +23,6 @@ type SafeUserDoc = Omit<
   'passwordHash' | 'passwordResetTokenHash' | 'passwordResetExpiresAt'
 >;
 
-/**
- * Creates a new user with `member` role.
- * Rejects duplicate emails with a 409.
- *
- * @param collection  MongoDB `users` collection.
- * @param body        Validated register request body.
- * @returns The inserted user document (safe projection).
- * @throws {AppError} 409 if the email is already in use.
- */
 export async function registerUser(
   collection: Collection,
   body: RegisterBody,
@@ -82,14 +59,6 @@ export async function registerUser(
   return inserted;
 }
 
-/**
- * Validates email + password credentials.
- *
- * @param collection  MongoDB `users` collection.
- * @param body        Validated login request body.
- * @returns The user document (safe projection) on success.
- * @throws {AppError} 401 for any credential mismatch (intentionally vague).
- */
 export async function validateCredentials(
   collection: Collection,
   body: LoginBody,
@@ -124,13 +93,6 @@ export async function validateCredentials(
   return safeUser;
 }
 
-/**
- * Retrieves a safe user document by MongoDB `_id` string.
- *
- * @param collection  MongoDB `users` collection.
- * @param userId      Hex string of the MongoDB `_id`.
- * @returns Safe user document, or null if not found.
- */
 export async function findSafeUserById(
   collection: Collection,
   userId: string,
@@ -145,14 +107,6 @@ export async function findSafeUserById(
   );
 }
 
-/**
- * Promotes a user to `admin` role by email.
- * Intended **only** for the dev seed script — not reachable via any HTTP route.
- *
- * @param collection  MongoDB `users` collection.
- * @param email       Email address of the user to promote.
- * @throws {Error} If the user is not found.
- */
 export async function promoteToAdmin(collection: Collection, email: string): Promise<void> {
   const result = await collection.updateOne(
     { email: email.toLowerCase() },

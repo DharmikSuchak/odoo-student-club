@@ -1,13 +1,3 @@
-/**
- * StoreOrdersPage — /merchandise/orders
- *
- * Member order history view:
- *   - Lists all orders placed by the authenticated user, newest first.
- *   - Shows item name, size, price, status badge, and order date.
- *   - Pending-payment orders include a clear notice that payment has
- *     NOT been collected (same labelling pattern as memberships).
- *   - Loading skeleton, error, and empty states.
- */
 import { AlertCircle, ArrowLeft, Info, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -67,9 +57,6 @@ function OrderRowSkeleton() {
   );
 }
 
-/**
- * Authenticated member's order history, with payment-pending notices.
- */
 export function StoreOrdersPage() {
   const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,7 +104,6 @@ export function StoreOrdersPage() {
         </div>
       </div>
 
-      {/* Pending payment notice — mirrors membership flow */}
       {!isLoading && pendingCount > 0 && (
         <div className="store-notice store-notice--warning" role="note">
           <Info size={18} aria-hidden="true" />

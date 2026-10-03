@@ -1,12 +1,3 @@
-/**
- * Auth router — POST /api/auth/register, POST /api/auth/login,
- *               POST /api/auth/logout, GET /api/auth/me
- *
- * AGENTS.md §7: all inputs validated via zod.
- * AGENTS.md §10: passwords hashed with bcrypt (handled in auth.service.ts).
- * AGENTS.md §11: role never accepted from the request.
- * AGENTS.md §6: cookie secret and JWT secret come from env vars.
- */
 import { Router } from 'express';
 import type { CookieOptions, NextFunction, Request, Response } from 'express';
 
@@ -21,18 +12,12 @@ import { findSafeUserById, registerUser, validateCredentials } from './auth.serv
 
 export const authRouter = Router();
 
-/**
- * 10 registration attempts per IP per 60 seconds.
- */
 const registerRateLimiter = createRateLimiter({
   maxRequests: 10,
   windowSeconds: 60,
   keyPrefix: 'rl:register',
 });
 
-/**
- * 10 login attempts per IP per 60 seconds.
- */
 const loginRateLimiter = createRateLimiter({
   maxRequests: 10,
   windowSeconds: 60,
@@ -58,13 +43,7 @@ function cookieOptions(maxAgeMs: number): CookieOptions {
   };
 }
 
-/**
- * Register a new member account.
- *
- * Authentication: none (public).
- * Authorization: none.
- * Rate limit: 10 req / 60 s per IP.
- */
+/** Public endpoint; limited to 10 requests per IP each minute. */
 authRouter.post(
   '/register',
   registerRateLimiter,
@@ -107,13 +86,7 @@ authRouter.post(
   },
 );
 
-/**
- * Authenticate with email + password; receives an HTTP-only JWT cookie.
- *
- * Authentication: none (public).
- * Authorization: none.
- * Rate limit: 10 req / 60 s per IP.
- */
+/** Public endpoint; limited to 10 requests per IP each minute. */
 authRouter.post('/login', loginRateLimiter, (req: Request, res: Response, next: NextFunction) => {
   void (async () => {
     const parsed = loginBodySchema.safeParse(req.body);
@@ -151,12 +124,7 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response, next: 
   })();
 });
 
-/**
- * Clears the HTTP-only auth cookie.
- *
- * Authentication: optional (clearing an absent cookie is a no-op).
- * Authorization: none.
- */
+/** Authentication optional; clearing a missing cookie is harmless. */
 authRouter.post('/logout', (_req: Request, res: Response): void => {
   res.clearCookie('access_token', {
     httpOnly: true,
@@ -167,12 +135,7 @@ authRouter.post('/logout', (_req: Request, res: Response): void => {
   res.status(200).json({ status: 'ok', message: 'Signed out successfully.' });
 });
 
-/**
- * Returns the currently authenticated user's safe profile.
- *
- * Authentication: required (JWT cookie).
- * Authorization: any authenticated role.
- */
+/** Authentication required; all authenticated roles may view their own safe profile. */
 authRouter.get('/me', requireAuth, (req: Request, res: Response, next: NextFunction) => {
   void (async () => {
     try {

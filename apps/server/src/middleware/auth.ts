@@ -1,16 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
 import { sign as jwtSign, verify as jwtVerify } from 'jsonwebtoken';
 
-
 import { env } from '../config/env.js';
 import type { UserRole } from '../db/schemas/user.schema.js';
 
 import { AppError } from './error-handler.js';
 
-/**
- * Shape attached to `req.user` after successful authentication.
- * Never includes `passwordHash` or other sensitive fields.
- */
 export interface AuthUser {
   userId: string;
   email: string;
@@ -18,10 +13,6 @@ export interface AuthUser {
   role: UserRole;
 }
 
-/**
- * JWT payload structure.
- * The `sub` field holds the MongoDB `_id` string.
- */
 export interface JwtPayload {
   sub: string;
   email: string;
@@ -31,7 +22,6 @@ export interface JwtPayload {
   exp?: number;
 }
 
-// Augment Express Request to carry the authenticated user.
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -41,12 +31,6 @@ declare global {
   }
 }
 
-/**
- * Signs a JWT containing safe user fields.
- *
- * @param user  Safe user fields to embed in the token.
- * @returns Signed JWT string.
- */
 export function signJwt(user: AuthUser): string {
   const payload: JwtPayload = {
     sub: user.userId,
@@ -60,16 +44,6 @@ export function signJwt(user: AuthUser): string {
   });
 }
 
-/**
- * Express middleware that verifies the JWT from the `access_token` HTTP-only cookie.
- *
- * On success, populates `req.user` with safe user fields.
- * On failure, passes an AppError(401) to the next error handler.
- *
- * @param req   Express request.
- * @param _res  Express response (unused).
- * @param next  Express next function.
- */
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
   const token: unknown = req.cookies?.['access_token'];
 
@@ -96,15 +70,6 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
   next();
 }
 
-/**
- * Creates a middleware that requires the authenticated user to have at least one
- * of the specified roles.
- *
- * Must be used **after** {@link requireAuth}.
- *
- * @param roles  Permitted roles. The check passes if the user's role matches any.
- * @returns Express middleware that returns 403 if the role requirement is not met.
- */
 export function requireRole(...roles: UserRole[]) {
   return function roleGuard(req: Request, _res: Response, next: NextFunction): void {
     const user = req.user;

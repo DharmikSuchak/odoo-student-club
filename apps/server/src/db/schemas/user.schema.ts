@@ -1,16 +1,3 @@
-/**
- * Zod schema for the `users` collection.
- *
- * Stores authentication credentials and basic profile data.
- * Passwords are NEVER stored in plaintext; only bcrypt hashes (rounds ≥ 12).
- * See AGENTS.md §10.
- *
- * Decisions (resolved in Prompt 3):
- * - Role is global per user (not per-club). Per-club roles can be layered
- *   onto `memberships` later without breaking this schema.
- * - Soft-delete uses `deletedAt: Date | undefined` (auditable timestamp)
- *   rather than a boolean `isActive` flag.
- */
 import { z } from 'zod';
 
 import { nonEmptyString } from './common.js';
@@ -18,10 +5,6 @@ import { nonEmptyString } from './common.js';
 export const USER_ROLES = ['member', 'officer', 'treasurer', 'admin'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-/**
- * Full user document as stored in MongoDB.
- * `passwordHash` is excluded from all client-facing responses.
- */
 export const userDocumentSchema = z.object({
   email: z.string().email('Must be a valid email address').toLowerCase(),
   passwordHash: nonEmptyString, // bcrypt output; never sent to client
@@ -35,7 +18,6 @@ export const userDocumentSchema = z.object({
 
   emailVerifiedAt: z.date().optional(),
 
-  // Soft-delete: set to a Date when the account is deactivated/banned
   deletedAt: z.date().optional(),
 
   createdAt: z.date(),

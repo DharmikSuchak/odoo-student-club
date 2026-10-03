@@ -1,14 +1,3 @@
-/**
- * ManageMembershipsPage — /manage/memberships
- *
- * Organizer (officer/treasurer/admin) view:
- *   - List all club memberships with status filter.
- *   - Create a new membership for a user.
- *   - Record a manual cash/offline payment (treasurer/admin only).
- *
- * All data comes from real API calls.
- * The manual payment form is clearly labelled as NOT an online payment.
- */
 import { AlertCircle, FolderOpen, Info, Plus, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -62,7 +51,6 @@ function formatMoney(cents: number): string {
   return `₹${(cents / 100).toFixed(2)}`;
 }
 
-/** Computes a default endDate = 1 year from today, at midnight UTC. */
 function defaultEndDate(): string {
   const now = new Date();
   const d = new Date(Date.UTC(now.getUTCFullYear() + 1, now.getUTCMonth(), now.getUTCDate()));
@@ -336,7 +324,6 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
           </button>
         </div>
 
-        {/* Clearly label this as NOT an online payment */}
         <div className="ms-notice ms-notice--warning" role="note">
           <Info size={18} aria-hidden="true" />
           <span>
@@ -402,11 +389,6 @@ function RecordPaymentModal({ membership, onClose, onRecorded }: PaymentModalPro
   );
 }
 
-/**
- * Organizer view — manage all club memberships.
- *
- * @returns The manage memberships page component.
- */
 export function ManageMembershipsPage() {
   const { user } = useAuth();
   const [memberships, setMemberships] = useState<Membership[]>([]);

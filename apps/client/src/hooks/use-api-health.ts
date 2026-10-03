@@ -9,11 +9,6 @@ type ApiStatus =
   | { kind: 'ok'; data: ApiHealthResponse }
   | { kind: 'error'; message: string };
 
-/**
- * Polls the API health endpoint once on mount and exposes the result.
- *
- * @returns Current API reachability status with the health payload when ok.
- */
 export function useApiHealth(): ApiStatus {
   const [status, setStatus] = useState<ApiStatus>({ kind: 'idle' });
 

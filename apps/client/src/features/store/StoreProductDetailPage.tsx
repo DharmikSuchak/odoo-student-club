@@ -1,16 +1,3 @@
-/**
- * StoreProductDetailPage — /merchandise/:productId
- *
- * Product detail view with size selection and order placement:
- *   - Displays product name, price, and all size variants.
- *   - Out-of-stock sizes are shown as disabled (not hidden) with an "Out"
- *     label — per the design requirement.
- *   - Placing an order creates a pending_payment record only.
- *     ⚠️  No payment is collected. The UI labels this clearly (same
- *     pattern as the ticket/membership flow).
- *   - Success state shows the order summary and a notice about
- *     pending payment to avoid any implication that money was charged.
- */
 import { AlertCircle, ArrowLeft, CheckCircle, Info, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -80,9 +67,6 @@ function ProductSkeleton() {
   );
 }
 
-/**
- * Product detail page with size selection and pending-payment order placement.
- */
 export function StoreProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<MerchandiseProduct | null>(null);
@@ -129,7 +113,6 @@ export function StoreProductDetailPage() {
     try {
       const res = await apiPlaceOrder(productId, selectedSize);
       setOrderId(res.order._id);
-      // Refresh product to show updated stock
       const refreshed = await apiGetProduct(productId);
       setProduct(refreshed.product);
     } catch (err) {
@@ -168,8 +151,7 @@ export function StoreProductDetailPage() {
   }
 
   const currentVariant = product.variants.find((v) => v.size === selectedSize);
-  const isCurrentSizeAvailable =
-    currentVariant !== undefined && currentVariant.stockQuantity > 0;
+  const isCurrentSizeAvailable = currentVariant !== undefined && currentVariant.stockQuantity > 0;
   const canOrder = selectedSize !== null && isCurrentSizeAvailable && !isOrdering;
 
   return (
@@ -180,7 +162,6 @@ export function StoreProductDetailPage() {
       </Link>
 
       <div className="store-detail-layout">
-        {/* Left — Product info */}
         <div className="store-detail-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
             <div className="store-product-icon" aria-hidden="true">
@@ -206,15 +187,17 @@ export function StoreProductDetailPage() {
             ))}
           </div>
 
-          {selectedSize !== null && currentVariant !== undefined && currentVariant.stockQuantity > 0 && (
-            <p
-              style={{ fontSize: '0.8125rem', color: 'var(--slate-500)', marginBottom: '8px' }}
-              aria-live="polite"
-            >
-              {currentVariant.stockQuantity} unit
-              {currentVariant.stockQuantity !== 1 ? 's' : ''} left in size {selectedSize}
-            </p>
-          )}
+          {selectedSize !== null &&
+            currentVariant !== undefined &&
+            currentVariant.stockQuantity > 0 && (
+              <p
+                style={{ fontSize: '0.8125rem', color: 'var(--slate-500)', marginBottom: '8px' }}
+                aria-live="polite"
+              >
+                {currentVariant.stockQuantity} unit
+                {currentVariant.stockQuantity !== 1 ? 's' : ''} left in size {selectedSize}
+              </p>
+            )}
 
           {product.variants.every((v) => v.stockQuantity === 0) && (
             <div className="store-notice store-notice--danger" role="status">
@@ -224,7 +207,6 @@ export function StoreProductDetailPage() {
           )}
         </div>
 
-        {/* Right — Order panel */}
         <div className="store-detail-card">
           {orderId !== null ? (
             <div>
@@ -236,10 +218,10 @@ export function StoreProductDetailPage() {
               </div>
 
               <div className="store-pending-callout" role="note">
-                <strong>⚠️ Payment pending — no money has been charged.</strong>
+                <strong>Payment pending: no money has been charged.</strong>
                 This order is in <em>pending_payment</em> status. Payment collection is not yet
-                integrated. A treasurer or organizer will contact you to complete payment. This
-                flow follows the same pattern as ticket and membership purchases.
+                integrated. A treasurer or organizer will contact you to complete payment. This flow
+                follows the same pattern as ticket and membership purchases.
               </div>
 
               <div
@@ -250,7 +232,11 @@ export function StoreProductDetailPage() {
                   gap: '8px',
                 }}
               >
-                <Link to="/merchandise/orders" className="store-btn-primary" style={{ textDecoration: 'none', textAlign: 'center' }}>
+                <Link
+                  to="/merchandise/orders"
+                  className="store-btn-primary"
+                  style={{ textDecoration: 'none', textAlign: 'center' }}
+                >
                   View my orders
                 </Link>
                 <Link
@@ -277,14 +263,21 @@ export function StoreProductDetailPage() {
               </h2>
 
               {selectedSize === null && (
-                <p style={{ color: 'var(--slate-500)', fontSize: '0.875rem', marginBottom: '16px' }}>
+                <p
+                  style={{ color: 'var(--slate-500)', fontSize: '0.875rem', marginBottom: '16px' }}
+                >
                   Select a size to continue.
                 </p>
               )}
 
               {selectedSize !== null && (
-                <div className="store-detail-card" style={{ marginBottom: '16px', padding: '12px 16px' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                <div
+                  className="store-detail-card"
+                  style={{ marginBottom: '16px', padding: '12px 16px' }}
+                >
+                  <table
+                    style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}
+                  >
                     <tbody>
                       <tr>
                         <td style={{ color: 'var(--slate-500)', paddingBottom: '8px' }}>Item</td>

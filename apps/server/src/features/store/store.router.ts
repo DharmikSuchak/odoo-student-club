@@ -29,7 +29,10 @@ const productBodySchema = z
   .object({
     name: z.string().trim().min(1).max(200),
     priceCents: z.number().int().positive(),
-    currency: z.string().trim().regex(/^[A-Za-z]{3}$/, 'Use a three-letter currency code'),
+    currency: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z]{3}$/, 'Use a three-letter currency code'),
     variants: z.array(variantSchema).min(1).max(30),
   })
   .strict()
@@ -133,12 +136,7 @@ storeRouter.patch(
       const parsed = productBodySchema.safeParse(request.body);
       if (!parsed.success) return sendValidationError(response, parsed.error);
       try {
-        const product = await updateProduct(
-          getDb(),
-          getClubId(),
-          getItemId(request),
-          parsed.data,
-        );
+        const product = await updateProduct(getDb(), getClubId(), getItemId(request), parsed.data);
         response.status(200).json({ status: 'ok', product });
       } catch (error) {
         next(error);

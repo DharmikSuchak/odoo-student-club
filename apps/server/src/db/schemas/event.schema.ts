@@ -1,27 +1,6 @@
-/**
- * Zod schemas for the `events` and `eventTickets` collections.
- *
- * Key decisions (Prompt 3):
- *
- * MEMBER vs. NON-MEMBER TICKET PRICING:
- *   Events may define two prices on the event itself:
- *   - `memberPriceCents`    — price for users with an active membership
- *   - `nonMemberPriceCents` — price for all other registered users
- *   A zero price represents free admission; prices are otherwise stored in minor units.
- *   The server determines which price to apply at registration time by
- *   checking the user's current membership status (see `isMembershipActive`).
- *
- * CHECK-IN:
- *   Each ticket document has a `checkedInAt` timestamp. Officers mark
- *   check-in via `PATCH /api/events/:eventId/tickets/:ticketId/check-in`.
- *   A checked-in ticket cannot be cancelled.
- *
- * CAPACITY:
- *   `remainingTicketCount` is decremented with an atomic condition in the same
- *   MongoDB transaction that inserts the ticket document.
- *
- * NAMING: Documents are called `tickets` (not `registrations`) to align with
- * the Student Organization PDF terminology.
+/*
+ * The server selects the member rate after checking active membership.
+ * Capacity is decremented atomically in the transaction that inserts the ticket.
  */
 import { z } from 'zod';
 
@@ -29,7 +8,7 @@ import { moneySchema, nonEmptyString, objectIdSchema } from './common.js';
 
 export const eventDocumentSchema = z.object({
   clubId: objectIdSchema,
-  createdBy: objectIdSchema, // ref: users (officer/admin)
+  createdBy: objectIdSchema,
   title: nonEmptyString.max(200),
   description: z.string().max(5000).default(''),
   location: z.string().max(200).optional(),
@@ -54,15 +33,7 @@ export type EventDocument = z.infer<typeof eventDocumentSchema>;
 export const TICKET_STATUSES = ['pending_payment', 'confirmed', 'waitlisted', 'cancelled'] as const;
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 
-/**
- * One document per ticket purchase.
- *
- * `priceCents` is snapshotted when the ticket is requested so later event
- * changes cannot alter the amount due.
- *
- * `checkedInAt` is set by an officer at the door. A ticket is checked in
- * at most once (idempotent endpoint).
- */
+// Price is snapshotted so later event changes cannot alter the amount due.
 export const eventTicketDocumentSchema = z.object({
   clubId: objectIdSchema,
   eventId: objectIdSchema,
@@ -78,7 +49,7 @@ export const eventTicketDocumentSchema = z.object({
   paidAt: z.date().optional(),
 
   checkedInAt: z.date().optional(),
-  checkedInBy: objectIdSchema.optional(), // ref: users (officer)
+  checkedInBy: objectIdSchema.optional(),
 
   requestedAt: z.date(),
   cancelledAt: z.date().optional(),

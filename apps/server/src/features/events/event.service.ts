@@ -147,6 +147,7 @@ async function reserveTicketInTransaction(
     requestedAt,
     session,
   );
+  // The seat predicate and decrement are atomic; the ticket insert shares this transaction.
   const reservedEvent = await database
     .collection('events')
     .findOneAndUpdate(

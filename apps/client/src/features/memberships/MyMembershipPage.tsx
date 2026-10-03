@@ -1,14 +1,3 @@
-/**
- * MyMembershipPage — /membership
- *
- * Member self-service view:
- *   - Shows current membership status and period.
- *   - Shows whether it is currently active (server-verified).
- *   - Empty state with call-to-action when no membership exists.
- *   - Loading skeleton and error state.
- *
- * The page uses real API data — no static success responses.
- */
 import { AlertCircle, GraduationCap, Info } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -18,7 +7,6 @@ import { apiGetMyMembership, apiGetTiers } from '../../lib/api-client';
 import { MembershipStatusBadge } from './MembershipStatusBadge';
 import './membership.css';
 
-/** Formats a UTC ISO date string as a localised date (day/month/year). */
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
     year: 'numeric',
@@ -28,7 +16,6 @@ function formatDate(iso: string): string {
   });
 }
 
-/** Formats an integer minor-unit amount as a human-readable currency string. */
 function formatMoney(cents: number): string {
   return `₹${(cents / 100).toFixed(2)}`;
 }
@@ -120,10 +107,6 @@ function MembershipCard({
   );
 }
 
-/**
- * Member's self-service membership view.
- * Displays real API data: current membership, status, period, and dues.
- */
 export function MyMembershipPage() {
   const [membership, setMembership] = useState<Membership | null>(null);
   const [isActive, setIsActive] = useState(false);

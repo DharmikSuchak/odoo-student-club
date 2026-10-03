@@ -342,7 +342,6 @@ function TaskComposer({
   );
 }
 
-/** Displays the volunteer board, live status counts, and role-aware task controls. */
 export function TaskBoardPage() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<VolunteerTask[]>([]);

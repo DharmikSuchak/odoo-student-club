@@ -1,32 +1,9 @@
-/**
- * StoreManagePage — /merchandise/manage
- *
- * Organizer product and stock manager (officer/admin only):
- *   - Create new products with name, price, currency, and size variants.
- *   - Edit existing products (full replacement of variants + stock).
- *   - Lists existing products for quick selection and editing.
- *
- * Authorization:
- *   - The ProtectedRoute in App.tsx prevents non-officers from
- *     navigating here.
- *   - The server enforces officer/admin role on every POST/PATCH
- *     request independently (AGENTS.md §11). This is NOT just a
- *     hidden menu item.
- *
- * Variant rules:
- *   - Each size must be unique.
- *   - Stock quantities are non-negative integers.
- */
 import { AlertCircle, CheckCircle, Edit2, Plus, Trash2 } from 'lucide-react';
-import { useState , useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import type { ApiError, MerchandiseProduct, MerchandiseVariant } from '../../lib/api-client';
-import {
-  apiCreateProduct,
-  apiListProducts,
-  apiUpdateProduct,
-} from '../../lib/api-client';
+import { apiCreateProduct, apiListProducts, apiUpdateProduct } from '../../lib/api-client';
 
 import './store.css';
 
@@ -59,9 +36,6 @@ function makeEmptyVariant(): VariantDraft {
   return { size: '', stockQuantity: '0' };
 }
 
-/**
- * Organizer product form — handles both create and edit modes.
- */
 function ProductForm({
   initial,
   onSaved,
@@ -101,9 +75,7 @@ function ProductForm({
   }
 
   function updateVariantStock(index: number, value: string) {
-    setVariants((prev) =>
-      prev.map((v, i) => (i === index ? { ...v, stockQuantity: value } : v)),
-    );
+    setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, stockQuantity: value } : v)));
   }
 
   function validate(): MerchandiseVariant[] | null {
@@ -171,7 +143,6 @@ function ProductForm({
       setSavedOk(true);
       onSaved(result);
       if (!isEditing) {
-        // Reset form after creation
         setName('');
         setPriceCents('');
         setCurrency('INR');
@@ -332,11 +303,7 @@ function ProductForm({
           aria-busy={isSaving}
           style={{ flex: 1 }}
         >
-          {isSaving
-            ? 'Saving…'
-            : isEditing
-              ? 'Save changes'
-              : 'Create product'}
+          {isSaving ? 'Saving…' : isEditing ? 'Save changes' : 'Create product'}
         </button>
         {isEditing && (
           <button type="button" className="store-btn-ghost" onClick={onCancel}>
@@ -348,10 +315,6 @@ function ProductForm({
   );
 }
 
-/**
- * Organizer product and stock manager.
- * Authorization enforced by ProtectedRoute (officer+) AND the server (officer/admin).
- */
 export function StoreManagePage() {
   const [products, setProducts] = useState<MerchandiseProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -411,18 +374,13 @@ export function StoreManagePage() {
           </p>
         </div>
         {editingProduct !== null && (
-          <button
-            type="button"
-            className="store-btn-ghost"
-            onClick={() => setEditingProduct(null)}
-          >
+          <button type="button" className="store-btn-ghost" onClick={() => setEditingProduct(null)}>
             + New product
           </button>
         )}
       </div>
 
       <div className="store-manager-grid">
-        {/* Left — form */}
         <ProductForm
           key={editingProduct?._id ?? 'new'}
           initial={editingProduct}
@@ -430,7 +388,6 @@ export function StoreManagePage() {
           onCancel={() => setEditingProduct(null)}
         />
 
-        {/* Right — product list */}
         <div className="store-product-list-card">
           <h2
             style={{
@@ -467,14 +424,15 @@ export function StoreManagePage() {
             </p>
           )}
 
-          {!isLoading && loadError === null &&
+          {!isLoading &&
+            loadError === null &&
             products.map((product) => (
               <div key={product._id} className="store-product-list-item">
                 <div className="store-product-list-info">
                   <p className="store-product-list-name">{product.name}</p>
                   <p className="store-product-list-meta">
-                    {formatMoney(product.priceCents, product.currency)} ·{' '}
-                    {product.variants.length} size
+                    {formatMoney(product.priceCents, product.currency)} · {product.variants.length}{' '}
+                    size
                     {product.variants.length !== 1 ? 's' : ''} ·{' '}
                     {product.variants.reduce((s, v) => s + v.stockQuantity, 0)} total stock
                   </p>

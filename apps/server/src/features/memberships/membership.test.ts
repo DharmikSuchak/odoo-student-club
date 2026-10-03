@@ -1,23 +1,6 @@
-/**
- * Integration tests for membership endpoints.
- *
- * Covers per AGENTS.md §13:
- *   - Member can view own membership (happy path + empty)
- *   - Officer can create a membership for a user
- *   - Treasurer can record a manual payment (activating the membership)
- *   - Expiry boundary: active membership with past endDate is NOT active
- *   - Unpaid membership stays in pending_payment
- *   - Unauthorized changes (member tries to create/pay — 403)
- *   - Renewal blocked when active membership exists
- *   - Treasurer cannot escalate own role via the body
- *
- * External services (MongoDB, Redis) are replaced with in-process fakes.
- */
 import type { Express } from 'express';
 import request from 'supertest';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-
-// ── Hoisted fakes ─────────────────────────────────────────────────────────────
 
 const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
   type DocRecord = Record<string, unknown> & { _id: { toString(): string; toHexString(): string } };
@@ -33,7 +16,6 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
 
   function getStore(name: string) {
     if (!stores.has(name)) stores.set(name, new Map());
-    // Non-null safe: we just set it
     return stores.get(name) as Map<string, DocRecord>;
   }
 
@@ -45,7 +27,6 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
       ) => {
         const store = getStore(name);
         const docs = [...store.values()];
-        // Sort by createdAt desc if requested
         if (options?.sort?.['createdAt'] === -1) {
           docs.sort((a, b) => {
             const aDate = a['createdAt'] as Date;
@@ -74,9 +55,11 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
           if (match) {
             const resultDoc = { ...doc } as DocRecord;
             if (options?.projection) {
-              const isExclusion = Object.values(options.projection).some(v => v === 0);
-              const projected = isExclusion ? { ...resultDoc } : (({ _id: resultDoc['_id'] }) as Record<string, unknown>);
-              
+              const isExclusion = Object.values(options.projection).some((v) => v === 0);
+              const projected = isExclusion
+                ? { ...resultDoc }
+                : ({ _id: resultDoc['_id'] } as Record<string, unknown>);
+
               for (const [k, v] of Object.entries(options.projection)) {
                 if (v === 0) {
                   delete projected[k];
@@ -119,9 +102,9 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
           });
         }
         if (options?.projection) {
-          const isExclusion = Object.values(options.projection).some(v => v === 0);
+          const isExclusion = Object.values(options.projection).some((v) => v === 0);
           const projected = results.map((doc) => {
-            const p = isExclusion ? { ...doc } : (({ _id: doc['_id'] }) as Record<string, unknown>);
+            const p = isExclusion ? { ...doc } : ({ _id: doc['_id'] } as Record<string, unknown>);
             for (const [k, v] of Object.entries(options.projection ?? {})) {
               if (v === 0) {
                 delete p[k];
@@ -145,10 +128,7 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
         return Promise.resolve({ insertedId: id });
       },
 
-      updateOne: (
-        filter: Record<string, unknown>,
-        update: Record<string, unknown>,
-      ) => {
+      updateOne: (filter: Record<string, unknown>, update: Record<string, unknown>) => {
         const store = getStore(name);
         for (const doc of store.values()) {
           let match = true;
@@ -186,8 +166,6 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
   return { fakeDb, fakeRedisStore, resetFakes };
 });
 
-// ── Module mocks ──────────────────────────────────────────────────────────────
-
 vi.mock('../../redis/client.js', () => ({
   getRedis: () => ({
     incr: (key: string) => {
@@ -215,8 +193,12 @@ vi.mock('mongodb', () => {
       constructor(id?: string) {
         this.hexId = id ?? '000000000000000000000000';
       }
-      toString() { return this.hexId; }
-      toHexString() { return this.hexId; }
+      toString() {
+        return this.hexId;
+      }
+      toHexString() {
+        return this.hexId;
+      }
       static isValid(id: unknown) {
         return typeof id === 'string' && id.length === 24;
       }
@@ -224,8 +206,6 @@ vi.mock('mongodb', () => {
     MongoClient: class {},
   };
 });
-
-// ── App + types ───────────────────────────────────────────────────────────────
 
 import { createApp } from '../../app.js';
 import { env } from '../../config/env.js';
@@ -243,8 +223,6 @@ beforeEach(() => {
 afterEach(() => {
   vi.clearAllMocks();
 });
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 interface ResponseBody {
   status: string;
@@ -264,53 +242,39 @@ function extractCookie(res: request.Response): string {
   return cookies.find((c) => c.startsWith('access_token=')) ?? '';
 }
 
-/** Register a user and return their auth cookie. */
 async function registerAndLogin(
   email: string,
   password: string,
   displayName: string,
 ): Promise<string> {
-  const res = await request(app)
-    .post('/api/auth/register')
-    .send({ email, password, displayName });
+  const res = await request(app).post('/api/auth/register').send({ email, password, displayName });
   return extractCookie(res);
 }
 
-
-/** A fake tier ObjectId. */
 const TIER_ID = '000000000000000000000099';
 
-/** Seeds a membership tier into the fake store. */
 async function seedTier(): Promise<void> {
-  await request(app)
-    .post('/api/memberships/tiers')
-    .set('Cookie', officerCookie)
-    .send({
-      name: 'General Member',
-      durationDays: 365,
-      priceCents: 50000,
-    });
+  await request(app).post('/api/memberships/tiers').set('Cookie', officerCookie).send({
+    name: 'General Member',
+    durationDays: 365,
+    priceCents: 50000,
+  });
 }
 
-// Pre-register actors (populated in beforeEach)
 let memberCookie = '';
 let officerCookie = '';
 let treasurerCookie = '';
 let memberId = '';
 
 beforeEach(async () => {
-  // Register users
   memberCookie = await registerAndLogin('member@test.com', 'Password123!', 'Alice Member');
   officerCookie = await registerAndLogin('officer@test.com', 'Password123!', 'Bob Officer');
   treasurerCookie = await registerAndLogin('treasurer@test.com', 'Password123!', 'Carol Treasurer');
 
-  // Grab member userId from /me
   const meRes = await request(app).get('/api/auth/me').set('Cookie', memberCookie);
   const meBody = meRes.body as ResponseBody;
   memberId = (meBody.user as { id: string } | undefined)?.id ?? '';
 
-  // Manually promote officer and treasurer in the fake user store (bypass HTTP route)
-  // We do this by calling the auth/me endpoint to confirm IDs, then using updateOne on fakeDb
   const officerMeRes = await request(app).get('/api/auth/me').set('Cookie', officerCookie);
   const officerBody = officerMeRes.body as ResponseBody;
   const officerId = (officerBody.user as { id: string } | undefined)?.id ?? '';
@@ -319,17 +283,19 @@ beforeEach(async () => {
   const treasurerBody = treasurerMeRes.body as ResponseBody;
   const treasurerId = (treasurerBody.user as { id: string } | undefined)?.id ?? '';
 
-  // Directly mutate fake store to promote roles (safe dev-only pattern)
-  await fakeDb.collection('users').updateOne(
-    { _id: { toString: () => officerId, toHexString: () => officerId } },
-    { $set: { role: 'officer' } },
-  );
-  await fakeDb.collection('users').updateOne(
-    { _id: { toString: () => treasurerId, toHexString: () => treasurerId } },
-    { $set: { role: 'treasurer' } },
-  );
+  await fakeDb
+    .collection('users')
+    .updateOne(
+      { _id: { toString: () => officerId, toHexString: () => officerId } },
+      { $set: { role: 'officer' } },
+    );
+  await fakeDb
+    .collection('users')
+    .updateOne(
+      { _id: { toString: () => treasurerId, toHexString: () => treasurerId } },
+      { $set: { role: 'treasurer' } },
+    );
 
-  // Re-login to get new JWT with updated role
   officerCookie = await (async () => {
     const r = await request(app)
       .post('/api/auth/login')
@@ -343,8 +309,6 @@ beforeEach(async () => {
     return extractCookie(r);
   })();
 });
-
-// ── Tier tests ────────────────────────────────────────────────────────────────
 
 describe('GET /api/memberships/tiers', () => {
   it('returns empty list when no tiers exist', async () => {
@@ -388,18 +352,13 @@ describe('POST /api/memberships/tiers', () => {
   });
 });
 
-// ── Membership create tests ───────────────────────────────────────────────────
-
 describe('POST /api/memberships', () => {
   beforeEach(async () => {
     await seedTier();
   });
 
   it('officer can create a membership for a user', async () => {
-    // List tiers to get the real tier ID
-    const tiersRes = await request(app)
-      .get('/api/memberships/tiers')
-      .set('Cookie', officerCookie);
+    const tiersRes = await request(app).get('/api/memberships/tiers').set('Cookie', officerCookie);
     const tiersBody = tiersRes.body as ResponseBody;
     const realTierId = (tiersBody.tiers?.[0] as { _id: string } | undefined)?.['_id'] ?? TIER_ID;
 
@@ -440,8 +399,6 @@ describe('POST /api/memberships', () => {
   });
 });
 
-// ── Member self-view tests ────────────────────────────────────────────────────
-
 describe('GET /api/memberships/me', () => {
   it('returns null membership when user has no membership', async () => {
     const res = await request(app).get('/api/memberships/me').set('Cookie', memberCookie);
@@ -457,8 +414,6 @@ describe('GET /api/memberships/me', () => {
   });
 });
 
-// ── Organizer list tests ──────────────────────────────────────────────────────
-
 describe('GET /api/memberships', () => {
   it('officer can list all memberships', async () => {
     const res = await request(app).get('/api/memberships').set('Cookie', officerCookie);
@@ -473,16 +428,12 @@ describe('GET /api/memberships', () => {
   });
 });
 
-// ── Manual payment / activation tests ────────────────────────────────────────
-
 describe('POST /api/memberships/:id/record-payment', () => {
   let membershipId = '';
 
   beforeEach(async () => {
     await seedTier();
-    const tiersRes = await request(app)
-      .get('/api/memberships/tiers')
-      .set('Cookie', officerCookie);
+    const tiersRes = await request(app).get('/api/memberships/tiers').set('Cookie', officerCookie);
     const tiersBody = tiersRes.body as ResponseBody;
     const realTierId = (tiersBody.tiers?.[0] as { _id: string } | undefined)?.['_id'] ?? TIER_ID;
 
@@ -535,12 +486,10 @@ describe('POST /api/memberships/:id/record-payment', () => {
   });
 
   it('returns 409 when membership is already active', async () => {
-    // Activate once
     await request(app)
       .post(`/api/memberships/${membershipId}/record-payment`)
       .set('Cookie', treasurerCookie)
       .send({ amountPaidCents: 50000 });
-    // Try to activate again
     const res = await request(app)
       .post(`/api/memberships/${membershipId}/record-payment`)
       .set('Cookie', treasurerCookie)
@@ -548,8 +497,6 @@ describe('POST /api/memberships/:id/record-payment', () => {
     expect(res.status).toBe(409);
   });
 });
-
-// ── Expiry boundary tests ─────────────────────────────────────────────────────
 
 describe('isMembershipActive expiry boundary', () => {
   it('returns true for active membership with future endDate', async () => {

@@ -1,10 +1,3 @@
-/**
- * Zod schema for outgoing club expenses and reimbursements.
- *
- * An organizer submits an expense in `pending`. A treasurer records an
- * auditable review decision, and an approved expense can later be marked as
- * reimbursed when money is actually paid out.
- */
 import { z } from 'zod';
 
 import { moneySchema, nonEmptyString, objectIdSchema } from './common.js';

@@ -1,10 +1,3 @@
-/**
- * Root application component — Phase 2.
- *
- * Sets up React Router and wraps the entire app in the AuthProvider.
- * Public routes: /login, /register
- * Protected routes: /dashboard, /membership, /manage/memberships (officer+), and future pages.
- */
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import {
@@ -220,7 +213,6 @@ export default function App() {
             }
           />
 
-          {/* ── Club Store ── */}
           <Route
             path="/merchandise"
             element={
@@ -232,7 +224,6 @@ export default function App() {
             }
           />
 
-          {/* orders must appear before /:productId so it matches first */}
           <Route
             path="/merchandise/orders"
             element={
@@ -244,7 +235,6 @@ export default function App() {
             }
           />
 
-          {/* manage is officer+ — ProtectedRoute AND server both enforce this */}
           <Route
             path="/merchandise/manage"
             element={
@@ -267,7 +257,6 @@ export default function App() {
             }
           />
 
-          {/* Redirect root → dashboard (ProtectedRoute will redirect to /login if not auth'd) */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

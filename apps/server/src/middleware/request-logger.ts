@@ -1,9 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
 
-/**
- * Lightweight request logger for development.
- * Logs method, path, status, and duration after the response is sent.
- */
 export function requestLogger(req: Request, res: Response, next: NextFunction): void {
   const startedAt = Date.now();
 

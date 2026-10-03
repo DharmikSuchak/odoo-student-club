@@ -16,19 +16,9 @@ import { globalErrorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/request-logger.js';
 import { healthRouter } from './routes/health.js';
 
-/**
- * Creates and configures the Express application.
- *
- * Separated from index.ts so the app can be imported in tests without
- * binding to a port.
- *
- * @param env Validated environment variables.
- * @returns Configured Express application.
- */
 export function createApp(env: Env) {
   const app = express();
 
-  // ── Security headers (AGENTS.md §9) ────────────────────────────────────────
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -54,7 +44,6 @@ export function createApp(env: Env) {
   app.use(json({ limit: '1mb' }));
   app.use(urlencoded({ extended: true, limit: '1mb' }));
 
-  // ── Cookie parsing (HTTP-only auth cookies) ────────────────────────────────
   // Sign cookies when COOKIE_SECRET is available (optional in dev)
   app.use(cookieParser(env.COOKIE_SECRET));
 

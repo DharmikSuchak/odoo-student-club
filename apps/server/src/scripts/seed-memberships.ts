@@ -1,21 +1,6 @@
-/**
- * Dev seed script: seeds the club document and a default membership tier.
- *
- * Usage:
- *   npx tsx src/scripts/seed-memberships.ts
- *
- * Required env vars:
- *   MONGO_URI, CLUB_ID (24-hex ObjectId), SEED_ADMIN_EMAIL
- *
- * The script is idempotent: running it twice will not create duplicates.
- *
- * TIMEZONE POLICY:
- *   endDate for sample memberships is set to midnight UTC of the
- *   relevant calendar day (1 year from today).
- *
- * ⚠️  Dev/staging only. Do NOT run in production without review.
- */
 import 'dotenv/config';
+
+// Development and staging only; review before running against production data.
 
 import { ObjectId } from 'mongodb';
 
@@ -27,7 +12,7 @@ const CLUB_ID = process.env['CLUB_ID'] ?? '000000000000000000000001';
 const ADMIN_EMAIL = process.env['SEED_ADMIN_EMAIL'] ?? 'admin@club.example';
 
 if (!/^[0-9a-f]{24}$/i.test(CLUB_ID)) {
-  console.error('❌  CLUB_ID must be a 24-character hex ObjectId.');
+  console.error('Error: CLUB_ID must be a 24-character hex ObjectId.');
   process.exit(1);
 }
 
@@ -45,9 +30,9 @@ async function run(): Promise<void> {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    console.info('✅  Club document created.');
+    console.info('Done: Club document created.');
   } else {
-    console.info('ℹ️   Club document already exists — skipping.');
+    console.info('Skipped: Club document already exists — skipping.');
   }
 
   const tiers = db.collection('membershipTiers');
@@ -58,14 +43,14 @@ async function run(): Promise<void> {
       name: 'General Member',
       description: 'Standard annual membership with full club access.',
       durationDays: 365,
-      priceCents: 50000, // ₹500 or $5 depending on currency config
+      priceCents: 50000,
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    console.info('✅  "General Member" tier created.');
+    console.info('Done: "General Member" tier created.');
   } else {
-    console.info('ℹ️   "General Member" tier already exists — skipping.');
+    console.info('Skipped: "General Member" tier already exists — skipping.');
   }
 
   const users = db.collection('users');
@@ -91,20 +76,20 @@ async function run(): Promise<void> {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-        console.info(`✅  Sample membership created for ${ADMIN_EMAIL} (pending_payment).`);
+        console.info(`Done: Sample membership created for ${ADMIN_EMAIL} (pending_payment).`);
         console.info(`    Use POST /api/memberships/<id>/record-payment to activate it.`);
       } else {
-        console.info(`ℹ️   ${ADMIN_EMAIL} already has a membership — skipping.`);
+        console.info(`Skipped: ${ADMIN_EMAIL} already has a membership — skipping.`);
       }
     }
   } else {
-    console.info(`ℹ️   Admin user ${ADMIN_EMAIL} not found — run seed-admin.ts first.`);
+    console.info(`Skipped: Admin user ${ADMIN_EMAIL} not found — run seed-admin.ts first.`);
   }
 }
 
 run()
   .catch((err: unknown) => {
-    console.error('❌  Seed failed:', err);
+    console.error('Error: Seed failed:', err);
     process.exit(1);
   })
   .finally(async () => {

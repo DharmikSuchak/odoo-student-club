@@ -1,23 +1,6 @@
-/**
- * Integration tests for the club store endpoints.
- *
- * Per AGENTS.md §13 — covers risky behaviour:
- *   - Simultaneous orders for the last unit atomically; only one succeeds.
- *   - Order attempt on an already-out-of-stock size returns 409.
- *   - Unauthorized product creation (member role) returns 403.
- *   - Unauthenticated product creation returns 401.
- *   - Happy-path product creation / list / detail (officer).
- *   - Happy-path order placement and order-history list (member).
- *   - Unknown size returns 409 (not 404 — product exists, size absent).
- *   - Validation errors (missing fields, negative price) return 422.
- *
- * External services (MongoDB, Redis) are replaced by in-process fakes.
- */
 import type { Express } from 'express';
 import request from 'supertest';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-
-// ── Hoisted fakes ─────────────────────────────────────────────────────────────
 
 const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
   type DocRecord = Record<string, unknown> & {
@@ -53,12 +36,9 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
               if (doc['_id'].toString() !== idVal.toString()) match = false;
             } else if (val !== null && typeof val === 'object' && '$exists' in val) {
               const existsOp = (val as { $exists: boolean })['$exists'];
-              // $exists: false means the field must not be present
               if (!existsOp && key in doc) match = false;
-              // $exists: true means the field must be present
               if (existsOp && !(key in doc)) match = false;
             } else if (val !== null && typeof val === 'object' && '$elemMatch' in val) {
-              // Support $elemMatch for variant queries
               const elemMatch = (val as { $elemMatch: Record<string, unknown> })['$elemMatch'];
               const arr = doc[key] as Array<Record<string, unknown>>;
               if (!Array.isArray(arr)) {
@@ -172,11 +152,9 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
             }
           }
           if (match) {
-            // Apply $inc operators
             const incOp = (update as { $inc?: Record<string, number> })['$inc'];
             if (incOp !== undefined) {
               for (const [incPath, incVal] of Object.entries(incOp)) {
-                // Support nested paths like 'variants.$.stockQuantity'
                 if (incPath === 'variants.$.stockQuantity') {
                   const filterVariant = (
                     filter['variants'] as { $elemMatch: Record<string, unknown> }
@@ -197,7 +175,6 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
                 }
               }
             }
-            // Apply $set operators
             const setOp = (update as { $set?: Record<string, unknown> })['$set'];
             if (setOp !== undefined) {
               for (const [setKey, setVal] of Object.entries(setOp)) {
@@ -257,8 +234,6 @@ const { fakeDb, fakeRedisStore, resetFakes } = vi.hoisted(() => {
   return { fakeDb, fakeRedisStore, resetFakes };
 });
 
-// ── Module mocks ──────────────────────────────────────────────────────────────
-
 vi.mock('../../redis/client.js', () => ({
   getRedis: () => ({
     incr: (key: string) => {
@@ -300,8 +275,6 @@ vi.mock('mongodb', () => {
   };
 });
 
-// ── App setup ─────────────────────────────────────────────────────────────────
-
 import { createApp } from '../../app.js';
 import { env } from '../../config/env.js';
 
@@ -318,8 +291,6 @@ beforeEach(() => {
 afterEach(() => {
   vi.clearAllMocks();
 });
-
-// ── Test helpers ──────────────────────────────────────────────────────────────
 
 interface ProductBody {
   _id?: string;
@@ -369,9 +340,8 @@ async function promoteRole(
   await fakeDb
     .collection('users')
     .updateOne({ _id: { toString: () => userId, toHexString: () => userId } }, { $set: { role } });
-  // Re-login to get updated JWT
   const emailMatch = /@/.test(cookie) ? cookie : '';
-  void emailMatch; // unused — we derive email from the me response
+  void emailMatch;
   const emailAddr = (meRes.body as { user: { email: string } }).user.email;
   const loginRes = await request(app)
     .post('/api/auth/login')
@@ -401,8 +371,6 @@ beforeEach(async () => {
   officerCookie = await registerAndLogin('officer@store.test', 'Password123!', 'Bob Officer');
   officerCookie = await promoteRole(officerCookie, 'officer');
 });
-
-// ── Product creation ──────────────────────────────────────────────────────────
 
 describe('POST /api/store/products', () => {
   it('officer can create a product', async () => {
@@ -468,8 +436,6 @@ describe('POST /api/store/products', () => {
   });
 });
 
-// ── Product list / detail ─────────────────────────────────────────────────────
-
 describe('GET /api/store/products', () => {
   it('authenticated member can list products', async () => {
     await request(app).post('/api/store/products').set('Cookie', officerCookie).send(VALID_PRODUCT);
@@ -514,8 +480,6 @@ describe('GET /api/store/products/:id', () => {
   });
 });
 
-// ── Order placement ───────────────────────────────────────────────────────────
-
 describe('POST /api/store/orders', () => {
   let productId: string;
 
@@ -545,7 +509,7 @@ describe('POST /api/store/orders', () => {
     const res = await request(app)
       .post('/api/store/orders')
       .set('Cookie', memberCookie)
-      .send({ itemId: productId, size: 'L' }); // stock = 0
+      .send({ itemId: productId, size: 'L' });
 
     expect(res.status).toBe(409);
     const body = res.body as ResponseBody;
@@ -570,7 +534,6 @@ describe('POST /api/store/orders', () => {
   });
 
   it('simultaneous orders for the last unit — only one succeeds', async () => {
-    // Create a product with exactly one M in stock
     const singleStockRes = await request(app)
       .post('/api/store/products')
       .set('Cookie', officerCookie)
@@ -582,14 +545,12 @@ describe('POST /api/store/orders', () => {
       });
     const singleId = (singleStockRes.body as ResponseBody).product?._id ?? '';
 
-    // Register a second member
     const member2Cookie = await registerAndLogin(
       'member2@store.test',
       'Password123!',
       'Carol Second',
     );
 
-    // Fire both requests simultaneously
     const [res1, res2] = await Promise.all([
       request(app)
         .post('/api/store/orders')
@@ -602,13 +563,10 @@ describe('POST /api/store/orders', () => {
     ]);
 
     const statuses = [res1.status, res2.status];
-    // Exactly one should succeed (201) and the other should fail (409)
     expect(statuses).toContain(201);
     expect(statuses).toContain(409);
   });
 });
-
-// ── Order history ─────────────────────────────────────────────────────────────
 
 describe('GET /api/store/orders/mine', () => {
   it('returns empty list when no orders placed', async () => {

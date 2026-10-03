@@ -1,28 +1,3 @@
-/**
- * Membership feature — service layer.
- *
- * Business rules enforced here (never in route handlers):
- *   - Only officer/admin/treasurer roles can create or renew a membership.
- *   - `status` transitions to `active` only via recordManualPayment (treasurer only).
- *   - A member may not choose their own role or payment status.
- *   - Expiry is always checked against **UTC server time** (see TIMEZONE POLICY).
- *
- * TIMEZONE POLICY (documented here for all callers):
- *   All timestamps are stored and compared as UTC Date objects.
- *   `endDate` is set to midnight UTC of the desired expiry calendar day.
- *   The API returns ISO-8601 strings; the UI converts to local time for display.
- *   Callers should pass `asOf = new Date()` (UTC) for expiry checks. Tests may
- *   pass an explicit date to verify boundary behaviour.
- *
- * PAYMENT INTEGRITY (AGENTS.md §12):
- *   `recordManualPayment` records a cash/offline payment by a treasurer.
- *   It explicitly sets provider='manual' and records `recordedById`.
- *   This is NOT a real online payment and is clearly labelled as such.
- *   Future: replace with server-side webhook from Stripe/Razorpay.
- *
- * AGENTS.md §2: single-purpose functions ≤ 40 lines.
- * AGENTS.md §8: query fields are allowlisted — never spread user input directly.
- */
 import { ObjectId, type Collection } from 'mongodb';
 
 import {
@@ -35,7 +10,6 @@ import {
 } from '../../db/schemas/membership.schema.js';
 import { AppError } from '../../middleware/error-handler.js';
 
-/** Public projection: fields safe to return to any client. */
 const SAFE_MEMBERSHIP_PROJECTION = {
   userId: 1,
   tierId: 1,
@@ -69,13 +43,6 @@ export type SafeMembershipTier = Pick<
   'name' | 'description' | 'durationDays' | 'priceCents' | 'isActive' | 'clubId'
 > & { _id: ObjectId };
 
-/**
- * Validates and parses a hex ObjectId string. Throws 400 on invalid input.
- *
- * @param id   Hex string to validate.
- * @param name  Field name for the error message.
- * @returns Parsed `ObjectId`.
- */
 function parseObjectId(id: string, name: string): ObjectId {
   if (!ObjectId.isValid(id)) {
     throw new AppError(`Invalid ${name}: must be a 24-character hex string.`, 400);
@@ -83,13 +50,6 @@ function parseObjectId(id: string, name: string): ObjectId {
   return new ObjectId(id);
 }
 
-/**
- * Lists all active membership tiers for a club.
- *
- * @param tiers   MongoDB `membershipTiers` collection.
- * @param clubId  Allowlisted club identifier (hex string).
- * @returns Array of safe tier documents.
- */
 export async function listActiveTiers(
   tiers: Collection,
   clubId: string,
@@ -100,14 +60,6 @@ export async function listActiveTiers(
     .toArray();
 }
 
-/**
- * Creates a new membership tier (officer/admin only).
- *
- * @param tiers       MongoDB `membershipTiers` collection.
- * @param clubId      Club identifier.
- * @param body        Validated tier fields.
- * @returns The created tier document.
- */
 export async function createTier(
   tiers: Collection,
   clubId: string,
@@ -138,14 +90,6 @@ export async function createTier(
   return inserted;
 }
 
-/**
- * Returns the current membership for a user (most recent, any status).
- * Members can only view their own; officers/admins can view any.
- *
- * @param memberships  MongoDB `memberships` collection.
- * @param userId       The user whose membership to retrieve.
- * @returns Safe membership, or null if none exists.
- */
 export async function getMembership(
   memberships: Collection,
   userId: string,
@@ -160,13 +104,6 @@ export async function getMembership(
   );
 }
 
-/**
- * Returns all memberships for a user (full history).
- *
- * @param memberships  MongoDB `memberships` collection.
- * @param userId       User identifier.
- * @returns Chronologically ordered membership history.
- */
 export async function getMembershipHistory(
   memberships: Collection,
   userId: string,
@@ -180,14 +117,6 @@ export async function getMembershipHistory(
     .toArray();
 }
 
-/**
- * Lists all memberships for the club (organizer view).
- *
- * @param memberships  MongoDB `memberships` collection.
- * @param clubId       Club identifier.
- * @param filter       Optional status filter.
- * @returns Array of safe membership documents.
- */
 export async function listMemberships(
   memberships: Collection,
   clubId: string,
@@ -215,17 +144,6 @@ interface CreateMembershipBody {
   endDate: Date;
 }
 
-/**
- * Creates a new membership in `pending_payment` status.
- * Only officer/admin/treasurer may call this.
- *
- * @param memberships  MongoDB `memberships` collection.
- * @param tiers        MongoDB `membershipTiers` collection.
- * @param body         Validated membership fields.
- * @returns The created membership (safe projection).
- * @throws {AppError} 404 if the tier is not found.
- * @throws {AppError} 409 if an active membership already exists for the user.
- */
 export async function createMembership(
   memberships: Collection,
   tiers: Collection,
@@ -281,23 +199,7 @@ interface RecordPaymentBody {
   recordedById: string;
 }
 
-/**
- * Records a manual (cash/offline) payment and transitions the membership to `active`.
- *
- * ⚠️  This is NOT a real online payment.
- *     It records that a treasurer manually accepted cash/bank transfer.
- *     A real online payment requires a verified server-side webhook (AGENTS.md §12).
- *
- * Only treasurer/admin may call this endpoint.
- *
- * @param memberships   MongoDB `memberships` collection.
- * @param payments      MongoDB `payments` collection.
- * @param body          Allowlisted payment fields.
- * @returns The updated membership (safe projection).
- * @throws {AppError} 404 if membership not found.
- * @throws {AppError} 409 if already active.
- * @throws {AppError} 400 if amount is non-positive.
- */
+// This records treasurer-confirmed offline payment; online payment requires server verification.
 export async function recordManualPayment(
   memberships: Collection,
   payments: Collection,
@@ -360,12 +262,4 @@ export async function recordManualPayment(
   return updated;
 }
 
-/**
- * Checks whether a membership is currently active (UTC server time).
- * Re-exports the schema guard so callers get the same semantics.
- *
- * @param membership  Membership to check.
- * @param asOf        Reference date (defaults to `new Date()` UTC now).
- * @returns `true` if status is `active` and endDate > asOf.
- */
 export { isMembershipActive };

@@ -101,7 +101,6 @@ function ExpenseTable({ expenses }: { expenses: Expense[] }) {
   );
 }
 
-/** Organizer expense submission screen with a history of their own records. */
 export function ExpenseSubmissionPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [amount, setAmount] = useState('');
@@ -240,7 +239,6 @@ export function ExpenseSubmissionPage() {
   );
 }
 
-/** Treasurer-only queue for reviewing and reimbursing expenses. */
 export function ExpenseReviewPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [filter, setFilter] = useState<ExpenseStatus | 'all'>('pending');
@@ -467,7 +465,6 @@ function CurrencyReport({ summary }: { summary: TreasurerCurrencySummary }) {
   );
 }
 
-/** Treasurer-only financial report computed from payments and approved expenses. */
 export function TreasurerReportPage() {
   const [summaries, setSummaries] = useState<TreasurerCurrencySummary[]>([]);
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);

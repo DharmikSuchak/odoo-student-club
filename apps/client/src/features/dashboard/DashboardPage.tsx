@@ -13,7 +13,6 @@ const EMPTY_SUMMARY: DashboardSummary = {
   pendingDues: 0,
 };
 
-/** Displays live club counts from membership, event, and volunteer-task records. */
 export function DashboardPage() {
   const { user } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary>(EMPTY_SUMMARY);

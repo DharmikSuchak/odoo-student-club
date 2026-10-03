@@ -51,7 +51,6 @@ async function addAuthorName(
   };
 }
 
-/** Creates and immediately publishes an announcement for the current club. */
 export async function createAnnouncement(
   announcements: Collection,
   users: Collection,
@@ -73,7 +72,6 @@ export async function createAnnouncement(
   return addAuthorName(users, created);
 }
 
-/** Lists club announcements with pinned posts first and newest posts next. */
 export async function listAnnouncements(
   announcements: Collection,
   users: Collection,
@@ -88,7 +86,6 @@ export async function listAnnouncements(
   return Promise.all(documents.map((announcement) => addAuthorName(users, announcement)));
 }
 
-/** Returns one club announcement or throws when it does not exist. */
 export async function getAnnouncement(
   announcements: Collection,
   users: Collection,
@@ -103,7 +100,6 @@ export async function getAnnouncement(
   return addAuthorName(users, announcement);
 }
 
-/** Updates an announcement only when the authenticated organizer is its author. */
 export async function updateAnnouncement(
   announcements: Collection,
   users: Collection,

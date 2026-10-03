@@ -8,10 +8,6 @@ interface DialogProps {
   className?: string;
 }
 
-/** Renders a modal with native focus containment; busy dialogs stay open during writes.
- * @param props Dialog content, accessible title, dismissal handler and optional busy state.
- * @returns A modal dialog that restores focus to its trigger on close.
- */
 export function Dialog({ children, titleId, onClose, busy = false, className = '' }: DialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {

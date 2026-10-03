@@ -1,13 +1,3 @@
-/**
- * Login page — /login
- *
- * Visual language: design-system.md §11 (Auth Screen).
- * - Outfit 36px extrabold title (text-auth-title)
- * - White card with 24px border radius (radius-auth)
- * - Subtle purple gradient background accent
- * - Brand Sky inputs with focus ring
- * - Accessible focus states on all interactive elements
- */
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useState, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';

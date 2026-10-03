@@ -7,17 +7,9 @@ import { getRedis } from './client.js';
 interface RateLimiterOptions {
   maxRequests: number;
   windowSeconds: number;
-  /** Redis key prefix — e.g. `rl:login` or `rl:register`. */
   keyPrefix: string;
 }
 
-/**
- * Creates an Express middleware that enforces a sliding-window rate limit
- * using Redis INCR + EXPIRE.
- *
- * @param options  Rate limiter configuration.
- * @returns Express middleware that returns 429 when the limit is exceeded.
- */
 export function createRateLimiter(options: RateLimiterOptions) {
   const { maxRequests, windowSeconds, keyPrefix } = options;
 

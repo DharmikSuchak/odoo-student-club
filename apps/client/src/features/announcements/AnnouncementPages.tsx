@@ -83,7 +83,6 @@ function AnnouncementCard({
   );
 }
 
-/** Lists club announcements and marks posts newer than the prior visit as unread. */
 export function AnnouncementListPage() {
   const { user } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -151,7 +150,6 @@ export function AnnouncementListPage() {
   );
 }
 
-/** Shows a single announcement with author, timestamp, pin state, and owner edit action. */
 export function AnnouncementDetailPage() {
   const { announcementId } = useParams();
   const { user } = useAuth();
@@ -222,7 +220,6 @@ export function AnnouncementDetailPage() {
   );
 }
 
-/** Organizer composer for publishing a new announcement or editing an owned post. */
 export function AnnouncementComposerPage() {
   const { announcementId } = useParams();
   const navigate = useNavigate();

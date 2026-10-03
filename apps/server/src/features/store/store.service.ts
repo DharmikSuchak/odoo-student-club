@@ -54,7 +54,6 @@ function normalizeVariants(variants: MerchandiseVariant[]): MerchandiseVariant[]
   return normalized;
 }
 
-/** Lists club products alphabetically for the member catalog. */
 export async function listProducts(database: Db, clubId: string): Promise<StoredMerchandiseItem[]> {
   return database
     .collection('merchandiseItems')
@@ -65,7 +64,6 @@ export async function listProducts(database: Db, clubId: string): Promise<Stored
     .toArray();
 }
 
-/** Loads one club product or throws a user-safe not-found error. */
 export async function getProduct(
   database: Db,
   clubId: string,
@@ -79,7 +77,6 @@ export async function getProduct(
   return product;
 }
 
-/** Creates an organizer-owned product with explicit per-size stock. */
 export async function createProduct(
   database: Db,
   input: ProductInput,
@@ -98,7 +95,6 @@ export async function createProduct(
   return { ...document, _id: result.insertedId };
 }
 
-/** Replaces editable product and stock fields after organizer authorization. */
 export async function updateProduct(
   database: Db,
   clubId: string,
@@ -114,19 +110,18 @@ export async function updateProduct(
       variants: normalizeVariants(input.variants),
       updatedAt: new Date(),
     });
-  const updated = await database.collection('merchandiseItems').findOneAndUpdate(
-    { _id: existing._id, clubId: existing.clubId },
-    { $set: fields },
-    { returnDocument: 'after' },
-  );
+  const updated = await database
+    .collection('merchandiseItems')
+    .findOneAndUpdate(
+      { _id: existing._id, clubId: existing.clubId },
+      { $set: fields },
+      { returnDocument: 'after' },
+    );
   if (updated === null) throw new AppError('Product changed before it could be saved.', 409);
   return updated as StoredMerchandiseItem;
 }
 
-/**
- * Atomically reserves one size unit and creates a pending-payment order.
- * The conditional decrement makes simultaneous requests for the last unit mutually exclusive.
- */
+// The stock predicate and decrement are atomic; the order insert shares this transaction.
 export async function placeOrder(database: Db, input: PlaceOrderInput): Promise<StoredOrder> {
   const clubId = parseObjectId(input.clubId, 'clubId').toHexString();
   const itemId = parseObjectId(input.itemId, 'itemId');
@@ -136,11 +131,13 @@ export async function placeOrder(database: Db, input: PlaceOrderInput): Promise<
   try {
     return await session.withTransaction(async () => {
       const now = new Date();
-      const product = await database.collection('merchandiseItems').findOneAndUpdate(
-        { _id: itemId, clubId, variants: { $elemMatch: { size, stockQuantity: { $gt: 0 } } } },
-        { $inc: { 'variants.$.stockQuantity': -1 }, $set: { updatedAt: now } },
-        { returnDocument: 'after', session },
-      );
+      const product = await database
+        .collection('merchandiseItems')
+        .findOneAndUpdate(
+          { _id: itemId, clubId, variants: { $elemMatch: { size, stockQuantity: { $gt: 0 } } } },
+          { $inc: { 'variants.$.stockQuantity': -1 }, $set: { updatedAt: now } },
+          { returnDocument: 'after', session },
+        );
       if (product === null) {
         const existing = await database
           .collection('merchandiseItems')
@@ -175,7 +172,6 @@ export async function placeOrder(database: Db, input: PlaceOrderInput): Promise<
   }
 }
 
-/** Lists the current member's order history newest first. */
 export async function listOrders(
   database: Db,
   clubId: string,

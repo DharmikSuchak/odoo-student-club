@@ -1,9 +1,3 @@
-/**
- * Idempotent migration script to create all required MongoDB collections and indexes.
- *
- * Rule (AGENTS.md §8): Index every field used in a filter or sort.
- * Indexes are created here, not ad-hoc in the application startup.
- */
 import { connectDb, getDb, closeDb } from './connection.js';
 
 async function migrate() {
@@ -26,7 +20,7 @@ async function migrate() {
   await memberships.createIndex({ userId: 1, status: 1 });
   await memberships.createIndex({ tierId: 1 });
   await memberships.createIndex({ clubId: 1 });
-  await memberships.createIndex({ endDate: 1 }); // for expiry queries
+  await memberships.createIndex({ endDate: 1 });
   await memberships.createIndex({ clubId: 1, status: 1, endDate: 1 });
 
   const events = db.collection('events');

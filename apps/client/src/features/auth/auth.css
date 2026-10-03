@@ -1,8 +1,3 @@
-/* ============================================================
-   Auth page styles — design-system.md §11
-   Token reference: index.css :root
-   ============================================================ */
-
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -13,7 +8,6 @@
   padding: 24px 16px;
 }
 
-/* Subtle purple/indigo gradient for sign-in screen (design-system §11) */
 .auth-bg-gradient {
   position: fixed;
   inset: 0;
@@ -176,7 +170,6 @@
   box-shadow: var(--focus-danger);
 }
 
-/* Password field needs right padding for the toggle button */
 .form-input--password {
   padding-right: 46px;
 }
