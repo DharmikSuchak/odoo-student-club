@@ -1,6 +1,10 @@
 <div align="center">
-  <h1>🎓 Student Club Platform</h1>
+  <h1>Student Club Platform</h1>
   <p><em>The ultimate, self-hosted platform to manage student organizations, built for the Odoo Hackathon.</em></p>
+
+  **[Video of project (summary in 7min)](https://youtube.com/watch?v=nUCQ-F1Mpec&feature=youtu.be)**
+
+  <br />
 
   [![React](https://img.shields.io/badge/React-18-blue.svg?style=for-the-badge&logo=react)](https://reactjs.org/)
   [![Node.js](https://img.shields.io/badge/Node.js-20-green.svg?style=for-the-badge&logo=nodedotjs)](https://nodejs.org/)
@@ -11,43 +15,81 @@
 
 ---
 
-## 🚀 Overview
+## Overview
 
 Student clubs need a lightweight, self-hosted platform to manage memberships, collect dues, run events with limited tickets, communicate with members, sell merchandise, coordinate volunteers, and report on finances — all in one place, without paying for a commercial solution. 
 
 This platform solves this by providing a unified, beautifully designed hub. It operates entirely independently and does **not** run inside Odoo.
 
-## ✨ Key Features
+## Comprehensive Feature Set
 
-- **🛡️ Comprehensive Access Control:** Distinct, secure experiences for Members, Volunteers (Officers), Treasurers, and Admins.
-- **💳 Memberships & Dues:** Tier management, payment recording, and automated status badges.
-- **📅 Events & Ticketing:** Create and publish events, manage capacities, and handle atomic reservations for tickets.
-- **📣 Announcements:** Pin important updates and notify members with unread hints.
-- **🛒 Merchandise Store:** Browse the club catalog, manage size variants, and place atomic orders.
-- **🤝 Volunteer Task Board:** A live, Kanban-style board for coordinating club projects and tasks.
-- **📊 Treasurer & Financial Reports:** Complete ledger for submitting, reviewing, and reimbursing expenses.
-- **💬 Support System:** Built-in ticketing system for members to communicate with administrators.
+### 1. Advanced Role-Based Access Control (RBAC)
+A highly secure, deeply integrated permissions system that curates the entire UI and API experience based on four distinct roles:
+- **Member:** Can browse events, purchase merchandise, view announcements, submit expenses, and open support tickets.
+- **Officer (Volunteer):** Gains access to the Volunteer Task Board to manage club projects and tasks, alongside standard member features.
+- **Treasurer:** Specialized access to financial tools, including the comprehensive Treasurer Report, Expense Review, and Merchandise Product management.
+- **Admin:** Full administrative oversight. The only role with access to Manage Memberships, oversee the entire user base, and reply directly to Support Tickets.
 
-## 🛠️ Tech Stack
+### 2. Membership & Dues Management
+- Automated tracking of membership status (Active, Pending Payment, Lapsed).
+- Integrated dashboard indicating payment status.
+- Admin portal to review, manage, and override membership states.
+
+### 3. Events & Ticketing System
+- **Event Creation:** Organizers can create detailed events with locations, descriptions, and dynamic dates.
+- **Tiered Pricing:** Distinct ticket pricing for members vs. non-members.
+- **Atomic Capacity Management:** Strict database-level transactions ensure that tickets can never be over-booked, even under high traffic.
+- **Check-in System:** Built-in tools for officers to check in attendees on the day of the event.
+
+### 4. Merchandise Store & Inventory
+- **Variant Management:** Products support multiple size variants (e.g., S, M, L, XL), each with independent stock tracking.
+- **Atomic Stock Deductions:** Race-condition-free ordering system ensures inventory is accurately updated.
+- **Club Catalog:** Beautiful storefront for members to browse and purchase official club gear.
+
+### 5. Treasurer & Financial Ledgers
+- **Expense Submission:** Any member can submit receipts and expense claims.
+- **Multi-step Approval Flow:** Expenses are first reviewed by an Admin, then formally reimbursed by a Treasurer.
+- **Automated Ledger:** A real-time Treasurer Report dynamically calculates net revenue from dues, merchandise, and event tickets, minus reimbursed expenses.
+
+### 6. Volunteer Task Board
+- **Kanban-Style Organization:** Visual board grouping tasks into To-Do, In Progress, and Completed.
+- **Self-Assignment:** Volunteers can claim tasks and track their contributions to the club.
+
+### 7. Announcements & Communication
+- Global bulletin board for club updates.
+- Support for pinned posts and unread indicators to ensure critical information is never missed.
+
+### 8. Integrated Help Desk (Support Tickets)
+- Dedicated portal for members to submit queries, feedback, or issues.
+- Admin-exclusive dashboard to track, manage, and reply to all open tickets in a centralized thread.
+
+## Future Scope
+
+While the platform is robust and feature-rich, the following enhancements are planned for future iterations:
+- **Personalized Email Notifications:** Automated, personalized email dispatches to members for critical announcements and events.
+- **Enhanced Support & AI Chatbot:** An upgraded ticketing system featuring AI-driven chatbot support for instant query resolution and a dynamic FAQ section for onboarding new members.
+- **Real-Time In-App Chat:** A live websocket-based chat interface allowing real-time communication between all roles (Members, Officers, Treasurers, and Admins) directly within the web app.
+
+## Tech Stack & Architecture
 
 | Layer                | Technology                                               |
 | -------------------- | -------------------------------------------------------- |
 | **Frontend**         | React 18 + TypeScript (Vite)                             |
-| **Styling**          | Modern, Token-based Vanilla CSS (Glassmorphism & Gradients) |
+| **Styling**          | Modern, Token-based Vanilla CSS                            |
 | **API**              | Node.js + Express + TypeScript                           |
 | **Database**         | MongoDB (Replica Set for strict atomic transactions)     |
 | **Cache/Ephemeral**  | Redis (Rate limiting & sessions)                         |
 | **Infrastructure**   | Docker & Docker Compose                                  |
 
-> **Design Philosophy:** The platform embraces rich aesthetics—featuring curated color palettes, modern typography, glassmorphism, and micro-animations to deliver a premium, state-of-the-art user experience.
+> **Design Philosophy:** The platform embraces rich aesthetics—featuring curated HSL color palettes, modern typography, glassmorphism, and micro-animations to deliver a premium, state-of-the-art user experience. 
 
 ---
 
-## 🚦 Quick Start (Local Development)
+## Quick Start (Local Development)
 
 ### Prerequisites
 - [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-- Node.js ≥ 20 (for local package management)
+- Node.js >= 20 (for local package management)
 
 ### Setup Instructions
 
@@ -79,26 +121,17 @@ This platform solves this by providing a unified, beautifully designed hub. It o
 
 ---
 
-## 🏗️ Repository Architecture
+## Repository Architecture
 
 ```text
 odoo-student-club/
-├── AGENTS.md                  ← Coding-agent rules
 ├── apps/
-│   ├── client/                ← React + TypeScript frontend (Vite)
-│   └── server/                ← Node + Express backend API
-├── docker-compose.yml         ← Container orchestration
-├── docs/                      ← Architecture and Data Model documentation
-└── package.json               ← NPM Workspaces root
+│   ├── client/                <- React + TypeScript frontend (Vite)
+│   └── server/                <- Node + Express backend API
+├── docker-compose.yml         <- Container orchestration
+├── docs/                      <- Architecture and Data Model documentation
+└── package.json               <- NPM Workspaces root
 ```
 
-## 📝 Agent Instructions & Guidelines
-
-Every developer or AI agent contributing to this repository **must** read [`AGENTS.md`](./AGENTS.md) before making changes. It enforces strict rules on:
-- Naming conventions & formatting
-- TypeScript strict mode
-- Error handling & Secrets management
-- MongoDB query safety and atomic transactions
-
-## 👤 Author
+## Author
 Created by **Dharmik Suchak** for the Odoo Hackathon.
