@@ -9,11 +9,14 @@ import { env } from '../../config/env.js';
 import { getDashboardSummary } from './dashboard.service.js';
 
 interface FakeRecord {
-  clubId: string;
+  _id?: unknown;
+  clubId?: string;
   status?: string;
   endDate?: Date;
   startsAt?: Date;
   isPublished?: boolean;
+  tierId?: unknown;
+  name?: string;
 }
 
 function matches(record: FakeRecord, filter: Record<string, unknown>): boolean {
@@ -33,6 +36,12 @@ function fakeCollection(records: FakeRecord[]): Collection {
   return {
     countDocuments: (filter: Record<string, unknown>) =>
       Promise.resolve(records.filter((record) => matches(record, filter)).length),
+    find: (filter: Record<string, unknown>) => ({
+      toArray: () => Promise.resolve(records.filter((record) => matches(record, filter))),
+      project: () => ({
+        toArray: () => Promise.resolve(records.filter((record) => matches(record, filter)))
+      })
+    })
   } as unknown as Collection;
 }
 
@@ -61,10 +70,11 @@ describe('dashboard summary', () => {
       { clubId: env.CLUB_ID, status: 'in_progress' },
       { clubId: env.CLUB_ID, status: 'done' },
     ]);
+    const membershipTiers = fakeCollection([]);
 
     await expect(
-      getDashboardSummary(memberships, events, tasks, env.CLUB_ID, asOf),
-    ).resolves.toEqual({ activeMembers: 1, upcomingEvents: 1, openTasks: 2, pendingDues: 1 });
+      getDashboardSummary(memberships, events, tasks, membershipTiers, env.CLUB_ID, asOf),
+    ).resolves.toEqual({ activeMembers: 1, upcomingEvents: 1, openTasks: 2, pendingDues: 1, tierBreakdown: [] });
   });
 
   it('requires authentication at the HTTP boundary', async () => {

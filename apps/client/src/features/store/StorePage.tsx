@@ -1,6 +1,6 @@
-import { AlertCircle, Package, ShoppingBag } from 'lucide-react';
+import { AlertCircle, Package, ShoppingBag, Edit2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import type { ApiError, MerchandiseProduct } from '../../lib/api-client';
 import { apiListProducts } from '../../lib/api-client';
@@ -37,14 +37,17 @@ function StoreSkeleton() {
   );
 }
 
-function ProductCard({ product }: { product: MerchandiseProduct }) {
+function ProductCard({ product, isOrganizer }: { product: MerchandiseProduct; isOrganizer: boolean }) {
+  const navigate = useNavigate();
   const totalStock = product.variants.reduce((sum, v) => sum + v.stockQuantity, 0);
   const hasStock = totalStock > 0;
 
   return (
-    <Link
-      to={`/merchandise/${product._id}`}
+    <button
+      type="button"
       className="store-product-card"
+      onClick={() => navigate(`/merchandise/${product._id}`)}
+      style={{ cursor: 'pointer', position: 'relative', textAlign: 'left', width: '100%', background: 'none', border: 'none', padding: 0 }}
       aria-label={`View ${product.name}`}
     >
       <div className="store-product-card-header">
@@ -55,9 +58,24 @@ function ProductCard({ product }: { product: MerchandiseProduct }) {
             <ShoppingBag size={20} />
           )}
         </div>
-        <span className="store-product-price">
-          {formatMoney(product.priceCents, product.currency)}
-        </span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+          <span className="store-product-price">
+            {formatMoney(product.priceCents, product.currency)}
+          </span>
+          {isOrganizer && (
+            <button 
+              className="store-btn-ghost" 
+              style={{ padding: '4px 8px', fontSize: '0.8rem', minHeight: 'unset', display: 'flex', alignItems: 'center', gap: '4px', zIndex: 2 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/merchandise/manage');
+              }}
+              title="Edit in Manage Products"
+            >
+              <Edit2 size={12} /> Edit
+            </button>
+          )}
+        </div>
       </div>
 
       <span className="store-product-name">{product.name}</span>
@@ -88,7 +106,7 @@ function ProductCard({ product }: { product: MerchandiseProduct }) {
           All sizes sold out
         </span>
       )}
-    </Link>
+    </button>
   );
 }
 
@@ -134,9 +152,11 @@ export function StorePage() {
           <p className="store-subtitle">Browse and order official club merchandise.</p>
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <Link to="/merchandise/orders" className="store-btn-ghost">
-            My Orders
-          </Link>
+          {user?.role !== 'admin' && (
+            <Link to="/merchandise/orders" className="store-btn-ghost">
+              My Orders
+            </Link>
+          )}
           {isOrganizer && (
             <Link to="/merchandise/manage" className="store-btn-ghost">
               Manage Products
@@ -187,7 +207,7 @@ export function StorePage() {
       {!isLoading && error === null && products.length > 0 && (
         <div className="store-product-grid">
           {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard key={product._id} product={product} isOrganizer={isOrganizer} />
           ))}
         </div>
       )}

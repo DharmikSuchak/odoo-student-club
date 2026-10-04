@@ -1,10 +1,22 @@
-import { AlertCircle, Users } from 'lucide-react';
+import { AlertCircle, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Dialog } from '../../components/Dialog';
 import type { ApiError, AuthUser } from '../../lib/api-client';
 import { apiGetUsers, apiCreateUser } from '../../lib/api-client';
 import { useAuth } from '../auth/AuthContext';
+import '../memberships/membership.css';
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 export function MembersPage() {
   const { user: currentUser } = useAuth();
@@ -12,6 +24,8 @@ export function MembersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const [roleFilter, setRoleFilter] = useState('all');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -30,7 +44,7 @@ export function MembersPage() {
 
     async function load() {
       try {
-        const response = await apiGetUsers();
+        const response = await apiGetUsers(roleFilter);
         if (!cancelled) {
           setUsers(response.users);
         }
@@ -48,13 +62,13 @@ export function MembersPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [roleFilter]);
 
 
 
   const filteredUsers = users.filter((u) => 
-    u.displayName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    u.email.toLowerCase().includes(searchQuery.toLowerCase())
+    u.displayName.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || 
+    u.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
   );
 
   async function handleCreateUser(e: React.FormEvent) {
@@ -92,16 +106,27 @@ export function MembersPage() {
 
       {isDialogOpen && (
         <Dialog titleId="create-user-title" onClose={() => setIsDialogOpen(false)}>
-          <div style={{ padding: '1.5rem', width: '400px', maxWidth: '100%' }}>
-            <h2 id="create-user-title" style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 600 }}>Create New User</h2>
-            <form onSubmit={(e) => void handleCreateUser(e)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="ms-modal">
+            <div className="ms-modal-header">
+              <h2 id="create-user-title" className="ms-modal-title">Create New User</h2>
+              <button
+                type="button"
+                className="ms-modal-close"
+                onClick={() => setIsDialogOpen(false)}
+                disabled={isCreating}
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <form className="ms-form" onSubmit={(e) => void handleCreateUser(e)} style={{ padding: '1.5rem' }}>
               {createError && (
-                <div className="ms-error" style={{ marginBottom: '1rem' }}>
+                <div className="ms-alert ms-alert--error" role="alert" style={{ marginBottom: '1rem' }}>
                   <AlertCircle size={20} />
-                  <p>{createError}</p>
+                  <span>{createError}</span>
                 </div>
               )}
-              <div className="ms-form-group">
+              <div className="ms-field">
                 <label className="ms-label" htmlFor="displayName">Name</label>
                 <input
                   id="displayName"
@@ -112,7 +137,7 @@ export function MembersPage() {
                   onChange={(e) => setCreateForm({ ...createForm, displayName: e.target.value })}
                 />
               </div>
-              <div className="ms-form-group">
+              <div className="ms-field">
                 <label className="ms-label" htmlFor="email">Email</label>
                 <input
                   id="email"
@@ -123,7 +148,7 @@ export function MembersPage() {
                   onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
                 />
               </div>
-              <div className="ms-form-group">
+              <div className="ms-field">
                 <label className="ms-label" htmlFor="password">Password</label>
                 <input
                   id="password"
@@ -134,22 +159,20 @@ export function MembersPage() {
                   onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
                 />
               </div>
-              <div className="ms-form-group">
+              <div className="ms-field">
                 <label className="ms-label" htmlFor="role">Role</label>
                 <select
                   id="role"
-                  className="ms-input"
+                  className="ms-select"
                   value={createForm.role}
-                  onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as any })}
+                  onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as 'member' | 'officer' | 'treasurer' | 'admin' })}
                 >
-                  <option value="member">Member</option>
-                  <option value="officer">Officer (Volunteer)</option>
+                  <option value="officer">Volunteer</option>
                   <option value="treasurer">Treasurer</option>
-                  <option value="admin">Admin</option>
                 </select>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-                <button type="button" className="ms-btn" onClick={() => setIsDialogOpen(false)} disabled={isCreating}>
+              <div className="ms-modal-footer">
+                <button type="button" className="ms-btn ms-btn--ghost" onClick={() => setIsDialogOpen(false)} disabled={isCreating}>
                   Cancel
                 </button>
                 <button type="submit" className="ms-btn ms-btn--primary" disabled={isCreating}>
@@ -172,15 +195,30 @@ export function MembersPage() {
 
       {!isLoading && error === null && (
         <>
-          <div style={{ marginBottom: '1rem', display: 'flex' }}>
+          <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
               <input 
                 type="text" 
                 placeholder="Search by name or email..." 
                 className="ms-input"
+                style={{ width: '100%' }}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+            </div>
+            <div style={{ position: 'relative', width: '200px' }}>
+              <select 
+                className="ms-input" 
+                style={{ width: '100%', cursor: 'pointer' }}
+                value={roleFilter} 
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                <option value="all">All Roles</option>
+                <option value="member">Member</option>
+                <option value="officer">Volunteer</option>
+                <option value="treasurer">Treasurer</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
           </div>
           
@@ -211,7 +249,7 @@ export function MembersPage() {
                       <td>{user.email}</td>
                       <td>
                         <span className={`sidebar-user-role sidebar-user-role--${user.role}`}>
-                          {user.role}
+                          {user.role === 'officer' ? 'Volunteer' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                         </span>
                       </td>
                       <td>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
 interface DialogProps {
   children: ReactNode;
@@ -9,40 +9,46 @@ interface DialogProps {
 }
 
 export function Dialog({ children, titleId, onClose, busy = false, className = '' }: DialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    const dialog = dialogRef.current;
     const previousOverflow = document.body.style.overflow;
     const previousFocus = document.activeElement;
-    dialog?.showModal();
     document.body.style.overflow = 'hidden';
-    return () => {
-      dialog?.close();
-      document.body.style.overflow = previousOverflow;
-      // React may remove the dialog before native close restores its trigger.
-      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
-    };
-  }, []);
-  return (
-    // Native dialog handles keyboard dismissal through onCancel; clicks here dismiss only its backdrop.
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-    <dialog
-      ref={dialogRef}
-      className={`ui-dialog ${className}`}
-      aria-labelledby={titleId}
-      aria-busy={busy}
-      onCancel={(event) => {
-        event.preventDefault();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
         if (!busy) onClose();
-      }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget && !busy) onClose();
-      }}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') event.stopPropagation();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus();
+      }
+    };
+  }, [busy, onClose]);
+
+  return (
+    <div
+      className="ui-dialog-backdrop"
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
-      {children}
-    </dialog>
+      <div
+        className={`ui-dialog-content ${className}`}
+        role="dialog"
+        aria-labelledby={titleId}
+        aria-modal="true"
+        aria-busy={busy}
+      >
+        {children}
+      </div>
+    </div>
   );
 }

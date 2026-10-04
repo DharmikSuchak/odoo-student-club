@@ -13,7 +13,9 @@
     "test": "vitest run --reporter=verbose",
     "test:watch": "vitest",
     "seed:admin": "tsx src/scripts/seed-admin.ts",
-    "seed:memberships": "tsx src/scripts/seed-memberships.ts"
+    "seed:memberships": "tsx src/scripts/seed-memberships.ts",
+    "seed:tasks": "tsx src/scripts/seed-tasks.ts",
+    "cleanup:users": "tsx src/scripts/cleanup-users.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

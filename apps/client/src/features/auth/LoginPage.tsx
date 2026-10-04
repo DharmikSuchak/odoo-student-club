@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ApiRequestError } from '../../lib/api-client';
 
 import { useAuth } from './AuthContext';
+import { AuthInfoPanel } from './AuthInfoPanel';
 import './auth.css';
 
 export function LoginPage() {
@@ -45,8 +46,9 @@ export function LoginPage() {
       <div className="auth-bg-gradient" aria-hidden="true" />
 
       <main className="auth-container">
-        <div className="auth-card">
-          <div className="auth-brand">
+        <div className="auth-card-wrapper">
+          <div className="auth-card">
+            <div className="auth-brand">
             <div className="auth-logo" aria-hidden="true">
               <span>SC</span>
             </div>
@@ -149,6 +151,8 @@ export function LoginPage() {
             </Link>
           </p>
         </div>
+        </div>
+        <AuthInfoPanel />
       </main>
     </div>
   );

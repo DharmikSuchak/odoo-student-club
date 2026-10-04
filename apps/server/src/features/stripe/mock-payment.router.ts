@@ -6,7 +6,7 @@ import { getDb } from '../../db/connection.js';
 import { requireAuth } from '../../middleware/auth.js';
 import { AppError } from '../../middleware/error-handler.js';
 import type { MembershipTierDocument, MembershipDocument } from '../../db/schemas/membership.schema.js';
-import type { StoreOrderDocument } from '../../db/schemas/store.schema.js';
+import type { OrderDocument } from '../../db/schemas/merchandise.schema.js';
 
 export const mockPaymentRouter = Router();
 
@@ -47,7 +47,7 @@ mockPaymentRouter.post(
           return;
         }
 
-        await db.collection<MembershipDocument>('memberships').insertOne({
+        const insertResult = await db.collection<MembershipDocument>('memberships').insertOne({
           userId: authUser.userId,
           tierId: tierId,
           clubId: env.CLUB_ID,
@@ -58,6 +58,20 @@ mockPaymentRouter.post(
           amountPaidCents: tier.priceCents,
           createdAt: new Date(),
           updatedAt: new Date(),
+        });
+
+        await db.collection('payments').insertOne({
+          provider: 'mock',
+          providerEventId: null,
+          providerPaymentIntentId: null,
+          amountCents: tier.priceCents,
+          currency: 'INR',
+          status: 'succeeded',
+          relatedEntity: { type: 'membership', id: insertResult.insertedId.toHexString() },
+          paidBy: authUser.userId,
+          recordedBy: authUser.userId,
+          occurredAt: new Date(),
+          createdAt: new Date(),
         });
 
         res.status(200).json({ status: 'ok' });
@@ -84,7 +98,7 @@ mockPaymentRouter.post(
         const authUser = req.user!;
         const db = getDb();
 
-        const order = await db.collection<StoreOrderDocument>('storeOrders').findOne({ _id: new ObjectId(orderId), userId: authUser.userId });
+        const order = await db.collection<OrderDocument>('orders').findOne({ _id: new ObjectId(orderId), userId: authUser.userId });
         if (!order) {
           next(new AppError('Order not found', 404));
           return;
@@ -95,7 +109,7 @@ mockPaymentRouter.post(
           return;
         }
 
-        await db.collection<StoreOrderDocument>('storeOrders').updateOne(
+        await db.collection<OrderDocument>('orders').updateOne(
           { _id: new ObjectId(orderId) },
           { 
             $set: { 
@@ -104,6 +118,20 @@ mockPaymentRouter.post(
             } 
           }
         );
+
+        await db.collection('payments').insertOne({
+          provider: 'mock',
+          providerEventId: null,
+          providerPaymentIntentId: null,
+          amountCents: order.totalCents,
+          currency: 'INR',
+          status: 'succeeded',
+          relatedEntity: { type: 'order', id: orderId },
+          paidBy: authUser.userId,
+          recordedBy: authUser.userId,
+          occurredAt: new Date(),
+          createdAt: new Date(),
+        });
 
         res.status(200).json({ status: 'ok' });
       } catch (err) {

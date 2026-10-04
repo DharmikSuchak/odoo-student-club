@@ -163,8 +163,9 @@ export interface UsersListResponse {
   users: AuthUser[];
 }
 
-export async function apiGetUsers(): Promise<UsersListResponse> {
-  return apiFetch<UsersListResponse>('/api/users');
+export async function apiGetUsers(role?: string): Promise<UsersListResponse> {
+  const query = role && role !== 'all' ? `?role=${encodeURIComponent(role)}` : '';
+  return apiFetch<UsersListResponse>(`/api/users${query}`);
 }
 
 export async function apiCreateUser(
@@ -367,11 +368,17 @@ export async function apiGetTreasurerReport(): Promise<TreasurerReportResponse> 
   return apiFetch<TreasurerReportResponse>('/api/expenses/report');
 }
 
+export interface TierBreakdown {
+  tierName: string;
+  count: number;
+}
+
 export interface DashboardSummary {
   activeMembers: number;
   upcomingEvents: number;
   openTasks: number;
   pendingDues: number;
+  tierBreakdown: TierBreakdown[];
 }
 
 interface DashboardSummaryResponse {

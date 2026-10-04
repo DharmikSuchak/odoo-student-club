@@ -21,18 +21,19 @@ import {
   ExpenseSubmissionPage,
   TreasurerReportPage,
 } from './features/expenses/ExpensePages';
+import { LandingPage } from './features/landing/LandingPage';
+import { CheckoutPage } from './features/memberships/CheckoutPage';
 import { ManageMembershipsPage } from './features/memberships/ManageMembershipsPage';
 import { MyMembershipPage } from './features/memberships/MyMembershipPage';
-import { MembersPage } from './features/users/MembersPage';
-import { CheckoutPage } from './features/memberships/CheckoutPage';
 import { StoreManagePage } from './features/store/StoreManagePage';
 import { StoreOrdersPage } from './features/store/StoreOrdersPage';
 import { StorePage } from './features/store/StorePage';
 import { StoreProductDetailPage } from './features/store/StoreProductDetailPage';
-import { MyTicketsPage } from './features/support/MyTicketsPage';
 import { ManageTicketsPage } from './features/support/ManageTicketsPage';
-import { ProfilePage } from './features/users/ProfilePage';
+import { MyTicketsPage } from './features/support/MyTicketsPage';
 import { TaskBoardPage } from './features/tasks/TaskBoardPage';
+import { MembersPage } from './features/users/MembersPage';
+import { ProfilePage } from './features/users/ProfilePage';
 
 export default function App() {
   return (
@@ -316,7 +317,7 @@ export default function App() {
             }
           />
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<LandingPage />} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

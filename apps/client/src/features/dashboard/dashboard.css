@@ -169,3 +169,67 @@
 .dashboard-action:active {
   background: var(--brand-700);
 }
+
+.dashboard-content-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-content-layout {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.dashboard-content-section {
+  background: var(--surface);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.announcement-mini-card {
+  padding: 16px;
+  background-color: var(--slate-50);
+  border-radius: 8px;
+  border: 1px solid var(--slate-200);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.announcement-mini-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.quick-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: 8px;
+  color: var(--slate-700);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 200ms ease;
+}
+
+.quick-action-btn:hover {
+  background-color: var(--brand-50);
+  border-color: var(--brand-300);
+  color: var(--brand-700);
+}
+
+.quick-action-btn svg {
+  color: var(--brand-500);
+}

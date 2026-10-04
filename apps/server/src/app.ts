@@ -11,7 +11,7 @@ import { eventRouter } from './features/events/event.router.js';
 import { expenseRouter } from './features/expenses/expense.router.js';
 import { membershipRouter } from './features/memberships/membership.router.js';
 import { storeRouter } from './features/store/store.router.js';
-import { mockPaymentRouter } from './features/stripe/mock-payment.router.js';
+// import { mockPaymentRouter } from './features/stripe/mock-payment.router.js';
 import { supportRouter } from './features/support/support.router.js';
 import { stripeRouter, stripeWebhookRouter } from './features/stripe/stripe.router.js';
 import { taskRouter } from './features/tasks/task.router.js';
@@ -65,7 +65,7 @@ export function createApp(env: Env) {
   app.use('/api/events', eventRouter);
   app.use('/api/expenses', expenseRouter);
   app.use('/api/memberships', membershipRouter);
-  app.use('/api/payments', mockPaymentRouter);
+  // app.use('/api/payments', mockPaymentRouter);
   app.use('/api/stripe', stripeRouter);
   app.use('/api/store', storeRouter);
   app.use('/api/tasks', taskRouter);

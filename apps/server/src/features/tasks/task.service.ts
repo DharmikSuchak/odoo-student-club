@@ -150,7 +150,10 @@ export async function listTasks(
 
 export async function listAssignableMembers(users: Collection): Promise<AssignableMember[]> {
   const records = await users
-    .find<UserRecord>({}, { projection: { displayName: 1, role: 1, deletedAt: 1 } })
+    .find<UserRecord>(
+      { role: { $in: ['member', 'officer'] } },
+      { projection: { displayName: 1, role: 1, deletedAt: 1 } }
+    )
     .toArray();
   return records
     .filter((user) => user.deletedAt === undefined)

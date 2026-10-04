@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ApiRequestError } from '../../lib/api-client';
 
 import { useAuth } from './AuthContext';
+import { AuthInfoPanel } from './AuthInfoPanel';
 import './auth.css';
 
 export function RegisterPage() {
@@ -46,8 +47,9 @@ export function RegisterPage() {
   return (
     <div className="auth-page">
       <main className="auth-container">
-        <div className="auth-card">
-          <div className="auth-brand">
+        <div className="auth-card-wrapper">
+          <div className="auth-card">
+            <div className="auth-brand">
             <div className="auth-logo" aria-hidden="true">
               <span>SC</span>
             </div>
@@ -180,6 +182,8 @@ export function RegisterPage() {
             </Link>
           </p>
         </div>
+        </div>
+        <AuthInfoPanel />
       </main>
     </div>
   );

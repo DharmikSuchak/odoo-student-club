@@ -2,7 +2,6 @@ import { AlertCircle, FolderOpen, Info, Plus, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Dialog } from '../../components/Dialog';
-import type { ApiError, Membership, MembershipTier } from '../../lib/api-client';
 import {
   apiCreateMembership,
   apiCreateTier,
@@ -12,7 +11,7 @@ import {
   apiGetUsers,
   apiSendRenewalReminders,
 } from '../../lib/api-client';
-import type { AuthUser } from '../../lib/api-client';
+import type { ApiError, Membership, MembershipTier , AuthUser } from '../../lib/api-client';
 import { useAuth } from '../auth/AuthContext';
 
 import { MembershipStatusBadge } from './MembershipStatusBadge';

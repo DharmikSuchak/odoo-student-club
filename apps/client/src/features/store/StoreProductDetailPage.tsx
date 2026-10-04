@@ -1,9 +1,10 @@
-import { AlertCircle, ArrowLeft, ShoppingBag, CreditCard, Smartphone, ExternalLink } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ShoppingBag, CreditCard, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import type { ApiError, MerchandiseProduct, MerchandiseVariant } from '../../lib/api-client';
-import { apiGetProduct, apiPlaceOrder, apiSimulateStorePayment, apiCheckoutStoreOrder } from '../../lib/api-client';
+import { apiGetProduct, apiPlaceOrder, apiCheckoutStoreOrder } from '../../lib/api-client';
+import { useAuth } from '../auth/AuthContext';
 
 import './store.css';
 
@@ -68,6 +69,7 @@ function ProductSkeleton() {
 }
 
 export function StoreProductDetailPage() {
+  const { user } = useAuth();
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<MerchandiseProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,20 +107,7 @@ export function StoreProductDetailPage() {
     };
   }, [productId]);
 
-  async function handleMockPayment() {
-    if (productId === undefined || selectedSize === null) return;
-    setIsOrdering(true);
-    setOrderError(null);
-    try {
-      const res = await apiPlaceOrder(productId, selectedSize);
-      await apiSimulateStorePayment(res.order._id);
-      window.location.href = `/merchandise/orders?success=true`;
-    } catch (err) {
-      const apiErr = err as ApiError;
-      setOrderError(apiErr.message ?? 'Failed to process payment. Please try again.');
-      setIsOrdering(false);
-    }
-  }
+
 
   async function handleStripePayment() {
     if (productId === undefined || selectedSize === null) return;
@@ -234,10 +223,10 @@ export function StoreProductDetailPage() {
                 marginBottom: '16px',
               }}
             >
-              Order summary
+              {user?.role === 'admin' ? 'Administration' : 'Order summary'}
             </h2>
 
-              {selectedSize === null && (
+              {user?.role !== 'admin' && selectedSize === null && (
                 <p
                   style={{ color: 'var(--slate-500)', fontSize: '0.875rem', marginBottom: '16px' }}
                 >
@@ -245,7 +234,7 @@ export function StoreProductDetailPage() {
                 </p>
               )}
 
-              {selectedSize !== null && (
+              {user?.role !== 'admin' && selectedSize !== null && (
                 <div
                   className="store-detail-card"
                   style={{ marginBottom: '16px', padding: '12px 16px' }}
@@ -308,45 +297,40 @@ export function StoreProductDetailPage() {
                 </div>
               )}
 
-              {orderError !== null && (
+              {user?.role !== 'admin' && orderError !== null && (
                 <div className="store-notice store-notice--danger" role="alert">
                   <AlertCircle size={18} aria-hidden="true" />
                   <span>{orderError}</span>
                 </div>
               )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-                <button 
-                  className="store-btn-primary" 
-                  style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem', background: '#5f259f' }}
-                  onClick={() => void handleMockPayment()}
-                  disabled={!canOrder}
-                >
-                  {isOrdering ? 'Processing...' : (
-                    <>
-                      <Smartphone size={20} />
-                      Pay with PhonePe / GPay (Mock)
-                    </>
-                  )}
-                </button>
-
-                <div style={{ textAlign: 'center', color: 'var(--slate-500)', margin: '0.5rem 0', fontSize: '0.875rem' }}>or</div>
-
-                <button 
-                  className="store-btn-primary" 
-                  style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem', background: '#635BFF' }}
-                  onClick={() => void handleStripePayment()}
-                  disabled={!canOrder}
-                >
-                  {isOrdering ? 'Processing...' : (
-                    <>
-                      <CreditCard size={20} />
-                      Pay with Stripe Checkout
-                      <ExternalLink size={16} style={{ marginLeft: '0.25rem' }} />
-                    </>
-                  )}
-                </button>
-              </div>
+              {user?.role !== 'admin' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                  <button 
+                    className="store-btn-primary" 
+                    style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem', background: '#635BFF' }}
+                    onClick={() => void handleStripePayment()}
+                    disabled={!canOrder}
+                  >
+                    {isOrdering ? 'Processing...' : (
+                      <>
+                        <CreditCard size={20} />
+                        Pay with Stripe Checkout
+                        <ExternalLink size={16} style={{ marginLeft: '0.25rem' }} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                  <button 
+                    className="store-btn-primary" 
+                    style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem', background: 'var(--slate-800)' }}
+                  >
+                    Edit Details
+                  </button>
+                </div>
+              )}
             </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ import { requireAuth } from '../../middleware/auth.js';
 import { AppError } from '../../middleware/error-handler.js';
 import type { MembershipTierDocument, MembershipDocument } from '../../db/schemas/membership.schema.js';
 import type { EventTicketDocument, EventDocument } from '../../db/schemas/event.schema.js';
-import type { StoreOrderDocument } from '../../db/schemas/store.schema.js';
+import type { OrderDocument } from '../../db/schemas/merchandise.schema.js';
 
 export const stripeRouter = Router();
 export const stripeWebhookRouter = Router();
@@ -170,7 +170,7 @@ stripeRouter.post(
         const authUser = req.user!;
         const db = getDb();
 
-        const order = await db.collection<StoreOrderDocument>('storeOrders').findOne({ _id: new ObjectId(orderId), userId: authUser.userId });
+        const order = await db.collection<OrderDocument>('orders').findOne({ _id: new ObjectId(orderId), userId: authUser.userId });
         if (!order) {
           next(new AppError('Order not found', 404));
           return;
@@ -276,7 +276,7 @@ stripeWebhookRouter.post(
           );
         } else if (session.metadata?.['storeOrderId']) {
           const db = getDb();
-          await db.collection<StoreOrderDocument>('storeOrders').updateOne(
+          await db.collection<OrderDocument>('orders').updateOne(
             { _id: new ObjectId(session.metadata['storeOrderId']) },
             { 
               $set: { 

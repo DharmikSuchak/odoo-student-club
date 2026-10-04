@@ -20,6 +20,7 @@ dashboardRouter.get(
           database.collection('memberships'),
           database.collection('events'),
           database.collection('tasks'),
+          database.collection('membership_tiers'),
           env.CLUB_ID,
         );
         response.status(200).json({ status: 'ok', summary });

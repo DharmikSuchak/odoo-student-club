@@ -66,7 +66,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: <CreditCard size={18} />,
     minRole: 'treasurer',
   },
-  { label: 'Help & Support', to: '/support', icon: <HelpCircle size={18} /> },
+  { label: 'Help & Support', to: '/support', icon: <HelpCircle size={18} />, hideForRoles: ['admin'] },
   {
     label: 'Support Tickets',
     to: '/manage/support',

@@ -72,8 +72,13 @@ userRouter.get('/', requireAuth, (req: Request, res: Response, next: NextFunctio
         return;
       }
 
+      const query: any = { deletedAt: { $exists: false } };
+      if (typeof req.query['role'] === 'string' && req.query['role'] !== 'all') {
+        query['role'] = req.query['role'];
+      }
+
       const usersCursor = usersCollection.find(
-        { deletedAt: { $exists: false } },
+        query,
         {
           projection: {
             passwordHash: 0,

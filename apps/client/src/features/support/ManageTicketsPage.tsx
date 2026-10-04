@@ -38,7 +38,7 @@ export function ManageTicketsPage() {
     try {
       const res = await apiUpdateSupportTicketStatus(ticketId, newStatus);
       setTickets(tickets.map(t => t._id === ticketId ? res.ticket : t));
-    } catch (err) {
+    } catch {
       alert('Failed to update ticket status');
     } finally {
       setUpdatingId(null);
@@ -67,7 +67,7 @@ export function ManageTicketsPage() {
         <div className="ms-empty">
           <HelpCircle size={48} />
           <h2 className="ms-empty-title">No support tickets</h2>
-          <p className="ms-empty-desc">Members haven't raised any issues yet.</p>
+          <p className="ms-empty-desc">Members haven&apos;t raised any issues yet.</p>
         </div>
       )}
 
@@ -88,7 +88,7 @@ export function ManageTicketsPage() {
                     style={{ padding: '0.25rem 0.5rem', height: 'auto', minHeight: '32px' }}
                     value={ticket.status}
                     disabled={updatingId === ticket._id}
-                    onChange={(e) => void handleStatusChange(ticket._id, e.target.value as any)}
+                    onChange={(e) => void handleStatusChange(ticket._id, e.target.value as 'open' | 'in_progress' | 'resolved')}
                   >
                     <option value="open">Open</option>
                     <option value="in_progress">In Progress</option>
