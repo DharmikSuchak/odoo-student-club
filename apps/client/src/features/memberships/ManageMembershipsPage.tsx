@@ -865,8 +865,6 @@ export function ManageMembershipsPage() {
                 <th scope="col">Status</th>
                 <th scope="col">Start</th>
                 <th scope="col">End</th>
-                <th scope="col">Paid</th>
-                {canRecordPayment && <th scope="col">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -886,28 +884,6 @@ export function ManageMembershipsPage() {
                     </td>
                     <td>{formatDate(m.startDate)}</td>
                     <td>{formatDate(m.endDate)}</td>
-                    <td>
-                      {m.amountPaidCents !== undefined ? (
-                        formatMoney(m.amountPaidCents)
-                      ) : (
-                        <span className="ms-muted">Unpaid</span>
-                      )}
-                    </td>
-                    {canRecordPayment && (
-                      <td>
-                        {m.status === 'pending_payment' && (
-                          <button
-                            type="button"
-                            className="ms-btn ms-btn--ghost"
-
-                            onClick={() => setPaymentTarget(m)}
-                            id={`btn-record-payment-${m._id}`}
-                          >
-                            Record payment
-                          </button>
-                        )}
-                      </td>
-                    )}
                   </tr>
                 );
               })}

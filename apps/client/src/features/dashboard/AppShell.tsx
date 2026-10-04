@@ -29,31 +29,36 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={18} /> },
-  { label: 'My Membership', to: '/membership', icon: <CreditCard size={18} />, hideForRoles: ['admin'] },
+  { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={18} />, hideForRoles: ['officer', 'treasurer'] },
+  { label: 'My Membership', to: '/membership', icon: <CreditCard size={18} />, hideForRoles: ['admin', 'officer', 'treasurer'] },
   {
     label: 'Members',
     to: '/members',
     icon: <Users size={18} />,
-    minRole: 'officer',
+    minRole: 'admin',
   },
   {
     label: 'Manage Memberships',
     to: '/manage/memberships',
     icon: <Receipt size={18} />,
-    minRole: 'officer',
+    minRole: 'admin',
   },
-  { label: 'Events', to: '/events', icon: <Calendar size={18} /> },
-  { label: 'Announcements', to: '/announcements', icon: <Megaphone size={18} /> },
-  { label: 'Merchandise', to: '/merchandise', icon: <ShoppingBag size={18} /> },
+  { label: 'Events', to: '/events', icon: <Calendar size={18} />, hideForRoles: ['officer'] },
+  { label: 'Announcements', to: '/announcements', icon: <Megaphone size={18} />, hideForRoles: ['officer'] },
+  { label: 'Merchandise', to: '/merchandise', icon: <ShoppingBag size={18} />, hideForRoles: ['officer'] },
   {
     label: 'Manage Products',
     to: '/merchandise/manage',
     icon: <ShoppingBag size={18} />,
-    minRole: 'officer' as const,
+    minRole: 'treasurer',
   },
-  { label: 'Volunteer Tasks', to: '/tasks', icon: <ClipboardList size={18} /> },
-  { label: 'Submit Expense', to: '/expenses', icon: <Receipt size={18} />, minRole: 'officer' },
+  { 
+    label: 'Volunteer Tasks', 
+    to: '/tasks', 
+    icon: <ClipboardList size={18} />,
+    hideForRoles: ['member', 'treasurer', 'admin']
+  },
+  { label: 'Submit Expense', to: '/expenses', icon: <Receipt size={18} />, minRole: 'treasurer' },
   {
     label: 'Expense Review',
     to: '/treasurer/expenses',
@@ -66,12 +71,17 @@ const NAV_ITEMS: NavItem[] = [
     icon: <CreditCard size={18} />,
     minRole: 'treasurer',
   },
-  { label: 'Help & Support', to: '/support', icon: <HelpCircle size={18} />, hideForRoles: ['admin'] },
+  { 
+    label: 'Help & Support', 
+    to: '/support', 
+    icon: <HelpCircle size={18} />, 
+    hideForRoles: ['admin', 'treasurer']
+  },
   {
     label: 'Support Tickets',
     to: '/manage/support',
     icon: <HelpCircle size={18} />,
-    minRole: 'officer',
+    minRole: 'admin'
   },
 ];
 const ROLE_ORDER = ['member', 'officer', 'treasurer', 'admin'] as const;

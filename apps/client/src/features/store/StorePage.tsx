@@ -47,65 +47,63 @@ function ProductCard({ product, isOrganizer }: { product: MerchandiseProduct; is
       type="button"
       className="store-product-card"
       onClick={() => navigate(`/merchandise/${product._id}`)}
-      style={{ cursor: 'pointer', position: 'relative', textAlign: 'left', width: '100%', background: 'none', border: 'none', padding: 0 }}
       aria-label={`View ${product.name}`}
     >
-      <div className="store-product-card-header">
-        <div className="store-product-icon" aria-hidden="true">
-          {product.imageUrl ? (
-            <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
-          ) : (
-            <ShoppingBag size={20} />
-          )}
+      <div className="store-product-image-container">
+        {product.imageUrl ? (
+          <img src={product.imageUrl} alt={product.name} className="store-product-image" />
+        ) : (
+          <div className="store-product-placeholder">
+            <ShoppingBag size={48} strokeWidth={1.5} />
+          </div>
+        )}
+        <div className="store-product-price-badge">
+          {formatMoney(product.priceCents, product.currency)}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-          <span className="store-product-price">
-            {formatMoney(product.priceCents, product.currency)}
-          </span>
-          {isOrganizer && (
-            <button 
-              className="store-btn-ghost" 
-              style={{ padding: '4px 8px', fontSize: '0.8rem', minHeight: 'unset', display: 'flex', alignItems: 'center', gap: '4px', zIndex: 2 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate('/merchandise/manage');
-              }}
-              title="Edit in Manage Products"
-            >
-              <Edit2 size={12} /> Edit
-            </button>
-          )}
-        </div>
-      </div>
-
-      <span className="store-product-name">{product.name}</span>
-
-      <div className="store-variant-pills" aria-label="Available sizes">
-        {product.variants.map((variant) => (
-          <span
-            key={variant.size}
-            className={`store-variant-pill${variant.stockQuantity === 0 ? ' store-variant-pill--out' : ''}`}
-            title={
-              variant.stockQuantity === 0
-                ? 'Out of stock'
-                : `${variant.stockQuantity.toString()} left`
-            }
+        {isOrganizer && (
+          <div 
+            className="store-product-edit-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/merchandise/manage');
+            }}
+            title="Edit in Manage Products"
           >
-            {variant.size}
-            {variant.stockQuantity === 0 && <AlertCircle size={10} aria-label="Out of stock" />}
-          </span>
-        ))}
+            <Edit2 size={14} />
+          </div>
+        )}
       </div>
 
-      {!hasStock && (
-        <span
-          className="store-badge store-badge--cancelled"
-          role="status"
-          aria-label="All sizes out of stock"
-        >
-          All sizes sold out
-        </span>
-      )}
+      <div className="store-product-content">
+        <h3 className="store-product-name">{product.name}</h3>
+
+        <div className="store-variant-pills" aria-label="Available sizes">
+          {product.variants.map((variant) => (
+            <span
+              key={variant.size}
+              className={`store-variant-pill${variant.stockQuantity === 0 ? ' store-variant-pill--out' : ''}`}
+              title={
+                variant.stockQuantity === 0
+                  ? 'Out of stock'
+                  : `${variant.stockQuantity.toString()} left`
+              }
+            >
+              {variant.size}
+              {variant.stockQuantity === 0 && <AlertCircle size={10} aria-label="Out of stock" />}
+            </span>
+          ))}
+        </div>
+
+        {!hasStock && (
+          <span
+            className="store-badge store-badge--cancelled"
+            role="status"
+            aria-label="All sizes out of stock"
+          >
+            All sizes sold out
+          </span>
+        )}
+      </div>
     </button>
   );
 }

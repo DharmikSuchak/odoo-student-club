@@ -211,7 +211,7 @@
   padding: 0 14px 0 40px;
   background: var(--surface);
   border: 1px solid var(--slate-200);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-pill);
   font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
@@ -288,7 +288,7 @@
   background: var(--brand-600);
   color: var(--surface);
   border: none;
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-pill);
   font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 600;

@@ -3,10 +3,10 @@ import { ObjectId } from 'mongodb';
 
 import { env } from '../../config/env.js';
 import { getDb } from '../../db/connection.js';
-import { requireAuth } from '../../middleware/auth.js';
-import { AppError } from '../../middleware/error-handler.js';
 import type { MembershipTierDocument, MembershipDocument } from '../../db/schemas/membership.schema.js';
 import type { OrderDocument } from '../../db/schemas/merchandise.schema.js';
+import { requireAuth } from '../../middleware/auth.js';
+import { AppError } from '../../middleware/error-handler.js';
 
 export const mockPaymentRouter = Router();
 
@@ -16,7 +16,7 @@ mockPaymentRouter.post(
   (req: Request, res: Response, next: NextFunction) => {
     void (async () => {
       try {
-        const { tierId } = req.body;
+        const { tierId } = req.body as { tierId?: string };
         if (!tierId) {
           next(new AppError('tierId is required', 400));
           return;
@@ -88,7 +88,7 @@ mockPaymentRouter.post(
   (req: Request, res: Response, next: NextFunction) => {
     void (async () => {
       try {
-        const { orderId } = req.body;
+        const { orderId } = req.body as { orderId?: string };
         if (!orderId) {
           next(new AppError('orderId is required', 400));
           return;

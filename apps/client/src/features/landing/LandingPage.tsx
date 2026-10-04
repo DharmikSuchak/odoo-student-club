@@ -31,11 +31,7 @@ export function LandingPage() {
           <p className="landing-subtitle">
             Memberships, events, dues, announcements, and volunteer work, together in one platform built for student organizations.
           </p>
-          <div className="landing-cta-wrapper">
-            <Link to="/register" className="ms-btn ms-btn--primary ms-btn--lg">
-              Sign Up Now
-            </Link>
-          </div>
+
         </section>
 
         <section className="landing-features">

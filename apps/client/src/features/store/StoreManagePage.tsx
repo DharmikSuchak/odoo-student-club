@@ -476,14 +476,7 @@ export function StoreManagePage() {
               </div>
             ))}
 
-          <button
-            type="button"
-            className="store-btn-ghost"
-            onClick={() => setReloadKey((k) => k + 1)}
-            style={{ marginTop: '12px', width: '100%' }}
-          >
-            Refresh list
-          </button>
+
         </div>
       </div>
     </div>

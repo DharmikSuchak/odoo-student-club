@@ -50,12 +50,13 @@ function MembershipCard({
       </div>
 
       {!isActive && membership.status === 'pending_payment' && (
-        <div className="ms-notice ms-notice--warning" role="status">
-          <AlertCircle size={18} aria-hidden="true" />
-          <span>
-            Your membership is awaiting payment confirmation. Please contact your club organizer or
-            treasurer to record your dues payment.
-          </span>
+        <div className="ms-notice ms-notice--warning" role="status" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+            <AlertCircle size={18} aria-hidden="true" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <span>
+              Your membership is awaiting payment. Please complete your purchase to activate your membership.
+            </span>
+          </div>
         </div>
       )}
 
@@ -95,13 +96,14 @@ function MembershipCard({
         )}
       </div>
 
-      {membership.status === 'pending_payment' && (
-        <div className="ms-notice ms-notice--info" role="note">
-          <Info size={18} aria-hidden="true" />
-          <span>
-            <strong>Note:</strong> Dues are recorded manually by a treasurer after receiving cash or
-            bank transfer. Online payment is not yet available.
-          </span>
+      {membership.status === 'pending_payment' && tier !== undefined && (
+        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+          <button 
+            className="ms-btn ms-btn--primary"
+            onClick={() => window.location.href = `/checkout/${tier._id}`}
+          >
+            Pay Now online
+          </button>
         </div>
       )}
     </div>

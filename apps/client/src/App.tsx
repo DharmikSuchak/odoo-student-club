@@ -167,7 +167,7 @@ export default function App() {
           <Route
             path="/members"
             element={
-              <ProtectedRoute requiredRole="officer">
+              <ProtectedRoute requiredRole="admin">
                 <AppShell>
                   <MembersPage />
                 </AppShell>
@@ -188,7 +188,7 @@ export default function App() {
           <Route
             path="/manage/memberships"
             element={
-              <ProtectedRoute requiredRole="officer">
+              <ProtectedRoute requiredRole="admin">
                 <AppShell>
                   <ManageMembershipsPage />
                 </AppShell>
@@ -199,7 +199,7 @@ export default function App() {
           <Route
             path="/tasks"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['officer']}>
                 <AppShell>
                   <TaskBoardPage />
                 </AppShell>
@@ -287,7 +287,7 @@ export default function App() {
           <Route
             path="/support"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['member', 'officer', 'treasurer']}>
                 <AppShell>
                   <MyTicketsPage />
                 </AppShell>
@@ -298,7 +298,7 @@ export default function App() {
           <Route
             path="/manage/support"
             element={
-              <ProtectedRoute requiredRole="officer">
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AppShell>
                   <ManageTicketsPage />
                 </AppShell>

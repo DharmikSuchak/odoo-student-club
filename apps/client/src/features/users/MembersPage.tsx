@@ -18,6 +18,119 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+function CreateUserModal({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: (user: AuthUser) => void;
+}) {
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createForm, setCreateForm] = useState({
+    displayName: '',
+    email: '',
+    password: '',
+    role: 'officer' as 'member' | 'officer' | 'treasurer' | 'admin',
+  });
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    setIsCreating(true);
+    setCreateError(null);
+    try {
+      const res = await apiCreateUser(createForm.email, createForm.password, createForm.displayName, createForm.role);
+      onCreated(res.user);
+      onClose();
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setCreateError(apiErr.message ?? 'Failed to create user.');
+    } finally {
+      setIsCreating(false);
+    }
+  }
+
+  return (
+    <Dialog titleId="create-user-title" onClose={onClose}>
+      <div className="ms-modal">
+        <div className="ms-modal-header">
+          <h2 id="create-user-title" className="ms-modal-title">Create New User</h2>
+          <button
+            type="button"
+            className="ms-modal-close"
+            onClick={onClose}
+            disabled={isCreating}
+            aria-label="Close modal"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <form className="ms-form" onSubmit={(e) => void handleCreateUser(e)} style={{ padding: '1.5rem' }}>
+          {createError && (
+            <div className="ms-alert ms-alert--error" role="alert" style={{ marginBottom: '1rem' }}>
+              <AlertCircle size={20} />
+              <span>{createError}</span>
+            </div>
+          )}
+          <div className="ms-field">
+            <label className="ms-label" htmlFor="displayName">Name</label>
+            <input
+              id="displayName"
+              type="text"
+              required
+              className="ms-input"
+              value={createForm.displayName}
+              onChange={(e) => setCreateForm({ ...createForm, displayName: e.target.value })}
+            />
+          </div>
+          <div className="ms-field">
+            <label className="ms-label" htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              required
+              className="ms-input"
+              value={createForm.email}
+              onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+            />
+          </div>
+          <div className="ms-field">
+            <label className="ms-label" htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              required
+              className="ms-input"
+              value={createForm.password}
+              onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+            />
+          </div>
+          <div className="ms-field">
+            <label className="ms-label" htmlFor="role">Role</label>
+            <select
+              id="role"
+              className="ms-select"
+              value={createForm.role}
+              onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as 'member' | 'officer' | 'treasurer' | 'admin' })}
+            >
+              <option value="officer">Volunteer</option>
+              <option value="treasurer">Treasurer</option>
+            </select>
+          </div>
+          <div className="ms-modal-footer">
+            <button type="button" className="ms-btn ms-btn--ghost" onClick={onClose} disabled={isCreating}>
+              Cancel
+            </button>
+            <button type="submit" className="ms-btn ms-btn--primary" disabled={isCreating}>
+              {isCreating ? 'Creating...' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </Dialog>
+  );
+}
+
 export function MembersPage() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -28,14 +141,6 @@ export function MembersPage() {
   const [roleFilter, setRoleFilter] = useState('all');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [createForm, setCreateForm] = useState({
-    displayName: '',
-    email: '',
-    password: '',
-    role: 'officer' as 'member' | 'officer' | 'treasurer' | 'admin',
-  });
 
   useEffect(() => {
     let cancelled = false;
@@ -64,29 +169,10 @@ export function MembersPage() {
     };
   }, [roleFilter]);
 
-
-
   const filteredUsers = users.filter((u) => 
     u.displayName.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || 
     u.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
   );
-
-  async function handleCreateUser(e: React.FormEvent) {
-    e.preventDefault();
-    setIsCreating(true);
-    setCreateError(null);
-    try {
-      const res = await apiCreateUser(createForm.email, createForm.password, createForm.displayName, createForm.role);
-      setUsers([...users, res.user]);
-      setIsDialogOpen(false);
-      setCreateForm({ displayName: '', email: '', password: '', role: 'officer' });
-    } catch (err) {
-      const apiErr = err as ApiError;
-      setCreateError(apiErr.message ?? 'Failed to create user.');
-    } finally {
-      setIsCreating(false);
-    }
-  }
 
   return (
     <div className="memberships-page">
@@ -105,83 +191,10 @@ export function MembersPage() {
       </div>
 
       {isDialogOpen && (
-        <Dialog titleId="create-user-title" onClose={() => setIsDialogOpen(false)}>
-          <div className="ms-modal">
-            <div className="ms-modal-header">
-              <h2 id="create-user-title" className="ms-modal-title">Create New User</h2>
-              <button
-                type="button"
-                className="ms-modal-close"
-                onClick={() => setIsDialogOpen(false)}
-                disabled={isCreating}
-                aria-label="Close modal"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <form className="ms-form" onSubmit={(e) => void handleCreateUser(e)} style={{ padding: '1.5rem' }}>
-              {createError && (
-                <div className="ms-alert ms-alert--error" role="alert" style={{ marginBottom: '1rem' }}>
-                  <AlertCircle size={20} />
-                  <span>{createError}</span>
-                </div>
-              )}
-              <div className="ms-field">
-                <label className="ms-label" htmlFor="displayName">Name</label>
-                <input
-                  id="displayName"
-                  type="text"
-                  required
-                  className="ms-input"
-                  value={createForm.displayName}
-                  onChange={(e) => setCreateForm({ ...createForm, displayName: e.target.value })}
-                />
-              </div>
-              <div className="ms-field">
-                <label className="ms-label" htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  className="ms-input"
-                  value={createForm.email}
-                  onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-                />
-              </div>
-              <div className="ms-field">
-                <label className="ms-label" htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  className="ms-input"
-                  value={createForm.password}
-                  onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                />
-              </div>
-              <div className="ms-field">
-                <label className="ms-label" htmlFor="role">Role</label>
-                <select
-                  id="role"
-                  className="ms-select"
-                  value={createForm.role}
-                  onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as 'member' | 'officer' | 'treasurer' | 'admin' })}
-                >
-                  <option value="officer">Volunteer</option>
-                  <option value="treasurer">Treasurer</option>
-                </select>
-              </div>
-              <div className="ms-modal-footer">
-                <button type="button" className="ms-btn ms-btn--ghost" onClick={() => setIsDialogOpen(false)} disabled={isCreating}>
-                  Cancel
-                </button>
-                <button type="submit" className="ms-btn ms-btn--primary" disabled={isCreating}>
-                  {isCreating ? 'Creating...' : 'Create'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </Dialog>
+        <CreateUserModal
+          onClose={() => setIsDialogOpen(false)}
+          onCreated={(newUser) => setUsers([...users, newUser])}
+        />
       )}
 
       {isLoading && <p>Loading members...</p>}

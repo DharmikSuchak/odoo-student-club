@@ -54,8 +54,8 @@ export async function getDashboardSummary(
 
   const tierCounts = new Map<string, number>();
   for (const m of activeMemberships) {
-    if (m.tierId) {
-      const tierId = typeof m.tierId === 'string' ? m.tierId : (m.tierId as ObjectId).toHexString();
+    if (m['tierId']) {
+      const tierId = typeof m['tierId'] === 'string' ? m['tierId'] : (m['tierId'] as ObjectId).toHexString();
       tierCounts.set(tierId, (tierCounts.get(tierId) || 0) + 1);
     }
   }
@@ -68,7 +68,7 @@ export async function getDashboardSummary(
       .project({ _id: 1, name: 1 })
       .toArray();
 
-    const tierMap = new Map(tiers.map((t) => [(t._id as ObjectId).toHexString(), t.name as string]));
+    const tierMap = new Map(tiers.map((t) => [(t['_id'] as ObjectId).toHexString(), t['name'] as string]));
 
     for (const [tierId, count] of tierCounts.entries()) {
       tierBreakdown.push({

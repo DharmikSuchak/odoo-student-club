@@ -114,8 +114,10 @@ storeRouter.post(
       const parsed = productBodySchema.safeParse(request.body);
       if (!parsed.success) return sendValidationError(response, parsed.error);
       try {
+        const { imageUrl, ...restData } = parsed.data;
+        const payload = imageUrl !== undefined ? { ...restData, imageUrl } : restData;
         const product = await createProduct(getDb(), {
-          ...parsed.data,
+          ...payload,
           clubId: getClubId(),
           createdBy: requireUser(request).userId,
         });
@@ -137,7 +139,9 @@ storeRouter.patch(
       const parsed = productBodySchema.safeParse(request.body);
       if (!parsed.success) return sendValidationError(response, parsed.error);
       try {
-        const product = await updateProduct(getDb(), getClubId(), getItemId(request), parsed.data);
+        const { imageUrl, ...restData } = parsed.data;
+        const payload = imageUrl !== undefined ? { ...restData, imageUrl } : restData;
+        const product = await updateProduct(getDb(), getClubId(), getItemId(request), payload);
         response.status(200).json({ status: 'ok', product });
       } catch (error) {
         next(error);

@@ -3,10 +3,10 @@ import { ObjectId } from 'mongodb';
 
 import { env } from '../../config/env.js';
 import { getDb } from '../../db/connection.js';
-import { requireAuth } from '../../middleware/auth.js';
-import { AppError } from '../../middleware/error-handler.js';
 import type { SupportTicketDocument } from '../../db/schemas/support.schema.js';
 import { supportTicketSchema } from '../../db/schemas/support.schema.js';
+import { requireAuth } from '../../middleware/auth.js';
+import { AppError } from '../../middleware/error-handler.js';
 
 export const supportRouter = Router();
 
@@ -15,7 +15,7 @@ supportRouter.post('/', requireAuth, (req: Request, res: Response, next: NextFun
     try {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const user = req.user!;
-      const { subject, description } = req.body;
+      const { subject, description } = req.body as { subject?: string; description?: string };
 
       if (!subject || !description) {
         next(new AppError('Subject and description are required', 400));
@@ -103,15 +103,15 @@ supportRouter.patch('/:ticketId/status', requireAuth, (req: Request, res: Respon
         return;
       }
 
-      const { status } = req.body;
-      if (!['open', 'in_progress', 'resolved'].includes(status)) {
+      const { status } = req.body as { status?: string };
+      if (!status || !['open', 'in_progress', 'resolved'].includes(status)) {
         next(new AppError('Invalid status', 400));
         return;
       }
 
       const db = getDb();
       const updateData: Partial<SupportTicketDocument> = {
-        status,
+        status: status as 'open' | 'in_progress' | 'resolved',
         updatedAt: new Date(),
       };
 
@@ -120,7 +120,7 @@ supportRouter.patch('/:ticketId/status', requireAuth, (req: Request, res: Respon
       }
 
       const result = await db.collection<SupportTicketDocument>('supportTickets').findOneAndUpdate(
-        { _id: new ObjectId(req.params.ticketId), clubId: env.CLUB_ID },
+        { _id: new ObjectId(req.params['ticketId']), clubId: env.CLUB_ID },
         { $set: updateData },
         { returnDocument: 'after' }
       );

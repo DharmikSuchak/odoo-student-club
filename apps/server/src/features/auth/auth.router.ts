@@ -13,13 +13,13 @@ import { findSafeUserById, registerUser, validateCredentials } from './auth.serv
 export const authRouter = Router();
 
 const registerRateLimiter = createRateLimiter({
-  maxRequests: 10,
+  maxRequests: 5,
   windowSeconds: 60,
   keyPrefix: 'rl:register',
 });
 
 const loginRateLimiter = createRateLimiter({
-  maxRequests: 10,
+  maxRequests: 5,
   windowSeconds: 60,
   keyPrefix: 'rl:login',
 });

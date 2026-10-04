@@ -28,64 +28,122 @@
 .store-product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--grid-gap);
+  gap: 32px;
 }
 
 .store-product-card {
   background: var(--surface);
   border: 1px solid var(--slate-200);
-  border-radius: var(--radius-card);
-  padding: var(--card-padding);
-  box-shadow: var(--shadow-card);
-  transition:
-    box-shadow 200ms ease,
-    transform 200ms ease;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  gap: 12px;
   cursor: pointer;
   text-decoration: none;
   color: inherit;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
 }
 
 .store-product-card:hover {
-  box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(8, 135, 201, 0.1), 0 10px 10px -5px rgba(8, 135, 201, 0.04);
+  transform: translateY(-4px);
+  border-color: rgba(8, 135, 201, 0.3);
 }
 
-.store-product-card-header {
+.store-product-image-container {
+  width: 100%;
+  height: 180px;
+  position: relative;
+  background: linear-gradient(135deg, var(--slate-50) 0%, var(--slate-100) 100%);
+  border-bottom: 1px solid var(--slate-100);
+  overflow: hidden;
+}
+
+.store-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms ease;
+}
+
+.store-product-card:hover .store-product-image {
+  transform: scale(1.05);
+}
+
+.store-product-placeholder {
+  width: 100%;
+  height: 100%;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--brand-50) 0%, #e0f2fe 100%);
+  color: var(--brand-400);
+  transition: transform 500ms ease, color 300ms ease;
+}
+
+.store-product-card:hover .store-product-placeholder {
+  transform: scale(1.05);
+  color: var(--brand-500);
+}
+
+.store-product-price-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.store-product-edit-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate-600);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 200ms ease;
+  z-index: 10;
+}
+
+.store-product-edit-btn:hover {
+  background: var(--surface);
+  color: var(--brand-600);
+  transform: scale(1.1);
+}
+
+.store-product-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--surface);
 }
 
 .store-product-name {
   font-family: var(--font-heading);
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--slate-800);
   line-height: 1.3;
-}
-
-.store-product-price {
-  font-family: var(--font-heading);
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--brand-600);
-  white-space: nowrap;
-}
-
-.store-product-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-btn-sm);
-  background: var(--brand-50);
-  color: var(--brand-600);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  margin: 0;
+  text-align: left;
 }
 
 .store-variant-pills {
@@ -98,16 +156,19 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  border-radius: var(--radius-btn-sm);
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1.5px solid var(--slate-200);
+  border: 1px solid var(--slate-200);
   color: var(--slate-700);
+  background: var(--slate-50);
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.store-product-card:hover .store-variant-pill {
+  border-color: var(--slate-300);
   background: var(--surface);
-  transition:
-    border-color 150ms ease,
-    background 150ms ease;
 }
 
 .store-variant-pill--out {

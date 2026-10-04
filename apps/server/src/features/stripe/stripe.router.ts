@@ -1,20 +1,20 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
-import express from 'express';
-import Stripe from 'stripe';
+import { raw } from 'express';
 import { ObjectId } from 'mongodb';
+import StripeClient from 'stripe';
 
 import { env } from '../../config/env.js';
 import { getDb } from '../../db/connection.js';
+import type { EventTicketDocument, EventDocument } from '../../db/schemas/event.schema.js';
+import type { MembershipTierDocument, MembershipDocument } from '../../db/schemas/membership.schema.js';
+import type { OrderDocument } from '../../db/schemas/merchandise.schema.js';
 import { requireAuth } from '../../middleware/auth.js';
 import { AppError } from '../../middleware/error-handler.js';
-import type { MembershipTierDocument, MembershipDocument } from '../../db/schemas/membership.schema.js';
-import type { EventTicketDocument, EventDocument } from '../../db/schemas/event.schema.js';
-import type { OrderDocument } from '../../db/schemas/merchandise.schema.js';
 
 export const stripeRouter = Router();
 export const stripeWebhookRouter = Router();
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? 'dummy_key');
+const stripe = new StripeClient(env.STRIPE_SECRET_KEY ?? 'dummy_key');
 
 // Create checkout session
 stripeRouter.post(
@@ -28,7 +28,7 @@ stripeRouter.post(
           return;
         }
 
-        const { tierId } = req.body;
+        const { tierId } = req.body as { tierId?: string };
         if (!tierId) {
           next(new AppError('tierId is required', 400));
           return;
@@ -88,7 +88,7 @@ stripeRouter.post(
           return;
         }
 
-        const { ticketId } = req.body;
+        const { ticketId } = req.body as { ticketId?: string };
         if (!ticketId) {
           next(new AppError('ticketId is required', 400));
           return;
@@ -109,7 +109,7 @@ stripeRouter.post(
           return;
         }
 
-        const event = await db.collection<EventDocument>('events').findOne({ _id: ticket.eventId });
+        const event = await db.collection<EventDocument>('events').findOne({ _id: new ObjectId(ticket.eventId) });
         if (!event) {
           next(new AppError('Event not found', 404));
           return;
@@ -130,8 +130,8 @@ stripeRouter.post(
             },
           ],
           mode: 'payment',
-          success_url: `${env.CLIENT_ORIGIN}/events/${event._id}/book?success=true`,
-          cancel_url: `${env.CLIENT_ORIGIN}/events/${event._id}/book?canceled=true`,
+          success_url: `${env.CLIENT_ORIGIN}/events/${event._id.toHexString()}/book?success=true`,
+          cancel_url: `${env.CLIENT_ORIGIN}/events/${event._id.toHexString()}/book?canceled=true`,
           metadata: {
             userId: authUser.userId,
             ticketId: ticketId.toString(),
@@ -160,7 +160,7 @@ stripeRouter.post(
           return;
         }
 
-        const { orderId } = req.body;
+        const { orderId } = req.body as { orderId?: string };
         if (!orderId) {
           next(new AppError('orderId is required', 400));
           return;
@@ -216,7 +216,7 @@ stripeRouter.post(
 // Handle Stripe webhooks
 stripeWebhookRouter.post(
   '/',
-  express.raw({ type: 'application/json' }),
+  raw({ type: 'application/json' }),
   (req: Request, res: Response) => {
     void (async () => {
       const sig = req.headers['stripe-signature'];
@@ -228,17 +228,17 @@ stripeWebhookRouter.post(
       let event;
       try {
         event = stripe.webhooks.constructEvent(
-          req.body,
+          req.body as string | Buffer,
           sig,
           env.STRIPE_WEBHOOK_SECRET
         );
-      } catch (err: any) {
-        res.status(400).send(`Webhook Error: ${err.message}`);
+      } catch (err) {
+        res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : String(err)}`);
         return;
       }
 
       if (event.type === 'checkout.session.completed') {
-        const session = event.data.object as Stripe.Checkout.Session;
+        const session = event.data.object;
 
         if (session.metadata?.['tierId'] && session.metadata?.['userId']) {
           const db = getDb();

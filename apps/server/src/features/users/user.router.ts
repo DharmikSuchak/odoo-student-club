@@ -1,6 +1,5 @@
-import { Router, type NextFunction, type Request, type Response } from 'express';
-
 import { hash } from 'bcrypt';
+import { Router, type NextFunction, type Request, type Response } from 'express';
 import { ObjectId } from 'mongodb';
 
 import { getDb } from '../../db/connection.js';
@@ -16,8 +15,12 @@ export const userRouter = Router();
 userRouter.patch('/me', requireAuth, (req: Request, res: Response, next: NextFunction) => {
   void (async () => {
     try {
-      const { displayName, avatarUrl } = req.body;
-      const user = req.user!;
+      const { displayName, avatarUrl } = req.body as { displayName?: string; avatarUrl?: string };
+      const user = req.user;
+      if (!user) {
+        next(new AppError('Unauthorized', 401));
+        return;
+      }
       if (!displayName || typeof displayName !== 'string' || displayName.trim().length === 0) {
         next(new AppError('Display name is required.', 400));
         return;
@@ -72,7 +75,7 @@ userRouter.get('/', requireAuth, (req: Request, res: Response, next: NextFunctio
         return;
       }
 
-      const query: any = { deletedAt: { $exists: false } };
+      const query: Record<string, unknown> = { deletedAt: { $exists: false } };
       if (typeof req.query['role'] === 'string' && req.query['role'] !== 'all') {
         query['role'] = req.query['role'];
       }
@@ -118,7 +121,7 @@ userRouter.post('/', requireAuth, (req: Request, res: Response, next: NextFuncti
         return;
       }
 
-      const { email, password, displayName, role } = req.body;
+      const { email, password, displayName, role } = req.body as { email?: string; password?: string; displayName?: string; role?: string };
 
       if (!email || !password || !displayName || !role) {
         next(new AppError('Email, password, displayName, and role are required.', 400));
